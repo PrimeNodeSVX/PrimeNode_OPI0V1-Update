@@ -160,6 +160,7 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
                 <form method="post" style="display:flex;">
                     <input type="hidden" name="active_tab" class="active-tab-input" value="DTMF">
                     <input type="text" name="new_tab_name" placeholder="+" style="width:30px; padding:5px; text-align:center; background:#222; border:1px solid #444; color:#fff;" required>
+                    <button type="submit" style="background:#4CAF50; color:#fff; border:none; width:30px; cursor:pointer; font-weight:bold;">+</button>
                 </form>
             </div>
         </div>
@@ -207,13 +208,13 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
         <?php endforeach; ?>
     </div>
 
-    <div class="panel-box" style="border-color: #39ff14;">
-        <h4 class="panel-title neon-green" style="border-color: #39ff14;"><?php echo $TDTMF[$lang]['h_el']; ?></h4>
+    <div class="panel-box" style="border-color: #4CAF50;">
+        <h4 class="panel-title neon-green" style="border-color: #4CAF50;"><?php echo $TDTMF[$lang]['h_el']; ?></h4>
         <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 200px;">
                  <div class="node-input-group" style="margin-bottom: 10px;">
                     <input type="text" id="el-node-id" class="node-input" placeholder="<?php echo $TDTMF[$lang]['ph_node']; ?>">
-                    <button onclick="connectEchoLink()" class="macro-btn blue" style="width: auto; min-height: 40px; border-color:#39ff14; color:#39ff14; background:rgba(57,255,20,0.1);"><?php echo $TDTMF[$lang]['btn_conn']; ?></button>
+                    <button onclick="connectEchoLink()" class="macro-btn blue" style="width: auto; min-height: 40px; border-color:#4CAF50; color:#4CAF50; background:rgba(76,175,80,0.1);"><?php echo $TDTMF[$lang]['btn_conn']; ?></button>
                 </div>
                 <div class="macro-grid">
                     <button onclick="sendInstant('2#')" class="macro-btn green"><?php echo $TDTMF[$lang]['btn_act']; ?></button>
