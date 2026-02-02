@@ -47,7 +47,7 @@
             'tab_power' => 'Zasilanie',
             'tab_logs' => 'Logi',
             'tab_help' => 'Pomoc',
-            'footer_system' => 'System SQLink',
+            'footer_system' => 'System PrimeNode',
             'source_code' => 'Kod źródłowy'
         ],
         'en' => [
@@ -90,7 +90,7 @@
             'tab_power' => 'Power',
             'tab_logs' => 'Logs',
             'tab_help' => 'Help',
-            'footer_system' => 'SQLink System',
+            'footer_system' => 'PrimeNode System',
             'source_code' => 'Source Code'
         ]
     ];
@@ -406,10 +406,10 @@
         echo "<div class='alert alert-warning'>".$TR[$lang]['wifi_deleted']." ".htmlspecialchars($_POST['ssid'])."</div><meta http-equiv='refresh' content='2'>"; 
     }
     
-    $cache_file = '/tmp/sqlink_alert_cache.txt';
+    $cache_file = '/tmp/primenode_alert_cache.txt';
     $cache_time = 3600; $alert_msg = "";
     if (file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_time)) { $alert_msg = file_get_contents($cache_file); }
-    else { $ctx = stream_context_create(['http' => ['timeout' => 5]]); $remote_msg = @file_get_contents('https://raw.githubusercontent.com/SQLinkgit/SQLink_OPI0V1-Update/main/alert.txt', false, $ctx); if ($remote_msg !== false) { $alert_msg = $remote_msg; file_put_contents($cache_file, $alert_msg); } elseif (file_exists($cache_file)) { $alert_msg = file_get_contents($cache_file); } }
+    else { $ctx = stream_context_create(['http' => ['timeout' => 5]]); $remote_msg = @file_get_contents('https://raw.githubusercontent.com/PrimeNodeSVX/PrimeNode_OPI0V1-Update/main/alert.txt', false, $ctx); if ($remote_msg !== false) { $alert_msg = $remote_msg; file_put_contents($cache_file, $alert_msg); } elseif (file_exists($cache_file)) { $alert_msg = file_get_contents($cache_file); } }
     
     $alert_hash = md5($alert_msg);
 ?>
@@ -455,10 +455,9 @@
     </div>
     <?php endif; ?>
     <header>
-        <div style="position: relative; display: flex; justify-content: center; align-items: center; min-height: 100px;">
-            <img src="sqlink4.png" alt="SQLink" style="position: absolute; left: 15%; top: 50%; transform: translateY(-50%); height: 90px; width: auto;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 10px; padding-bottom: 10px;">
+            <img src="primenode_logo.png" alt="PrimeNode" style="height: 120px; width: auto; margin-bottom: 5px;">
             <h1 style="margin: 0; z-index: 2;">Hotspot <?php echo $vals['Callsign']; ?></h1>
-            <img src="ant3.PNG" alt="Radio" style="position: absolute; right: 15%; top: 50%; transform: translateY(-50%); height: 90px; width: auto;">
         </div>
         <div class="status-bar" style="flex-direction: column; gap: 5px; margin-top:5px;">
             <div style="display:flex; align-items:center; gap:10px;">
@@ -511,10 +510,8 @@
 </div>
 <div class="main-footer">
     SvxLink v1.9.99.36@master Copyright (C) 2003-<?php echo date("Y"); ?> Tobias Blomberg / <span class="callsign-blue">SM0SVX</span><br>
-    Copyright © 2025-<?php echo date("Y"); ?> <span class="callsign-blue">SQLink System</span> • SierraEcho Team Edition<br>
-    <div style="margin-top: 5px; font-size: 9px; opacity: 0.6;">
-        <a href="STRONA GIT" target="_blank" style="color: inherit; text-decoration: none;">Source Code (AGPL v3)</a>
-    </div>
+    PrimeNode System • By SQ7UTP<br>
+    Copyright © 2025-<?php echo date("Y"); ?>
 </div>
 <script> const GLOBAL_CALLSIGN = "<?php echo $vals['Callsign']; ?>"; </script>
 <script src="script.js?v=<?php echo time(); ?>"></script>

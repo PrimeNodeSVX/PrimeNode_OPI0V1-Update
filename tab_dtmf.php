@@ -2,18 +2,8 @@
 $TDTMF = [
     'pl' => [
         'h_groups' => 'Reflector / Grupy',
-        'tab_sq' => 'SQLink',
-        'tab_mine' => 'Moje',
-        'grp_nat' => 'Ogólnopolska',
-        'grp_se' => 'Sierra Echo',
-        'grp_ex' => 'A. Dyplomowe',
-        'grp_br' => 'Bridge UK',
-        'grp_el' => 'EchoLink',
-        'grp_tst' => 'Testowa',
-        'grp_int' => 'Zagraniczna',
         'btn_status' => 'Status',
         'btn_disc' => 'Rozłącz',
-        'no_btn' => 'Brak własnych przycisków. Dodaj poniżej.',
         'del_ask' => 'Usunąć?',
         'ph_name' => 'Nazwa',
         'h_el' => 'EchoLink (Moduł 2)',
@@ -32,22 +22,16 @@ $TDTMF = [
         'h_key' => 'Klawiatura Numeryczna',
         'leg_c' => '<b>C</b>=Kasuj',
         'leg_tg' => '<b>TG</b>=Ustaw Grupę (*91..#)',
-        'leg_tx' => '<b>TX</b>=Wyślij Kod'
+        'leg_tx' => '<b>TX</b>=Wyślij Kod',
+        'add_tab' => 'Nowa Zakładka',
+        'tab_name_ph' => 'Nazwa zakładki',
+        'add' => 'Dodaj',
+        'empty_tab' => 'Pusta zakładka. Dodaj przyciski poniżej.'
     ],
     'en' => [
         'h_groups' => 'Reflector / Groups',
-        'tab_sq' => 'SQLink',
-        'tab_mine' => 'My Buttons',
-        'grp_nat' => 'National',
-        'grp_se' => 'Sierra Echo',
-        'grp_ex' => 'A. Diploma',
-        'grp_br' => 'Bridge UK',
-        'grp_el' => 'EchoLink',
-        'grp_tst' => 'Test',
-        'grp_int' => 'International',
         'btn_status' => 'Status',
         'btn_disc' => 'Disconnect',
-        'no_btn' => 'No custom buttons. Add below.',
         'del_ask' => 'Delete?',
         'ph_name' => 'Name',
         'h_el' => 'EchoLink (Module 2)',
@@ -66,16 +50,95 @@ $TDTMF = [
         'h_key' => 'Numeric Keypad',
         'leg_c' => '<b>C</b>=Clear',
         'leg_tg' => '<b>TG</b>=Set Group (*91..#)',
-        'leg_tx' => '<b>TX</b>=Send Code'
+        'leg_tx' => '<b>TX</b>=Send Code',
+        'add_tab' => 'New Tab',
+        'tab_name_ph' => 'Tab name',
+        'add' => 'Add',
+        'empty_tab' => 'Empty tab. Add buttons below.'
     ]
 ];
 
 $custom_dtmf_file = '/var/www/html/dtmf_custom.json';
-$custom_buttons = [];
+$tabs_data = [];
+
 if (file_exists($custom_dtmf_file)) {
-    $custom_buttons = json_decode(file_get_contents($custom_dtmf_file), true);
-    if (!is_array($custom_buttons)) $custom_buttons = [];
+    $loaded_data = json_decode(file_get_contents($custom_dtmf_file), true);
+    if (isset($loaded_data[0]) && isset($loaded_data[0]['tg'])) {
+        $tabs_data = [
+            [
+                'name' => 'Moje (Import)', 
+                'buttons' => $loaded_data
+            ]
+        ];
+        file_put_contents($custom_dtmf_file, json_encode($tabs_data));
+    } elseif (is_array($loaded_data)) {
+        $tabs_data = $loaded_data;
+    }
+} else {
+    $tabs_data = [
+        [
+            'name' => 'PrimeNode',
+            'buttons' => [
+                ['name' => 'Ogólnopolska', 'tg' => '260'],
+                ['name' => 'Sierra Echo', 'tg' => '26077'],
+                ['name' => 'A. Dyplomowe', 'tg' => '225'],
+                ['name' => 'Bridge UK', 'tg' => '235'],
+                ['name' => 'EchoLink', 'tg' => '245'],
+                ['name' => 'Testowa', 'tg' => '999'],
+                ['name' => 'Zagraniczna', 'tg' => '2600'],
+                ['name' => 'Status', 'tg' => '', 'code' => '*#'],
+                ['name' => 'Rozłącz', 'tg' => '', 'code' => '910#', 'color' => 'red']
+            ]
+        ]
+    ];
+    file_put_contents($custom_dtmf_file, json_encode($tabs_data));
 }
+
+if (isset($_POST['new_tab_name'])) {
+    $name = trim($_POST['new_tab_name']);
+    if (!empty($name)) {
+        $tabs_data[] = ['name' => $name, 'buttons' => []];
+        file_put_contents($custom_dtmf_file, json_encode($tabs_data));
+    }
+    echo "<meta http-equiv='refresh' content='0'>";
+    exit;
+}
+
+if (isset($_POST['del_tab_index'])) {
+    $idx = (int)$_POST['del_tab_index'];
+    if (isset($tabs_data[$idx])) {
+        array_splice($tabs_data, $idx, 1);
+        file_put_contents($custom_dtmf_file, json_encode($tabs_data));
+    }
+    echo "<meta http-equiv='refresh' content='0'>";
+    exit;
+}
+
+if (isset($_POST['add_btn_name']) && isset($_POST['target_tab_index'])) {
+    $tab_idx = (int)$_POST['target_tab_index'];
+    $name = trim($_POST['add_btn_name']);
+    $tg = preg_replace('/[^0-9]/', '', $_POST['add_btn_code']);
+    
+    if (isset($tabs_data[$tab_idx]) && !empty($name) && !empty($tg)) {
+        $tabs_data[$tab_idx]['buttons'][] = ['name' => $name, 'tg' => $tg];
+        file_put_contents($custom_dtmf_file, json_encode($tabs_data));
+    }
+    echo "<meta http-equiv='refresh' content='0'>";
+    exit;
+}
+
+if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
+    $tab_idx = (int)$_POST['del_btn_tab_index'];
+    $btn_idx = (int)$_POST['del_btn_index'];
+    
+    if (isset($tabs_data[$tab_idx]['buttons'][$btn_idx])) {
+        array_splice($tabs_data[$tab_idx]['buttons'], $btn_idx, 1);
+        file_put_contents($custom_dtmf_file, json_encode($tabs_data));
+    }
+    echo "<meta http-equiv='refresh' content='0'>";
+    exit;
+}
+
 ?>
 
 <div class="dtmf-columns">
@@ -83,39 +146,45 @@ if (file_exists($custom_dtmf_file)) {
         <h4 class="panel-title"><?php echo $TDTMF[$lang]['h_groups']; ?></h4>
         
         <div class="dtmf-tabs">
-            <div class="dtmf-tab-btn active" id="tab-btn-SQLink" onclick="openDtmfSubTab('SQLink')"><?php echo $TDTMF[$lang]['tab_sq']; ?></div>
-            <div class="dtmf-tab-btn" id="tab-btn-Mine" onclick="openDtmfSubTab('Mine')"><?php echo $TDTMF[$lang]['tab_mine']; ?></div>
-        </div>
-
-        <div id="DTMF-SQLink" class="dtmf-subtab" style="display:block;">
-            <div class="macro-grid">
-                <button onclick="sendInstant('*91260#')" class="macro-btn"><?php echo $TDTMF[$lang]['grp_nat']; ?><span class="dtmf-sub">TG 260</span></button>
-                <button onclick="sendInstant('*9126077#')" class="macro-btn"><?php echo $TDTMF[$lang]['grp_se']; ?><span class="dtmf-sub">TG 26077</span></button>
-                <button onclick="sendInstant('*91225#')" class="macro-btn"><?php echo $TDTMF[$lang]['grp_ex']; ?><span class="dtmf-sub">TG 225</span></button>
-                <button onclick="sendInstant('*91235#')" class="macro-btn"><?php echo $TDTMF[$lang]['grp_br']; ?><span class="dtmf-sub">TG 235</span></button>
-                <button onclick="sendInstant('*91245#')" class="macro-btn"><?php echo $TDTMF[$lang]['grp_el']; ?><span class="dtmf-sub">TG 245</span></button>
-                <button onclick="sendInstant('*91999#')" class="macro-btn"><?php echo $TDTMF[$lang]['grp_tst']; ?><span class="dtmf-sub">TG 999</span></button>
-                <button onclick="sendInstant('*912600#')" class="macro-btn"><?php echo $TDTMF[$lang]['grp_int']; ?><span class="dtmf-sub">TG 2600</span></button>
-
-                <button onclick="sendInstant('*#')" class="macro-btn"><?php echo $TDTMF[$lang]['btn_status']; ?><span class="dtmf-sub">(*#)</span></button>
-                <button onclick="sendInstant('910#')" class="macro-btn red"><?php echo $TDTMF[$lang]['btn_disc']; ?><span class="dtmf-sub">(910#)</span></button>
+            <?php foreach($tabs_data as $i => $tab): ?>
+                <div class="dtmf-tab-btn" id="tab-btn-<?php echo $i; ?>" onclick="openDtmfSubTab('<?php echo $i; ?>')">
+                    <?php echo htmlspecialchars($tab['name']); ?>
+                    <form method="post" style="display:inline;" onsubmit="return confirm('<?php echo $TDTMF[$lang]['del_ask']; ?>');">
+                        <input type="hidden" name="active_tab" class="active-tab-input" value="DTMF">
+                        <input type="hidden" name="del_tab_index" value="<?php echo $i; ?>">
+                        <button type="submit" class="tab-del-btn">x</button>
+                    </form>
+                </div>
+            <?php endforeach; ?>
+            <div style="display:flex; align-items:center; padding:0 5px;">
+                <form method="post" style="display:flex;">
+                    <input type="hidden" name="active_tab" class="active-tab-input" value="DTMF">
+                    <input type="text" name="new_tab_name" placeholder="+" style="width:30px; padding:5px; text-align:center; background:#222; border:1px solid #444; color:#fff;" required>
+                </form>
             </div>
         </div>
 
-        <div id="DTMF-Mine" class="dtmf-subtab" style="display:none;">
-            <?php if (empty($custom_buttons)): ?>
-                <div style="text-align:center; color:#777; padding:20px; font-size:13px;"><?php echo $TDTMF[$lang]['no_btn']; ?></div>
+        <?php foreach($tabs_data as $i => $tab): ?>
+        <div id="DTMF-<?php echo $i; ?>" class="dtmf-subtab">
+            <?php if (empty($tab['buttons'])): ?>
+                <div style="text-align:center; color:#777; padding:20px; font-size:13px;"><?php echo $TDTMF[$lang]['empty_tab']; ?></div>
             <?php else: ?>
                 <div class="macro-grid">
-                    <?php foreach($custom_buttons as $idx => $btn): ?>
+                    <?php foreach($tab['buttons'] as $b_idx => $btn): ?>
                         <div style="position:relative;">
-                            <button onclick="sendInstant('*91<?php echo $btn['tg']; ?>#')" class="macro-btn orange" style="color:#fff;">
+                            <?php 
+                                $code = isset($btn['code']) ? $btn['code'] : '*91'.$btn['tg'].'#';
+                                $sub = isset($btn['code']) ? $btn['code'] : 'TG '.$btn['tg'];
+                                $color = isset($btn['color']) ? $btn['color'] : (isset($btn['code']) ? '' : 'green');
+                            ?>
+                            <button onclick="sendInstant('<?php echo $code; ?>')" class="macro-btn <?php echo $color; ?>">
                                 <?php echo htmlspecialchars($btn['name']); ?>
-                                <span class="dtmf-sub">TG <?php echo $btn['tg']; ?></span>
+                                <span class="dtmf-sub"><?php echo $sub; ?></span>
                             </button>
                             <form method="post" style="position:absolute; top:-5px; right:-5px; margin:0;">
                                 <input type="hidden" name="active_tab" class="active-tab-input" value="DTMF">
-                                <input type="hidden" name="del_dtmf_index" value="<?php echo $idx; ?>">
+                                <input type="hidden" name="del_btn_tab_index" value="<?php echo $i; ?>">
+                                <input type="hidden" name="del_btn_index" value="<?php echo $b_idx; ?>">
                                 <button type="submit" class="dtmf-del-mini" onclick="return confirm('<?php echo $TDTMF[$lang]['del_ask']; ?>')">x</button>
                             </form>
                         </div>
@@ -126,33 +195,39 @@ if (file_exists($custom_dtmf_file)) {
             <div style="margin-top:20px; border-top:1px solid #444; padding-top:10px;">
                 <form method="post">
                     <input type="hidden" name="active_tab" class="active-tab-input" value="DTMF">
+                    <input type="hidden" name="target_tab_index" value="<?php echo $i; ?>">
                     <div style="display:flex; gap:5px;">
-                        <input type="text" name="add_dtmf_name" placeholder="<?php echo $TDTMF[$lang]['ph_name']; ?>" class="node-input" style="flex:1; font-size:13px;" required>
-                        <input type="number" name="add_dtmf_code" placeholder="TG" class="node-input" style="width:80px; font-size:13px;" required>
+                        <input type="text" name="add_btn_name" placeholder="<?php echo $TDTMF[$lang]['ph_name']; ?>" class="node-input" style="flex:1; font-size:13px;" required>
+                        <input type="number" name="add_btn_code" placeholder="TG" class="node-input" style="width:80px; font-size:13px;" required>
                         <button type="submit" class="macro-btn green" style="width:auto; min-height:40px; font-size:20px; padding:0 15px;">+</button>
                     </div>
                 </form>
             </div>
         </div>
+        <?php endforeach; ?>
     </div>
 
-    <div class="panel-box">
-        <h4 class="panel-title blue"><?php echo $TDTMF[$lang]['h_el']; ?></h4>
-        <div style="margin-bottom:15px; border-bottom:1px solid #444; padding-bottom:15px;">
-            <button onclick="sendInstant('2#')" class="macro-btn green" style="margin-bottom:10px; height: auto;"><?php echo $TDTMF[$lang]['btn_act']; ?></button>
-            <div class="node-input-group">
-                <input type="text" id="el-node-id" class="node-input" placeholder="<?php echo $TDTMF[$lang]['ph_node']; ?>">
-                <button onclick="connectEchoLink()" class="macro-btn blue" style="width: auto; min-height: 40px;"><?php echo $TDTMF[$lang]['btn_conn']; ?></button>
+    <div class="panel-box" style="border-color: #39ff14;">
+        <h4 class="panel-title neon-green" style="border-color: #39ff14;"><?php echo $TDTMF[$lang]['h_el']; ?></h4>
+        <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+                 <div class="node-input-group" style="margin-bottom: 10px;">
+                    <input type="text" id="el-node-id" class="node-input" placeholder="<?php echo $TDTMF[$lang]['ph_node']; ?>">
+                    <button onclick="connectEchoLink()" class="macro-btn blue" style="width: auto; min-height: 40px; border-color:#39ff14; color:#39ff14; background:rgba(57,255,20,0.1);"><?php echo $TDTMF[$lang]['btn_conn']; ?></button>
+                </div>
+                <div class="macro-grid">
+                    <button onclick="sendInstant('2#')" class="macro-btn green"><?php echo $TDTMF[$lang]['btn_act']; ?></button>
+                    <button onclick="sendInstant('9999#')" class="macro-btn">Test Echo</button>
+                    <button onclick="sendInstant('#')" class="macro-btn red"><?php echo $TDTMF[$lang]['btn_disc']; ?> (#)</button>
+                </div>
             </div>
-            <div class="macro-grid">
-                <button onclick="sendInstant('9999#')" class="macro-btn">Test Echo (9999)</button>
-                <button onclick="sendInstant('#')" class="macro-btn red"><?php echo $TDTMF[$lang]['btn_disc']; ?> (#)</button>
+            <div style="flex: 1; display:flex; flex-direction:column; gap:5px; height: 100%;">
+                 <div id="el-live-status"><?php echo $TDTMF[$lang]['st_check']; ?></div>
             </div>
         </div>
-        <div id="el-live-status"><?php echo $TDTMF[$lang]['st_check']; ?></div>
     </div>
 
-    <div class="panel-box" style="grid-column: 1 / -1; border-color: #FF9800;">
+    <div class="panel-box" style="border-color: #FF9800;">
         <h4 class="panel-title" style="color: #FF9800; border-color: #FF9800;"><?php echo $TDTMF[$lang]['h_par']; ?></h4>
         <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 200px;">
