@@ -24,8 +24,8 @@ $TDTMF = [
         'leg_tg' => '<b>TG</b>=Ustaw Grupę (*91..#)',
         'leg_tx' => '<b>TX</b>=Wyślij Kod',
         'add_tab' => 'Nowa Zakładka',
-        'tab_name_ph' => 'Nazwa zakładki',
-        'add' => 'Dodaj',
+        'tab_name_ph' => 'Nazwa...',
+        'add' => 'DODAJ',
         'empty_tab' => 'Pusta zakładka. Dodaj przyciski poniżej.'
     ],
     'en' => [
@@ -52,8 +52,8 @@ $TDTMF = [
         'leg_tg' => '<b>TG</b>=Set Group (*91..#)',
         'leg_tx' => '<b>TX</b>=Send Code',
         'add_tab' => 'New Tab',
-        'tab_name_ph' => 'Tab name',
-        'add' => 'Add',
+        'tab_name_ph' => 'Name...',
+        'add' => 'ADD',
         'empty_tab' => 'Empty tab. Add buttons below.'
     ]
 ];
@@ -156,11 +156,11 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
                     </form>
                 </div>
             <?php endforeach; ?>
-            <div style="display:flex; align-items:center; padding:0 5px;">
-                <form method="post" style="display:flex;">
+            <div class="tab-add-container">
+                <form method="post" style="display:flex; align-items:center;">
                     <input type="hidden" name="active_tab" class="active-tab-input" value="DTMF">
-                    <input type="text" name="new_tab_name" placeholder="+" style="width:30px; padding:5px; text-align:center; background:#222; border:1px solid #444; color:#fff;" required>
-                    <button type="submit" style="background:#4CAF50; color:#fff; border:none; width:30px; cursor:pointer; font-weight:bold;">+</button>
+                    <input type="text" name="new_tab_name" placeholder="<?php echo $TDTMF[$lang]['tab_name_ph']; ?>" class="tab-add-input" required>
+                    <button type="submit" class="tab-add-btn"><?php echo $TDTMF[$lang]['add']; ?></button>
                 </form>
             </div>
         </div>
@@ -214,7 +214,7 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
             <div style="flex: 1; min-width: 200px;">
                  <div class="node-input-group" style="margin-bottom: 10px;">
                     <input type="text" id="el-node-id" class="node-input" placeholder="<?php echo $TDTMF[$lang]['ph_node']; ?>">
-                    <button onclick="connectEchoLink()" class="macro-btn blue" style="width: auto; min-height: 40px; border-color:#4CAF50; color:#4CAF50; background:rgba(76,175,80,0.1);"><?php echo $TDTMF[$lang]['btn_conn']; ?></button>
+                    <button onclick="connectEchoLink()" class="macro-btn blue" style="width: auto; min-height: 40px; border-color:#4CAF50; color:#4CAF50 !important; background:rgba(76,175,80,0.1);"><?php echo $TDTMF[$lang]['btn_conn']; ?></button>
                 </div>
                 <div class="macro-grid">
                     <button onclick="sendInstant('2#')" class="macro-btn green"><?php echo $TDTMF[$lang]['btn_act']; ?></button>
