@@ -3,7 +3,7 @@
 body { font-family: 'Segoe UI', sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; padding-bottom: 50px; }
 .container { position: relative; max-width: 1100px; margin: 0 auto; background: #1e1e1e; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-/* --- HEADER: Wersja PRO z gradientem i poświatą --- */
+/* HEADER */
 header { 
     background: #273236; 
     background:
@@ -23,7 +23,6 @@ header {
     position: relative; 
 }
 
-/* TRIK DLA LOGO JPG - Usuwa czarne tło (blending) */
 header img {
     mix-blend-mode: lighten; 
     filter: contrast(1.1) brightness(1.1); 
@@ -83,12 +82,12 @@ h1 {
 
 .macro-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
 
-/* PRZYCISKI DTMF - POPRAWKA KOLORÓW */
+/* PRZYCISKI DTMF */
 .macro-btn { 
     padding: 12px; 
     background: #263238; 
     border: 1px solid #555; 
-    color: #fff !important; /* Nazwa ZAWSZE biała */
+    color: #fff !important; /* Nazwa ZAWSZE BIAŁA (wymuszone) */
     border-radius: 5px; 
     cursor: pointer; 
     font-size: 14px; 
@@ -104,8 +103,8 @@ h1 {
 }
 .macro-btn:active { transform: scale(0.98); }
 
-/* Kolory przycisków funkcyjnych (EchoLink, Papuga) */
-.macro-btn.green { border-color: #4CAF50; color: #4CAF50 !important; background: rgba(76, 175, 80, 0.1); }
+/* Kolory ramek i tła przycisków (nazwa pozostaje biała dzięki regule wyżej) */
+.macro-btn.green { border-color: #4CAF50; background: rgba(76, 175, 80, 0.1); }
 .macro-btn.green:hover { background: rgba(76, 175, 80, 0.2); }
 
 .macro-btn.red { border-color: #F44336; color: #F44336 !important; background-color: rgba(244, 67, 54, 0.1); }
@@ -114,20 +113,26 @@ h1 {
 .macro-btn.orange { border-color: #FF9800; color: #FF9800 !important; background: rgba(255, 152, 0, 0.1); }
 .macro-btn.blue { border-color: #2196F3; color: #2196F3 !important; background: rgba(33, 150, 243, 0.1); }
 
-/* STYL NUMERU TG (PODTYTUŁ) */
+/* STYL NUMERU TG (PODTYTUŁ) - POMARAŃCZOWY POGRUBIONY */
 .dtmf-sub { 
     display: block; 
-    font-size: 11px; /* MNIEJSZA czcionka */
+    font-size: 12px; 
     margin-top: 3px; 
-    font-weight: bold; 
-    color: #FFC107 !important; /* Złoty/Pomarańczowy */
+    font-weight: 800; /* POGRUBIONA CZCIONKA */
+    color: #FFC107 !important; /* Pomarańcz */
     text-shadow: 0 0 2px rgba(0,0,0,0.8);
     opacity: 1;
 }
 
 .dtmf-tabs { display: flex; margin-bottom: 15px; background: #333; border-radius: 5px; overflow-x: auto; align-items: stretch; }
 .dtmf-tab-btn { padding: 10px 15px; cursor: pointer; font-size: 13px; font-weight: bold; color: #aaa; background: #2a2a2a; transition: 0.2s; white-space: nowrap; border-right: 1px solid #444; flex-shrink: 0; display: flex; align-items: center; }
-.dtmf-tab-btn.active { background: #4CAF50; color: #fff; }
+
+/* AKTYWNA ZAKŁADKA - ZIELONE TŁO, POMARAŃCZOWY NAPIS */
+.dtmf-tab-btn.active { 
+    background: #4CAF50; 
+    color: #FFC107; /* POMARAŃCZOWY NAPIS */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8); /* Cień dla kontrastu */
+}
 .dtmf-tab-btn:hover:not(.active) { background: #383838; color: #fff; }
 
 .dtmf-subtab { display: none; animation: fadeIn 0.3s; }
