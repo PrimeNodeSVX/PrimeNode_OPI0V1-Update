@@ -74,6 +74,7 @@ fi
 cp $GIT_DIR/*.css $WWW_DIR/ 2>/dev/null
 cp $GIT_DIR/*.js $WWW_DIR/ 2>/dev/null
 cp $GIT_DIR/*.png $WWW_DIR/ 2>/dev/null
+cp $GIT_DIR/*.jpg $WWW_DIR/ 2>/dev/null
 cp $GIT_DIR/*.php $WWW_DIR/
 
 mkdir -p "$WWW_DIR/flags"
@@ -92,14 +93,22 @@ fi
 
 for script in $GIT_DIR/*.sh; do
     filename=$(basename "$script")
+
     if [ "$filename" != "update_dashboard.sh" ]; then
         cp "$script" /usr/local/bin/
         chmod +x "/usr/local/bin/$filename"
     fi
 done
 
+rm -f /usr/local/bin/watchdog_el.sh
+rm -f /usr/local/bin/fix_svxlink_nodes.sh
+
+
 chown -R www-data:www-data $WWW_DIR
 chmod -R 755 $WWW_DIR
+
+sed -i '/wifi_guard.sh/d' /etc/rc.local
+sed -i '/fix_svxlink_nodes.sh/d' /etc/rc.local
 
 if ! grep -q "clean_logs_on_boot.sh" /etc/rc.local; then
 cat <<EOF > /etc/rc.local
