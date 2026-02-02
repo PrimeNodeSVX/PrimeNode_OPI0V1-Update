@@ -131,18 +131,20 @@
             </div>
             <div class="form-group"><label><?php echo $TC[$lang]['lbl_pass']; ?></label><input type="password" name="Password" value="<?php echo $vals['Password']; ?>"></div>
             <div class="form-group"><label><?php echo $TC[$lang]['lbl_host']; ?></label><input type="text" name="Host" value="<?php echo $current_host; ?>"></div>
+            
             <div class="form-group"><label><?php echo $TC[$lang]['lbl_port']; ?></label><input type="number" name="Port" value="<?php echo $current_port; ?>" placeholder="5300"></div>
+            
+            <div class="form-group">
+                <label><?php echo $TC[$lang]['lbl_api_url']; ?></label>
+                <input type="text" name="node_api_url" value="<?php echo isset($radio['node_api_url']) ? $radio['node_api_url'] : 'http://146.59.87.158:8091/status'; ?>" placeholder="<?php echo $TC[$lang]['ph_api_url']; ?>">
+            </div>
+
             <div class="form-group"><label><?php echo $TC[$lang]['lbl_def_tg']; ?></label><input type="text" name="DefaultTG" value="<?php echo $vals['DefaultTG']; ?>"></div>
             
             <div class="form-group">
                 <label><?php echo $TC[$lang]['lbl_mon_tg']; ?></label>
                 <input type="text" name="MonitorTGs" value="<?php echo $vals['MonitorTGs']; ?>" placeholder="<?php echo $TC[$lang]['ph_mon_tg']; ?>">
                 <small style="color:#888; font-size:10px;"><?php echo $TC[$lang]['help_comma']; ?></small>
-            </div>
-
-            <div class="form-group">
-                <label><?php echo $TC[$lang]['lbl_api_url']; ?></label>
-                <input type="text" name="node_api_url" value="<?php echo isset($radio['node_api_url']) ? $radio['node_api_url'] : 'http://146.59.87.158:8091/status'; ?>" placeholder="<?php echo $TC[$lang]['ph_api_url']; ?>">
             </div>
         </div>
         
