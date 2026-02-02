@@ -237,7 +237,8 @@
         "rx" => "432.8500", "tx" => "432.8500", "ctcss" => "0000", "sq" => "2",
         "serial_port" => $rx1['DTMF_SERIAL'] ?? '/dev/ttyS2',
         "gpio_sql" => $rx1['SQL_GPIOD_LINE'] ?? '10',
-        "gpio_ptt" => $tx1['PTT_GPIOD_LINE'] ?? '7'
+        "gpio_ptt" => $tx1['PTT_GPIOD_LINE'] ?? '7',
+        "node_api_url" => "http://146.59.87.158:8091/status"
     ];
 
     if (file_exists($jsonFile)) { 
@@ -278,7 +279,8 @@
             "gpio_sql" => $new_sql,
             "qth_name" => $radio['qth_name'] ?? '',
             "qth_city" => $radio['qth_city'] ?? '',
-            "qth_loc" => $radio['qth_loc'] ?? ''
+            "qth_loc" => $radio['qth_loc'] ?? '',
+            "node_api_url" => $_POST['node_api_url'] ?? ($radio['node_api_url'] ?? '')
         ];
         file_put_contents($jsonFile, json_encode($newRadio));
         $radio = $newRadio;

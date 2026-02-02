@@ -25,6 +25,8 @@
             'lbl_mon_tg' => 'Monitorowane Grupy (TG)',
             'ph_mon_tg' => 'np. 260, 26077',
             'help_comma' => 'Oddzielone przecinkami',
+            'lbl_api_url' => 'Adres API Węzłów',
+            'ph_api_url' => 'np. http://146.59.87.158:8091/status',
             'sect_el' => 'EchoLink',
             'lbl_el_call' => 'Znak EchoLink',
             'lbl_el_pass' => 'Hasło EchoLink',
@@ -74,6 +76,8 @@
             'lbl_mon_tg' => 'Monitored TGs',
             'ph_mon_tg' => 'e.g. 260, 26077',
             'help_comma' => 'Comma separated',
+            'lbl_api_url' => 'Nodes API URL',
+            'ph_api_url' => 'e.g. http://146.59.87.158:8091/status',
             'sect_el' => 'EchoLink',
             'lbl_el_call' => 'EchoLink Callsign',
             'lbl_el_pass' => 'EchoLink Password',
@@ -134,6 +138,11 @@
                 <label><?php echo $TC[$lang]['lbl_mon_tg']; ?></label>
                 <input type="text" name="MonitorTGs" value="<?php echo $vals['MonitorTGs']; ?>" placeholder="<?php echo $TC[$lang]['ph_mon_tg']; ?>">
                 <small style="color:#888; font-size:10px;"><?php echo $TC[$lang]['help_comma']; ?></small>
+            </div>
+
+            <div class="form-group">
+                <label><?php echo $TC[$lang]['lbl_api_url']; ?></label>
+                <input type="text" name="node_api_url" value="<?php echo isset($radio['node_api_url']) ? $radio['node_api_url'] : 'http://146.59.87.158:8091/status'; ?>" placeholder="<?php echo $TC[$lang]['ph_api_url']; ?>">
             </div>
         </div>
         

@@ -237,6 +237,10 @@ def main():
     if gpio_ptt: radio_data['gpio_ptt'] = gpio_ptt
     if gpio_sql: radio_data['gpio_sql'] = gpio_sql
 
+    node_api_url = data.get('node_api_url')
+    if node_api_url is not None:
+        radio_data['node_api_url'] = node_api_url
+
     with open(RADIO_JSON, 'w') as f: json.dump(radio_data, f, indent=4)
 
     print("SUKCES")
