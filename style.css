@@ -4,8 +4,18 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #121212; color: #e
 .container { position: relative; max-width: 1100px; margin: 0 auto; background: #1e1e1e; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
 header { 
-    background: #1c1f22;
-    background: linear-gradient(180deg, #24282c 0%, #17191c 100%);
+    background: #273236;
+    background:
+      radial-gradient(circle at center,
+        rgba(120,255,120,0.08) 0%,
+        rgba(0,0,0,0) 55%
+      ),
+      linear-gradient(
+        180deg,
+        #2C3A3F 0%,
+        #273236 45%,
+        #1B2326 100%
+      );
     padding: 10px 20px 2px 20px; 
     text-align: center; 
     border-bottom: 3px solid #4CAF50; 
@@ -70,7 +80,7 @@ h1 {
     padding: 12px; 
     background: #263238; 
     border: 1px solid #555; 
-    color: #fff !important;
+    color: #fff;
     border-radius: 5px; 
     cursor: pointer; 
     font-size: 14px; 
@@ -85,21 +95,23 @@ h1 {
     transition: 0.2s; 
 }
 .macro-btn:active { transform: scale(0.98); }
-.macro-btn.green { border-color: #4CAF50; background: rgba(76, 175, 80, 0.1); }
+.macro-btn.green { border-color: #4CAF50; color: #4CAF50; background: rgba(76, 175, 80, 0.1); }
 .macro-btn.green:hover { background: rgba(76, 175, 80, 0.2); }
-.macro-btn.red { border-color: #F44336; background-color: rgba(244, 67, 54, 0.1); color: #F44336 !important; }
+
+.macro-btn.red { border-color: #F44336; color: #F44336; background-color: rgba(244, 67, 54, 0.1); }
 .macro-btn.red:hover { background-color: rgba(244, 67, 54, 0.2); }
-.macro-btn.orange { border-color: #FF9800; background: rgba(255, 152, 0, 0.1); }
-.macro-btn.blue { border-color: #2196F3; color: #2196F3 !important; background: rgba(33, 150, 243, 0.1); }
+
+.macro-btn.orange { border-color: #FF9800; color: #FF9800; background: rgba(255, 152, 0, 0.1); }
+.macro-btn.blue { border-color: #2196F3; color: #2196F3; background: rgba(33, 150, 243, 0.1); }
 
 .dtmf-sub { 
     display: block; 
-    font-size: 0.85em; 
+    font-size: 1em;
     margin-top: 3px; 
-    font-weight: normal; 
+    font-weight: 500; 
     color: #FFC107;
-    text-shadow: 0 0 1px rgba(0,0,0,0.5);
-    opacity: 0.9;
+    text-shadow: 0 0 2px rgba(0,0,0,0.8);
+    opacity: 1;
 }
 
 .dtmf-tabs { display: flex; margin-bottom: 15px; background: #333; border-radius: 5px; overflow-x: auto; align-items: stretch; }
@@ -116,11 +128,12 @@ h1 {
     display: flex;
     align-items: center;
     padding: 5px;
-    background: #222;
+    background: #333;
+    border: none;
     border-left: 1px solid #444;
 }
 .tab-add-input {
-    background: #000;
+    background: #111;
     border: 1px solid #555;
     color: #fff;
     padding: 5px 8px;
