@@ -9,7 +9,6 @@ RADIO_JSON = "/var/www/html/radio_config.json"
 NODE_INFO_FILE = "/etc/svxlink/node_info.json"
 LOG_FILE_RAM = "/dev/shm/svxlink.log"
 
-
 def load_lines(path):
     if not os.path.exists(path): return []
     with open(path, 'r', encoding='utf-8', errors='ignore') as f: return f.readlines()
@@ -76,13 +75,18 @@ def main():
 
     if not os.path.exists(LOG_FILE_RAM):
         with open(LOG_FILE_RAM, 'w') as f: pass
-    os.chmod(LOG_FILE_RAM, 0o666)
+    
+    try:
+        os.chmod(LOG_FILE_RAM, 0o666)
+    except:
+        pass
 
     if not os.path.exists(INPUT_JSON): 
 
         pass
     else:
         with open(INPUT_JSON, 'r') as f: data = json.load(f)
+
 
     lines = load_lines(CONFIG_FILE)
     lines = update_key_in_lines(lines, "GLOBAL", "LOGFILE", LOG_FILE_RAM)
@@ -92,13 +96,19 @@ def main():
         
         radio_data = {}
         if os.path.exists(RADIO_JSON):
-            try: with open(RADIO_JSON, 'r') as rf: radio_data = json.load(rf)
-            except: pass
+            try:
+                with open(RADIO_JSON, 'r') as rf:
+                    radio_data = json.load(rf)
+            except:
+                pass
 
         backup_info = {}
         if os.path.exists(NODE_INFO_FILE):
-            try: with open(NODE_INFO_FILE, 'r') as nf: backup_info = json.load(nf)
-            except: pass
+            try:
+                with open(NODE_INFO_FILE, 'r') as nf:
+                    backup_info = json.load(nf)
+            except:
+                pass
 
         def get_val(keys_input, key_radio, key_backup, default=""):
             val = data.get(keys_input)
@@ -135,9 +145,11 @@ def main():
             "Echolink": is_echolink, "Website": "http://sqlink.pl", "LinkedTo": "SQLink"
         }
         try:
-            with open(NODE_INFO_FILE, 'w') as nf: json.dump(node_info_data, nf, indent=4)
+            with open(NODE_INFO_FILE, 'w') as nf:
+                json.dump(node_info_data, nf, indent=4)
             os.chmod(NODE_INFO_FILE, 0o644) 
-        except: pass
+        except:
+            pass
 
         loc_parts = []
         if qth_city: loc_parts.append(qth_city)
@@ -198,7 +210,8 @@ def main():
         if node_api_url is not None:
             radio_data['node_api_url'] = node_api_url
 
-        with open(RADIO_JSON, 'w') as f: json.dump(radio_data, f, indent=4)
+        with open(RADIO_JSON, 'w') as f:
+            json.dump(radio_data, f, indent=4)
 
     save_lines(CONFIG_FILE, lines)
     print("SUKCES")
