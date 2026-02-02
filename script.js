@@ -400,7 +400,7 @@ function moveTooltip(e) {
 function hideTooltip() {
     document.getElementById('node-tooltip').style.display = 'none';
 }
-setInterval(loadLogsAndStatus, 3000);
+setInterval(loadLogsAndStatus, 10000);
 setInterval(updateStats, 10000);
 setInterval(updateNodes, 30000);
 loadLogsAndStatus();

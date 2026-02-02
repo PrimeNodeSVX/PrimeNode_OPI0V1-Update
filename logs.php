@@ -11,7 +11,7 @@ $LL = [
     ]
 ];
 
-$output = shell_exec('sudo /usr/bin/tail -n 300 /var/log/svxlink | grep -v "Distortion detected"');
+$output = shell_exec('sudo /usr/bin/tail -n 300 /var/log/svxlink 2>&1 | grep -v "Distortion detected"');
 
 if ($output) {
     echo nl2br(htmlspecialchars($output));
