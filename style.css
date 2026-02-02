@@ -26,9 +26,7 @@ header {
 /* TRIK DLA LOGO JPG - Usuwa czarne tło (blending) */
 header img {
     mix-blend-mode: lighten; 
-    /* To sprawia, że ciemne tło obrazka staje się przezroczyste, 
-       a jasne elementy (neon) zostają widoczne */
-    filter: contrast(1.1) brightness(1.1); /* Podbija lekko kolory */
+    filter: contrast(1.1) brightness(1.1); 
 }
 
 h1 { 
@@ -85,12 +83,12 @@ h1 {
 
 .macro-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
 
-/* PRZYCISKI DTMF - BIAŁA NAZWA, ZŁOTY NUMER */
+/* PRZYCISKI DTMF - POPRAWKA KOLORÓW */
 .macro-btn { 
     padding: 12px; 
     background: #263238; 
     border: 1px solid #555; 
-    color: #fff !important; /* Nazwa grupy na BIAŁO */
+    color: #fff !important; /* Nazwa ZAWSZE biała */
     border-radius: 5px; 
     cursor: pointer; 
     font-size: 14px; 
@@ -106,7 +104,7 @@ h1 {
 }
 .macro-btn:active { transform: scale(0.98); }
 
-/* Przywrócenie kolorów dla przycisków funkcyjnych (EchoLink, Papuga) */
+/* Kolory przycisków funkcyjnych (EchoLink, Papuga) */
 .macro-btn.green { border-color: #4CAF50; color: #4CAF50 !important; background: rgba(76, 175, 80, 0.1); }
 .macro-btn.green:hover { background: rgba(76, 175, 80, 0.2); }
 
@@ -119,11 +117,11 @@ h1 {
 /* STYL NUMERU TG (PODTYTUŁ) */
 .dtmf-sub { 
     display: block; 
-    font-size: 16px; /* WIĘKSZA czcionka */
-    margin-top: 4px; 
-    font-weight: 800; /* POGRUBIONE */
-    color: #FFC107 !important; /* Złoty/Pomarańczowy dla kontrastu */
-    text-shadow: 0 0 5px rgba(0,0,0,0.5); /* Cień dla czytelności */
+    font-size: 11px; /* MNIEJSZA czcionka */
+    margin-top: 3px; 
+    font-weight: bold; 
+    color: #FFC107 !important; /* Złoty/Pomarańczowy */
+    text-shadow: 0 0 2px rgba(0,0,0,0.8);
     opacity: 1;
 }
 
@@ -137,12 +135,11 @@ h1 {
 .tab-del-btn { background: none; border: none; color: #000; font-weight: bold; margin-left: 5px; cursor: pointer; opacity: 0.5; font-size: 10px; }
 .tab-del-btn:hover { opacity: 1; }
 
-/* STYLE DLA DODAWANIA ZAKŁADKI */
 .tab-add-container {
     display: flex;
     align-items: center;
     padding: 5px;
-    background: #333; /* Szare tło, jak pasek zakładek */
+    background: #333; 
     border: none;
     border-left: 1px solid #444;
 }

@@ -456,7 +456,7 @@
     <?php endif; ?>
     <header>
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 10px; padding-bottom: 10px;">
-            <img src="primenode_logo.jpg" alt="PrimeNode" style="height: 120px; width: auto; margin-bottom: 5px;">
+            <img src="primenode_logo.png" alt="PrimeNode" style="height: 120px; width: auto; margin-bottom: 5px;">
             <h1 style="margin: 0; z-index: 2;">Hotspot <?php echo $vals['Callsign']; ?></h1>
         </div>
         <div class="status-bar" style="flex-direction: column; gap: 5px; margin-top:5px;">

@@ -147,21 +147,9 @@ function openDtmfSubTab(tabName) {
     for (var i = 0; i < btns.length; i++) {
         btns[i].classList.remove("active");
     }
-    var targetDiv = document.getElementById("DTMF-" + tabName);
-    var targetBtn = document.getElementById("tab-btn-" + tabName);
-    
-    if (targetDiv && targetBtn) {
-        targetDiv.style.display = "block";
-        targetBtn.classList.add("active");
-        localStorage.setItem('activeDtmfTab', tabName);
-    } else {
-        var firstTab = document.querySelector('.dtmf-subtab');
-        var firstBtn = document.querySelector('.dtmf-tab-btn');
-        if(firstTab && firstBtn) {
-             firstTab.style.display = "block";
-             firstBtn.classList.add("active");
-        }
-    }
+    document.getElementById("DTMF-" + tabName).style.display = "block";
+    document.getElementById("tab-btn-" + tabName).classList.add("active");
+    localStorage.setItem('activeDtmfTab', tabName);
 }
 function dismissAlert(hash) {
     document.getElementById('sq-alert').style.display = 'none';
@@ -181,14 +169,12 @@ document.addEventListener("DOMContentLoaded", function() {
     checkAlert();
     var storedTab = localStorage.getItem('activeTab');
     if (storedTab) { openTab(null, storedTab); } else { openTab(null, 'Dashboard'); }
-    
     var storedDtmfTab = localStorage.getItem('activeDtmfTab');
     if (storedDtmfTab) { 
         openDtmfSubTab(storedDtmfTab); 
     } else {
-        openDtmfSubTab('0'); 
+        openDtmfSubTab('SQLink');
     }
-    
     if ($(".alert").length > 0) {
         setTimeout(function() {
             $(".alert").slideUp(500, function(){ $(this).remove(); });
@@ -220,8 +206,8 @@ function updateStats() {
             elText.text(T.el_err).css("color", "#F44336").css("font-weight", "bold");
         } 
         else if (stats.el_online) {
-            elDot.css("background-color", "#39ff14").css("box-shadow", "0 0 8px #39ff14").addClass("blink");
-            elText.text(T.el_on).css("color", "#39ff14").css("font-weight", "bold");
+            elDot.css("background-color", "#4CAF50").css("box-shadow", "0 0 8px #4CAF50").addClass("blink");
+            elText.text(T.el_on).css("color", "#4CAF50").css("font-weight", "bold");
         }
         else {
             elDot.css("background-color", "#FF9800").css("box-shadow", "0 0 8px #FF9800").addClass("blink");
@@ -269,7 +255,7 @@ function loadLogsAndStatus() {
         if (isOnline) {
             $("#main-status-text").text(T.ref_on).removeClass("inactive").addClass("active");
             $("#main-status-dot").removeClass("red").removeClass("orange").addClass("green").addClass("blink");
-            $("#ref-status").html(T.ref_conn).css("color", "#39ff14");
+            $("#ref-status").html(T.ref_conn).css("color", "#4CAF50");
         } else if (data.length >= 50) {
             $("#main-status-text").text(T.ref_off).removeClass("active").addClass("inactive");
             $("#main-status-dot").removeClass("green").removeClass("orange").addClass("red").removeClass("blink");
@@ -324,7 +310,7 @@ function loadLogsAndStatus() {
             
             if (statusText.includes("RX") || statusText.includes("RECEIVING") || statusText.includes("ODBIERANIE")) {
                 $(".live-box").addClass("rx-active");
-                $(".live-status, .live-callsign").css("color", "#39ff14");
+                $(".live-status, .live-callsign").css("color", "#4CAF50");
             } else {
                 $(".live-box").addClass("tx-active");
                 $(".live-status, .live-callsign").css("color", "#FF9800");
