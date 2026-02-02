@@ -94,14 +94,22 @@ if (file_exists($custom_dtmf_file)) {
     file_put_contents($custom_dtmf_file, json_encode($tabs_data));
 }
 
+
 if (isset($_POST['new_tab_name'])) {
     $name = trim($_POST['new_tab_name']);
     if (!empty($name)) {
         $tabs_data[] = ['name' => $name, 'buttons' => []];
         file_put_contents($custom_dtmf_file, json_encode($tabs_data));
+        
+        $new_idx = count($tabs_data) - 1;
+        
+        echo "<script>
+            localStorage.setItem('activeTab', 'DTMF');
+            localStorage.setItem('activeDtmfTab', '$new_idx');
+            window.location.href = window.location.href;
+        </script>";
+        exit;
     }
-    echo "<meta http-equiv='refresh' content='0'>";
-    exit;
 }
 
 if (isset($_POST['del_tab_index'])) {
@@ -109,9 +117,14 @@ if (isset($_POST['del_tab_index'])) {
     if (isset($tabs_data[$idx])) {
         array_splice($tabs_data, $idx, 1);
         file_put_contents($custom_dtmf_file, json_encode($tabs_data));
+        
+        echo "<script>
+            localStorage.setItem('activeTab', 'DTMF');
+            localStorage.setItem('activeDtmfTab', '0'); // Wróć do pierwszej po usunięciu
+            window.location.href = window.location.href;
+        </script>";
+        exit;
     }
-    echo "<meta http-equiv='refresh' content='0'>";
-    exit;
 }
 
 if (isset($_POST['add_btn_name']) && isset($_POST['target_tab_index'])) {
@@ -122,9 +135,14 @@ if (isset($_POST['add_btn_name']) && isset($_POST['target_tab_index'])) {
     if (isset($tabs_data[$tab_idx]) && !empty($name) && !empty($tg)) {
         $tabs_data[$tab_idx]['buttons'][] = ['name' => $name, 'tg' => $tg];
         file_put_contents($custom_dtmf_file, json_encode($tabs_data));
+        
+        echo "<script>
+            localStorage.setItem('activeTab', 'DTMF');
+            localStorage.setItem('activeDtmfTab', '$tab_idx');
+            window.location.href = window.location.href;
+        </script>";
+        exit;
     }
-    echo "<meta http-equiv='refresh' content='0'>";
-    exit;
 }
 
 if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
@@ -134,9 +152,14 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
     if (isset($tabs_data[$tab_idx]['buttons'][$btn_idx])) {
         array_splice($tabs_data[$tab_idx]['buttons'], $btn_idx, 1);
         file_put_contents($custom_dtmf_file, json_encode($tabs_data));
+        
+        echo "<script>
+            localStorage.setItem('activeTab', 'DTMF');
+            localStorage.setItem('activeDtmfTab', '$tab_idx');
+            window.location.href = window.location.href;
+        </script>";
+        exit;
     }
-    echo "<meta http-equiv='refresh' content='0'>";
-    exit;
 }
 
 ?>
@@ -150,7 +173,6 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
                 <div class="dtmf-tab-btn" id="tab-btn-<?php echo $i; ?>" onclick="openDtmfSubTab('<?php echo $i; ?>')">
                     <?php echo htmlspecialchars($tab['name']); ?>
                     <form method="post" style="display:inline;" onsubmit="return confirm('<?php echo $TDTMF[$lang]['del_ask']; ?>');">
-                        <input type="hidden" name="active_tab" class="active-tab-input" value="DTMF">
                         <input type="hidden" name="del_tab_index" value="<?php echo $i; ?>">
                         <button type="submit" class="tab-del-btn">x</button>
                     </form>
@@ -158,7 +180,6 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
             <?php endforeach; ?>
             <div class="tab-add-container">
                 <form method="post" style="display:flex; align-items:center;">
-                    <input type="hidden" name="active_tab" class="active-tab-input" value="DTMF">
                     <input type="text" name="new_tab_name" placeholder="<?php echo $TDTMF[$lang]['tab_name_ph']; ?>" class="tab-add-input" required>
                     <button type="submit" class="tab-add-btn"><?php echo $TDTMF[$lang]['add']; ?></button>
                 </form>
@@ -183,7 +204,6 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
                                 <span class="dtmf-sub"><?php echo $sub; ?></span>
                             </button>
                             <form method="post" style="position:absolute; top:-5px; right:-5px; margin:0;">
-                                <input type="hidden" name="active_tab" class="active-tab-input" value="DTMF">
                                 <input type="hidden" name="del_btn_tab_index" value="<?php echo $i; ?>">
                                 <input type="hidden" name="del_btn_index" value="<?php echo $b_idx; ?>">
                                 <button type="submit" class="dtmf-del-mini" onclick="return confirm('<?php echo $TDTMF[$lang]['del_ask']; ?>')">x</button>
@@ -195,7 +215,6 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
 
             <div style="margin-top:20px; border-top:1px solid #444; padding-top:10px;">
                 <form method="post">
-                    <input type="hidden" name="active_tab" class="active-tab-input" value="DTMF">
                     <input type="hidden" name="target_tab_index" value="<?php echo $i; ?>">
                     <div style="display:flex; gap:5px;">
                         <input type="text" name="add_btn_name" placeholder="<?php echo $TDTMF[$lang]['ph_name']; ?>" class="node-input" style="flex:1; font-size:13px;" required>
