@@ -358,3 +358,19 @@ input[type="text"], input[type="password"], input[type="number"], select { width
 .lang-switcher { position: absolute; top: 15px; right: 15px; z-index: 1000; display: flex; gap: 10px; }
 .lang-switcher a img { width: 28px; height: auto; opacity: 0.6; filter: grayscale(100%); transition: all 0.3s; cursor: pointer; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
 .lang-switcher a img:hover, .lang-switcher a.active img { opacity: 1; filter: grayscale(0%); box-shadow: 0 0 12px #4CAF50; transform: translateY(-1px); }
+.qrz-logo-container {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1001;
+    display: block;
+    transform: rotate(-4deg);
+    opacity: 0.9;
+}
+
+.qrz-img {
+    height: 24px !important;  /* To jest klucz: wymuszenie wysokości 24px */
+    width: auto;
+    display: block;
+    border-radius: 2px;
+}
