@@ -1,21 +1,19 @@
 #!/bin/bash
-LOG_FILE="/var/log/svxlink"
 ARCHIVE_DIR="/root/svxlink_history"
 MAX_ARCHIVES=5
+FLAG_ONLINE="/var/www/html/el_online.flag"
+FLAG_ERROR="/var/www/html/el_error.flag"
+LOG_RAM="/dev/shm/svxlink.log"
 
 systemctl stop svxlink
-
-if [ -f "$LOG_FILE" ]; then
-    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-    mkdir -p "$ARCHIVE_DIR"
-    cp "$LOG_FILE" "$ARCHIVE_DIR/svxlink_$TIMESTAMP.log"
-    truncate -s 0 "$LOG_FILE"
-fi
-
-ls -1t "$ARCHIVE_DIR"/svxlink_*.log 2>/dev/null | tail -n +$((MAX_ARCHIVES + 1)) | xargs -r rm --
+rm -f "$FLAG_ONLINE" "$FLAG_ERROR"
+touch "$LOG_RAM"
+chmod 666 "$LOG_RAM"
 pkill -9 -f "svx_event_logger.sh"
 nohup /usr/local/bin/svx_event_logger.sh > /dev/null 2>&1 &
 sleep 2
+/usr/bin/python3 /usr/local/bin/update_svx_full.py
+
 systemctl start svxlink
 
 exit 0

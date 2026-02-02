@@ -3,19 +3,21 @@ session_start();
 $lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : 'pl';
 
 $LL = [
-    'pl' => [
-        'no_data' => 'Brak danych lub problem z uprawnieniami (sudo).'
-    ],
-    'en' => [
-        'no_data' => 'No data or permission problem (sudo).'
-    ]
+    'pl' => [ 'no_data' => 'Brak danych.' ],
+    'en' => [ 'no_data' => 'No data.' ]
 ];
 
-$output = shell_exec('sudo /usr/bin/tail -n 300 /var/log/svxlink 2>&1 | grep -v "Distortion detected"');
+$logFile = '/dev/shm/svxlink.log';
 
-if ($output) {
-    echo nl2br(htmlspecialchars($output));
+if (file_exists($logFile)) {
+
+    $output = shell_exec("tail -n 100 $logFile | grep -v 'Distortion detected'");
+    if ($output) {
+        echo nl2br(htmlspecialchars($output));
+    } else {
+        echo $LL[$lang]['no_data'];
+    }
 } else {
-    echo $LL[$lang]['no_data'];
+    echo "Log file not found in RAM ($logFile)";
 }
 ?>
