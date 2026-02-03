@@ -37,6 +37,7 @@ REPO_SCRIPT="$GIT_DIR/update_dashboard.sh"
 
 if [ -f "$SCRIPT_PATH" ] && [ -f "$REPO_SCRIPT" ]; then
     if ! cmp -s "$REPO_SCRIPT" "$SCRIPT_PATH"; then
+        echo ">> Aktualizacja samego skryptu update..."
         cp "$REPO_SCRIPT" "$SCRIPT_PATH"
         chmod +x "$SCRIPT_PATH"
         export SELF_UPDATED=1
@@ -49,7 +50,11 @@ usermod -aG dialout svxlink
 usermod -aG dialout www-data
 usermod -aG gpio svxlink
 usermod -aG gpio www-data
-chown -R svxlink:svxlink /var/log/svxlink
+
+if [ ! -f /dev/shm/svxlink.log ]; then
+    touch /dev/shm/svxlink.log
+    chmod 777 /dev/shm/svxlink.log
+fi
 
 if [ -d "$GIT_DIR/PL" ]; then
     if [ -d "$SOUNDS_DIR/pl_PL" ]; then
@@ -93,32 +98,34 @@ fi
 
 for script in $GIT_DIR/*.sh; do
     filename=$(basename "$script")
-
     if [ "$filename" != "update_dashboard.sh" ]; then
         cp "$script" /usr/local/bin/
         chmod +x "/usr/local/bin/$filename"
     fi
 done
 
+echo ">> Sprawdzanie poprawnosci logowania do RAM..."
+sed -i 's|LOG_SOURCE="/var/log/svxlink"|LOG_SOURCE="/dev/shm/svxlink.log"|g' /usr/local/bin/svx_event_logger.sh
+
+if grep -q "/var/log/svxlink" /etc/systemd/system/svxlink.service; then
+    echo ">> Korekta svxlink.service na RAM..."
+    sed -i 's|--logfile=/var/log/svxlink|--logfile=/dev/shm/svxlink.log|g' /etc/systemd/system/svxlink.service
+    systemctl daemon-reload
+fi
+
 rm -f /usr/local/bin/watchdog_el.sh
 rm -f /usr/local/bin/fix_svxlink_nodes.sh
-
-
 chown -R www-data:www-data $WWW_DIR
 chmod -R 755 $WWW_DIR
-
 sed -i '/wifi_guard.sh/d' /etc/rc.local
 sed -i '/fix_svxlink_nodes.sh/d' /etc/rc.local
 
 if ! grep -q "clean_logs_on_boot.sh" /etc/rc.local; then
-cat <<EOF > /etc/rc.local
-#!/bin/sh -e
-/usr/local/bin/clean_logs_on_boot.sh &
-exit 0
-EOF
+    sed -i -e '$i \/usr/local/bin/clean_logs_on_boot.sh &\n' /etc/rc.local
     chmod +x /etc/rc.local
 fi
 
+echo ">> Restartowanie usług..."
 ps -ef | grep "tail" | grep "/var/log/svxlink" | grep -v grep | awk '{print $2}' | xargs -r kill -9
 pkill -9 -f "svx_event_logger.sh"
 pkill -9 -f "watchdog_el.sh"
@@ -135,6 +142,10 @@ fi
 echo "STATUS: $FINAL_STATUS"
 
 if [[ "$FINAL_STATUS" == "UP_TO_DATE" ]]; then
+    if [ ! -f /dev/shm/svxlink.log ]; then
+        touch /dev/shm/svxlink.log
+        chmod 777 /dev/shm/svxlink.log
+    fi
     nohup /usr/local/bin/svx_event_logger.sh > /dev/null 2>&1 &
 fi
 

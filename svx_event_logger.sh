@@ -1,4 +1,5 @@
 #!/bin/bash
+
 LOG_SOURCE="/dev/shm/svxlink.log"
 LOG_DEST="/var/www/html/svx_events.log"
 FLAG_ONLINE="/var/www/html/el_online.flag"
@@ -6,7 +7,7 @@ FLAG_ERROR="/var/www/html/el_error.flag"
 
 if [ ! -f "$LOG_SOURCE" ]; then
     touch "$LOG_SOURCE"
-    chmod 666 "$LOG_SOURCE"
+    chmod 777 "$LOG_SOURCE"
 fi
 
 for pid in $(pgrep -f "svx_event_logger.sh"); do
@@ -16,9 +17,6 @@ for pid in $(pgrep -f "svx_event_logger.sh"); do
 done
 
 ps -ef | grep "tail" | grep "svxlink" | grep -v grep | awk '{print $2}' | xargs -r kill -9
-
-rm -f "$FLAG_ONLINE" "$FLAG_ERROR"
-
 touch $LOG_DEST
 chown www-data:www-data $LOG_DEST
 chmod 644 $LOG_DEST
@@ -33,33 +31,21 @@ while read -r line; do
     fi
     LAST_LINE="$line"
     
-    echo "$line" >> "$LOG_DEST"
 
+    echo "$line" >> "$LOG_DEST"
     case "$line" in
         *"EchoLink directory status changed to ON"*)
             touch "$FLAG_ONLINE"
             rm -f "$FLAG_ERROR"
             chown www-data:www-data "$FLAG_ONLINE"
             ;;
-        *"EchoLink directory status changed to"*)
-            if [[ "$line" != *"ON"* ]]; then
-                rm -f "$FLAG_ONLINE"
-            fi
-            ;;
-        *"Disconnected from EchoLink proxy"*)
+        *"EchoLink directory status changed to"*"OFF"*)
             rm -f "$FLAG_ONLINE"
-            touch "$FLAG_ERROR"
-            chown www-data:www-data "$FLAG_ERROR"
             ;;
-        *"Connection to proxy failed"*)
-            rm -f "$FLAG_ONLINE"
-            touch "$FLAG_ERROR"
-            chown www-data:www-data "$FLAG_ERROR"
-            ;;
-        *"Proxy authentication failed"*)
+        *"EchoLink authentication failed"*|*"Connection failed"*|*"Disconnected from EchoLink proxy"*)
             rm -f "$FLAG_ONLINE"
             touch "$FLAG_ERROR"
             chown www-data:www-data "$FLAG_ERROR"
             ;;
     esac
-done
+done &
