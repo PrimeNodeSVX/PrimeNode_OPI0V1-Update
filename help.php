@@ -1,7 +1,7 @@
 <?php
 $H = [
     'pl' => [
-        'title' => 'Centrum Dowodzenia i Pomocy (SQLink Orange Pi Edition)',
+        'title' => 'Centrum Dowodzenia i Pomocy PrimeNode by SQ7UTP',
         'subtitle' => 'System zaprojektowany dla:',
         'hw_desc' => '<strong style="color: #FF9800;">Orange Pi Zero</strong> + <strong style="color: #2196F3;">Moduł SA818</strong>',
         's1_title' => '1. Twój Kokpit (Dashboard)',
@@ -22,14 +22,14 @@ $H = [
         
         's2_title' => '2. Dwa Światy: Reflektor i EchoLink',
         's2_text' => 'Pamiętaj: Możesz być tylko w jednym miejscu naraz!',
-        's2_a_title' => '🅰️ Świat A: Reflektor (SQLink)',
+        's2_a_title' => '🅰️ Świat A: Reflektor',
         's2_a_desc' => 'To jest Twój "dom". Jesteś tu zawsze po uruchomieniu.<br>Rozmawiasz z polskimi stacjami na grupach (np. Ogólnopolska).',
         's2_b_title' => '🅱️ Świat B: EchoLink (Światowy)',
         's2_b_desc' => 'Chcesz pogadać z kimś z USA, Japonii czy innego miasta?',
         's2_b_step1' => '1. Kliknij <strong>🚀 Aktywuj Moduł (2#)</strong> lub użyj przycisku w Configu.',
         's2_b_step2' => '2. Wpisz numer węzła i kliknij <strong>📞 Połącz</strong>.',
         's2_warn' => '🛑 <strong>WAŻNE - KONIEC ROZMOWY:</strong>',
-        's2_disc' => 'Aby wrócić do sieci SQLink, musisz wyjść z EchoLinka przyciskiem <span style="color:#F44336; font-weight:bold;">Rozłącz (#)</span>.<br><span style="color:#FF9800;">👉 Jeśli nadal jesteś w EchoLinku, naciśnij <strong>Rozłącz</strong> jeszcze raz! Musisz usłyszeć komunikat "Deactivating module EchoLink".</span>',
+        's2_disc' => 'Aby wrócić do sieci reflektora, musisz wyjść z EchoLinka przyciskiem <span style="color:#F44336; font-weight:bold;">Rozłącz (#)</span>.<br><span style="color:#FF9800;">👉 Jeśli nadal jesteś w EchoLinku, naciśnij <strong>Rozłącz</strong> jeszcze raz! Musisz usłyszeć komunikat "Deactivating module EchoLink".</span>',
 
         's3_title' => '3. Zakładka DTMF (Edytor i Pilot)',
         's3_text' => 'Pełna wolność! Teraz możesz dowolnie edytować układ przycisków sterujących.',
@@ -79,7 +79,7 @@ $H = [
         'qa_a4' => '✅ Twoje radio nadaje zbyt głośno (przester). Zmniejsz <em>ADC Gain</em> w zakładce Audio.'
     ],
     'en' => [
-        'title' => 'Command & Help Center (SQLink Orange Pi Edition)',
+        'title' => 'Command & Help Center PrimeNode by SQ7UTP',
         'subtitle' => 'System designed for:',
         'hw_desc' => '<strong style="color: #FF9800;">Orange Pi Zero</strong> + <strong style="color: #2196F3;">SA818 Module</strong>',
         's1_title' => '1. Your Dashboard',
@@ -100,14 +100,14 @@ $H = [
         
         's2_title' => '2. Two Worlds: Reflector & EchoLink',
         's2_text' => 'Remember: You can only be in one place at a time!',
-        's2_a_title' => '🅰️ World A: Reflector (SQLink)',
+        's2_a_title' => '🅰️ World A: Reflector',
         's2_a_desc' => 'This is your "home". You connect here automatically on startup.',
         's2_b_title' => '🅱️ World B: EchoLink (Global)',
         's2_b_desc' => 'Talk to the world (USA, Japan, etc.).',
         's2_b_step1' => '1. Click <strong>🚀 Activate Module (2#)</strong>.',
         's2_b_step2' => '2. Enter node number and click <strong>📞 Connect</strong>.',
         's2_warn' => '🛑 <strong>IMPORTANT - END CALL:</strong>',
-        's2_disc' => 'To return to SQLink, use <span style="color:#F44336; font-weight:bold;">Disconnect (#)</span> button. If still in EchoLink, press it again!',
+        's2_disc' => 'To return to reflector, use <span style="color:#F44336; font-weight:bold;">Disconnect (#)</span> button. If still in EchoLink, press it again!',
 
         's3_title' => '3. DTMF Tab (Editor & Remote)',
         's3_text' => 'Total freedom! You can now customize your control buttons.',
