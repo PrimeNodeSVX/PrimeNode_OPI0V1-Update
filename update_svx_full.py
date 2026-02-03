@@ -8,8 +8,9 @@ INPUT_JSON = "/tmp/svx_new_settings.json"
 RADIO_JSON = "/var/www/html/radio_config.json"
 NODE_INFO_FILE = "/etc/svxlink/node_info.json"
 
+# === ZMIANA: LOGI W RAM DLA SZYBKOSCI ===
 LOG_FILE_RAM = "/dev/shm/svxlink.log"
-
+# ========================================
 
 def load_lines(path):
     if not os.path.exists(path): return []
@@ -74,7 +75,7 @@ def update_key_in_lines(lines, section, key, value):
     return new_lines
 
 def main():
-
+    # Upewnij sie ze plik w RAM istnieje i ma prawa
     if not os.path.exists(LOG_FILE_RAM):
         with open(LOG_FILE_RAM, 'w') as f: pass
     
@@ -84,17 +85,16 @@ def main():
         pass
 
     if not os.path.exists(INPUT_JSON): 
-
         pass
     else:
         with open(INPUT_JSON, 'r') as f: data = json.load(f)
 
+    # --- GLOWNA AKTUALIZACJA CONF ---
     lines = load_lines(CONFIG_FILE)
-
     lines = update_key_in_lines(lines, "GLOBAL", "LOGFILE", LOG_FILE_RAM)
 
     if os.path.exists(INPUT_JSON):
-        with open(INPUT_JSON, 'r') as f: data = json.load(f)
+        with open(INPUT_JSON, 'r') as f: data = json.load(f) # reload
         
         radio_data = {}
         if os.path.exists(RADIO_JSON):
