@@ -7,7 +7,9 @@ CONFIG_FILE = "/etc/svxlink/svxlink.conf"
 INPUT_JSON = "/tmp/svx_new_settings.json"
 RADIO_JSON = "/var/www/html/radio_config.json"
 NODE_INFO_FILE = "/etc/svxlink/node_info.json"
+
 LOG_FILE_RAM = "/dev/shm/svxlink.log"
+
 
 def load_lines(path):
     if not os.path.exists(path): return []
@@ -87,8 +89,8 @@ def main():
     else:
         with open(INPUT_JSON, 'r') as f: data = json.load(f)
 
-
     lines = load_lines(CONFIG_FILE)
+
     lines = update_key_in_lines(lines, "GLOBAL", "LOGFILE", LOG_FILE_RAM)
 
     if os.path.exists(INPUT_JSON):
