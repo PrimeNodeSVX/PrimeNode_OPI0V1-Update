@@ -48,7 +48,23 @@ h1 {
 @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
 .tabs { display: flex; background: #333; flex-wrap: wrap; }
-.tab-btn { flex: 1; padding: 15px; background: #2d2d2d; color: #aaa; border: none; cursor: pointer; border-bottom: 3px solid transparent; font-size: 14px; font-weight: 600; transition: 0.3s; border-right: 1px solid #444; min-width: 90px; }
+.tab-btn { 
+    flex: 1; 
+    padding: 15px 4px;
+    background: #2d2d2d; 
+    color: #aaa; 
+    border: none; 
+    cursor: pointer; 
+    border-bottom: 3px solid transparent; 
+    font-size: 13px;
+    font-weight: 600; 
+    transition: 0.3s; 
+    border-right: 1px solid #444; 
+    min-width: 60px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .tab-btn:hover { background: #333; color: #fff; }
 .tab-btn.active { background: #1e1e1e; color: #4CAF50; border-bottom: 3px solid #4CAF50; }
 .tab-content { display: none; background: #1e1e1e; padding: 25px; }
@@ -371,5 +387,5 @@ input[type="text"], input[type="password"], input[type="number"], select { width
     border: 2px dashed #ccc;
 }
 .dtmf-item {
-    touch-action: none; /* Ważne dla płynności na telefonach */
+    touch-action: none;
 }
