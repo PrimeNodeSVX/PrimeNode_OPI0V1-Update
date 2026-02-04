@@ -3,7 +3,6 @@
 body { font-family: 'Segoe UI', sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; padding-bottom: 50px; }
 .container { position: relative; max-width: 1100px; margin: 0 auto; background: #1e1e1e; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-/* --- HEADER --- */
 header { 
     background: #273236; 
     background:
@@ -82,12 +81,11 @@ h1 {
 
 .macro-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
 
-/* --- PRZYCISKI (Kafelki) --- */
 .macro-btn { 
     padding: 12px; 
     background: #263238; 
     border: 1px solid #555; 
-    color: #fff; /* Domyślnie biały (dla kafelków TG) */
+    color: #fff;
     border-radius: 5px; 
     cursor: pointer; 
     font-size: 14px; 
@@ -103,50 +101,45 @@ h1 {
 }
 .macro-btn:active { transform: scale(0.98); }
 
-/* --- KOLORY PRZYCISKÓW FUNKCYJNYCH (Naprawa) --- */
-/* Używamy !important przy kolorze, aby nadpisać domyślny biały tylko tam, gdzie trzeba */
-
 .macro-btn.green { 
     border-color: #4CAF50; 
-    color: #4CAF50 !important; /* Zielony tekst */
+    color: #4CAF50 !important;
     background: rgba(76, 175, 80, 0.1); 
 }
 .macro-btn.green:hover { background: rgba(76, 175, 80, 0.2); }
 
 .macro-btn.red { 
     border-color: #F44336; 
-    color: #F44336 !important; /* Czerwony tekst */
+    color: #F44336 !important;
     background-color: rgba(244, 67, 54, 0.1); 
 }
 .macro-btn.red:hover { background-color: rgba(244, 67, 54, 0.2); }
 
 .macro-btn.orange { 
     border-color: #FF9800; 
-    color: #FF9800 !important; /* Pomarańczowy tekst */
+    color: #FF9800 !important;
     background: rgba(255, 152, 0, 0.1); 
 }
 .macro-btn.blue { 
     border-color: #2196F3; 
-    color: #2196F3 !important; /* Niebieski tekst */
+    color: #2196F3 !important;
     background: rgba(33, 150, 243, 0.1); 
 }
 
-/* STYL NUMERU TG (PODTYTUŁ) */
 .dtmf-sub { 
     display: block; 
     font-size: 12px; 
     margin-top: 3px; 
-    font-weight: 800; /* POGRUBIONE */
-    color: #FFC107 !important; /* Zawsze Złoty/Pomarańczowy */
+    font-weight: 800;
+    color: #FFC107 !important;
     text-shadow: 0 0 2px rgba(0,0,0,0.8);
     opacity: 1;
 }
 
-/* --- ZAKŁADKI DTMF (Nowy styl Tech/Pro) --- */
 .dtmf-tabs { 
     display: flex; 
     margin-bottom: 15px; 
-    background: #15181a; /* Bardzo ciemne tło paska */
+    background: #15181a;
     border-radius: 5px; 
     overflow-x: auto; 
     align-items: stretch; 
@@ -160,7 +153,7 @@ h1 {
     cursor: pointer; 
     font-size: 13px; 
     font-weight: bold; 
-    color: #888; /* Nieaktywny: szary */
+    color: #888;
     background: transparent; 
     transition: 0.3s; 
     white-space: nowrap; 
@@ -170,12 +163,11 @@ h1 {
     align-items: center; 
 }
 
-/* Styl Aktywnej Zakładki - Zielony Neon */
 .dtmf-tab-btn.active { 
-    background: rgba(76, 175, 80, 0.15); /* Ciemna zieleń w tle */
-    color: #4CAF50; /* Zielony tekst */
-    border: 1px solid #4CAF50; /* Zielona ramka */
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.15); /* Delikatna poświata */
+    background: rgba(76, 175, 80, 0.15);
+    color: #4CAF50;
+    border: 1px solid #4CAF50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.15);
 }
 
 .dtmf-tab-btn:hover:not(.active) { 
@@ -186,10 +178,9 @@ h1 {
 .dtmf-subtab { display: none; animation: fadeIn 0.3s; }
 .dtmf-del-mini { background: #D32F2F; color: white; border: none; font-weight: bold; font-size: 10px; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 2; }
 .tab-del-btn { background: none; border: none; color: #000; font-weight: bold; margin-left: 5px; cursor: pointer; opacity: 0.5; font-size: 10px; }
-.dtmf-tab-btn.active .tab-del-btn { color: #4CAF50; } /* X w kolorze tekstu */
+.dtmf-tab-btn.active .tab-del-btn { color: #4CAF50; }
 .tab-del-btn:hover { opacity: 1; color: #fff !important; }
 
-/* STYLE DLA DODAWANIA ZAKŁADKI */
 .tab-add-container {
     display: flex;
     align-items: center;
@@ -369,8 +360,16 @@ input[type="text"], input[type="password"], input[type="number"], select { width
 }
 
 .qrz-img {
-    height: 24px !important;  /* To jest klucz: wymuszenie wysokości 24px */
+    height: 24px !important;
     width: auto;
     display: block;
     border-radius: 2px;
+}
+.sortable-ghost {
+    opacity: 0.4;
+    background: #4CAF50;
+    border: 2px dashed #ccc;
+}
+.dtmf-item {
+    touch-action: none; /* Ważne dla płynności na telefonach */
 }

@@ -64,109 +64,69 @@ $tabs_data = [];
 if (file_exists($custom_dtmf_file)) {
     $loaded_data = json_decode(file_get_contents($custom_dtmf_file), true);
     if (isset($loaded_data[0]) && isset($loaded_data[0]['tg'])) {
-        $tabs_data = [
-            [
-                'name' => 'Moje (Import)', 
-                'buttons' => $loaded_data
-            ]
-        ];
+        $tabs_data = [['name' => 'Moje (Import)', 'buttons' => $loaded_data]];
         file_put_contents($custom_dtmf_file, json_encode($tabs_data));
     } elseif (is_array($loaded_data)) {
         $tabs_data = $loaded_data;
     }
 } else {
-    $tabs_data = [
-        [
+    $tabs_data = [[
             'name' => 'PrimeNode',
             'buttons' => [
                 ['name' => 'Ogólnopolska', 'tg' => '260'],
-                ['name' => 'Sierra Echo', 'tg' => '26077'],
-                ['name' => 'A. Dyplomowe', 'tg' => '225'],
-                ['name' => 'Bridge UK', 'tg' => '235'],
-                ['name' => 'EchoLink', 'tg' => '245'],
                 ['name' => 'Testowa', 'tg' => '999'],
-                ['name' => 'Zagraniczna', 'tg' => '2600'],
                 ['name' => 'Status', 'tg' => '', 'code' => '*#'],
                 ['name' => 'Rozłącz', 'tg' => '', 'code' => '910#', 'color' => 'red']
             ]
-        ]
-    ];
+    ]];
     file_put_contents($custom_dtmf_file, json_encode($tabs_data));
 }
-
 
 if (isset($_POST['new_tab_name'])) {
     $name = trim($_POST['new_tab_name']);
     if (!empty($name)) {
         $tabs_data[] = ['name' => $name, 'buttons' => []];
         file_put_contents($custom_dtmf_file, json_encode($tabs_data));
-        
-        $new_idx = count($tabs_data) - 1;
-        
-        echo "<script>
-            localStorage.setItem('activeTab', 'DTMF');
-            localStorage.setItem('activeDtmfTab', '$new_idx');
-            window.location.href = window.location.href;
-        </script>";
-        exit;
+        echo "<script>localStorage.setItem('activeTab', 'DTMF'); localStorage.setItem('activeDtmfTab', '".(count($tabs_data)-1)."'); window.location.href = window.location.href;</script>"; exit;
     }
 }
-
 if (isset($_POST['del_tab_index'])) {
     $idx = (int)$_POST['del_tab_index'];
     if (isset($tabs_data[$idx])) {
         array_splice($tabs_data, $idx, 1);
         file_put_contents($custom_dtmf_file, json_encode($tabs_data));
-        
-        echo "<script>
-            localStorage.setItem('activeTab', 'DTMF');
-            localStorage.setItem('activeDtmfTab', '0'); // Wróć do pierwszej po usunięciu
-            window.location.href = window.location.href;
-        </script>";
-        exit;
+        echo "<script>localStorage.setItem('activeTab', 'DTMF'); localStorage.setItem('activeDtmfTab', '0'); window.location.href = window.location.href;</script>"; exit;
     }
 }
-
 if (isset($_POST['add_btn_name']) && isset($_POST['target_tab_index'])) {
     $tab_idx = (int)$_POST['target_tab_index'];
     $name = trim($_POST['add_btn_name']);
     $tg = preg_replace('/[^0-9]/', '', $_POST['add_btn_code']);
-    
     if (isset($tabs_data[$tab_idx]) && !empty($name) && !empty($tg)) {
         $tabs_data[$tab_idx]['buttons'][] = ['name' => $name, 'tg' => $tg];
         file_put_contents($custom_dtmf_file, json_encode($tabs_data));
-        
-        echo "<script>
-            localStorage.setItem('activeTab', 'DTMF');
-            localStorage.setItem('activeDtmfTab', '$tab_idx');
-            window.location.href = window.location.href;
-        </script>";
-        exit;
+        echo "<script>localStorage.setItem('activeTab', 'DTMF'); localStorage.setItem('activeDtmfTab', '$tab_idx'); window.location.href = window.location.href;</script>"; exit;
     }
 }
-
 if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
     $tab_idx = (int)$_POST['del_btn_tab_index'];
     $btn_idx = (int)$_POST['del_btn_index'];
-    
     if (isset($tabs_data[$tab_idx]['buttons'][$btn_idx])) {
         array_splice($tabs_data[$tab_idx]['buttons'], $btn_idx, 1);
         file_put_contents($custom_dtmf_file, json_encode($tabs_data));
-        
-        echo "<script>
-            localStorage.setItem('activeTab', 'DTMF');
-            localStorage.setItem('activeDtmfTab', '$tab_idx');
-            window.location.href = window.location.href;
-        </script>";
-        exit;
+        echo "<script>localStorage.setItem('activeTab', 'DTMF'); localStorage.setItem('activeDtmfTab', '$tab_idx'); window.location.href = window.location.href;</script>"; exit;
     }
 }
-
 ?>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
 <div class="dtmf-columns">
     <div class="panel-box">
-        <h4 class="panel-title"><?php echo $TDTMF[$lang]['h_groups']; ?></h4>
+        <h4 class="panel-title">
+            <?php echo $TDTMF[$lang]['h_groups']; ?>
+            <span style="font-size:10px; color:#666; font-weight:normal; margin-left:10px;">(Przeciągnij, aby zmienić kolejność)</span>
+        </h4>
         
         <div class="dtmf-tabs">
             <?php foreach($tabs_data as $i => $tab): ?>
@@ -191,9 +151,9 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
             <?php if (empty($tab['buttons'])): ?>
                 <div style="text-align:center; color:#777; padding:20px; font-size:13px;"><?php echo $TDTMF[$lang]['empty_tab']; ?></div>
             <?php else: ?>
-                <div class="macro-grid">
+                <div class="macro-grid" id="sortable-grid-<?php echo $i; ?>" data-tab-index="<?php echo $i; ?>">
                     <?php foreach($tab['buttons'] as $b_idx => $btn): ?>
-                        <div style="position:relative;">
+                        <div style="position:relative; cursor:move;" class="dtmf-item" data-btn-json='<?php echo json_encode($btn); ?>'>
                             <?php 
                                 $code = isset($btn['code']) ? $btn['code'] : '*91'.$btn['tg'].'#';
                                 $sub = isset($btn['code']) ? $btn['code'] : 'TG '.$btn['tg'];
@@ -203,7 +163,7 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
                                 <?php echo htmlspecialchars($btn['name']); ?>
                                 <span class="dtmf-sub"><?php echo $sub; ?></span>
                             </button>
-                            <form method="post" style="position:absolute; top:-5px; right:-5px; margin:0;">
+                            <form method="post" style="position:absolute; top:-5px; right:-5px; margin:0;" onmousedown="event.stopPropagation();">
                                 <input type="hidden" name="del_btn_tab_index" value="<?php echo $i; ?>">
                                 <input type="hidden" name="del_btn_index" value="<?php echo $b_idx; ?>">
                                 <button type="submit" class="dtmf-del-mini" onclick="return confirm('<?php echo $TDTMF[$lang]['del_ask']; ?>')">x</button>
@@ -273,3 +233,33 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
 <div class="dtmf-display" id="dtmf-screen">...</div>
 <div class="dtmf-grid"><button onclick="typeKey('1')" class="dtmf-btn">1</button><button onclick="typeKey('2')" class="dtmf-btn">2</button><button onclick="typeKey('3')" class="dtmf-btn">3</button><button onclick="typeKey('4')" class="dtmf-btn">4</button><button onclick="typeKey('5')" class="dtmf-btn">5</button><button onclick="typeKey('6')" class="dtmf-btn">6</button><button onclick="typeKey('7')" class="dtmf-btn">7</button><button onclick="typeKey('8')" class="dtmf-btn">8</button><button onclick="typeKey('9')" class="dtmf-btn">9</button><button onclick="typeKey('*')" class="dtmf-btn">*</button><button onclick="typeKey('0')" class="dtmf-btn">0</button><button onclick="typeKey('#')" class="dtmf-btn">#</button><button onclick="clearKey()" class="dtmf-btn dtmf-clear">C</button><button onclick="submitTG()" class="dtmf-btn dtmf-tg">TG</button><button onclick="submitKey()" class="dtmf-btn dtmf-send">TX</button></div>
 <p style="font-size:12px; color:#888; text-align:center;"><?php echo $TDTMF[$lang]['leg_c']; ?>, <?php echo $TDTMF[$lang]['leg_tg']; ?>, <?php echo $TDTMF[$lang]['leg_tx']; ?></p>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var grids = document.querySelectorAll('.macro-grid[id^="sortable-grid-"]');
+    
+    grids.forEach(function(grid) {
+        new Sortable(grid, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            onEnd: function(evt) {
+                var tabIndex = grid.getAttribute('data-tab-index');
+                var items = grid.querySelectorAll('.dtmf-item');
+                var newOrder = [];
+                
+                items.forEach(function(item) {
+                    var data = JSON.parse(item.getAttribute('data-btn-json'));
+                    newOrder.push(data);
+                });
+                
+                $.post("index.php", {
+                    reorder_dtmf_tab: tabIndex,
+                    new_order_json: JSON.stringify(newOrder)
+                }, function(response) {
+                    console.log("Reorder saved: " + response);
+                });
+            }
+        });
+    });
+});
+</script>

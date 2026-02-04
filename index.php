@@ -108,6 +108,22 @@
 
     $custom_dtmf_file = '/var/www/html/dtmf_custom.json';
 
+    if (isset($_POST['reorder_dtmf_tab']) && isset($_POST['new_order_json'])) {
+        $tab_idx = (int)$_POST['reorder_dtmf_tab'];
+        $new_buttons = json_decode($_POST['new_order_json'], true);
+
+        if (file_exists($custom_dtmf_file) && is_array($new_buttons)) {
+            $current_data = json_decode(file_get_contents($custom_dtmf_file), true);
+            
+            if (isset($current_data[$tab_idx])) {
+                $current_data[$tab_idx]['buttons'] = $new_buttons;
+                file_put_contents($custom_dtmf_file, json_encode($current_data));
+                echo "OK";
+            }
+        }
+        exit;
+    }
+    
     if (isset($_POST['add_dtmf_name']) && isset($_POST['add_dtmf_code'])) {
         $name = trim($_POST['add_dtmf_name']);
         $tg = preg_replace('/[^0-9]/', '', $_POST['add_dtmf_code']);
