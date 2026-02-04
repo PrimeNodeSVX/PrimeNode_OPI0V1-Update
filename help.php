@@ -40,6 +40,7 @@ $H = [
 
         's3_title' => '4. Zakładka DTMF (Edytor i Pilot)',
         's3_text' => 'Pełna wolność! Teraz możesz dowolnie edytować układ przycisków sterujących.',
+        's3_move' => '✨ <strong>Drag & Drop:</strong> Przytrzymaj i przeciągnij kafelek, aby zmienić jego kolejność!',
         's3_tabs' => '<strong>📂 Własne Zakładki:</strong> Możesz tworzyć nowe grupy (np. "Moje Ulubione").',
         's3_btns' => '<strong>🎛️ Dodawanie Przycisków:</strong> Na dole każdej zakładki jest formularz. Wpisz <strong>Nazwę</strong> i <strong>Kod TG</strong>, kliknij "+".',
         's3_del' => '<strong>❌ Usuwanie:</strong> Każdy przycisk możesz usunąć małym "x".',
@@ -119,6 +120,7 @@ $H = [
 
         's3_title' => '4. DTMF Tab (Editor & Remote)',
         's3_text' => 'Total freedom! You can now customize your control buttons.',
+        's3_move' => '✨ <strong>Drag & Drop:</strong> Hold and drag a button to reorder it!',
         's3_tabs' => '<strong>📂 Custom Tabs:</strong> Create new groups (e.g. "Favorites").',
         's3_btns' => '<strong>🎛️ Adding Buttons:</strong> Enter <strong>Name</strong> and <strong>TG Code</strong>, click "+".',
         's3_del' => '<strong>❌ Deleting:</strong> You can remove any button or tab.',
@@ -234,6 +236,7 @@ $H = [
     <div class="help-text">
         <?php echo $H[$lang]['s3_text']; ?>
         <ul>
+            <li style="margin-bottom: 8px;"><?php echo $H[$lang]['s3_move']; ?></li>
             <li><?php echo $H[$lang]['s3_tabs']; ?></li>
             <li><?php echo $H[$lang]['s3_btns']; ?></li>
             <li><?php echo $H[$lang]['s3_del']; ?></li>
