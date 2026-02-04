@@ -1,6 +1,17 @@
 <?php
     session_start();
 
+    if (isset($_POST['ssh_action'])) {
+    if ($_POST['ssh_action'] == 'start') {
+        shell_exec("sudo systemctl start shellinabox");
+        sleep(1);
+    } elseif ($_POST['ssh_action'] == 'stop') {
+        shell_exec("sudo systemctl stop shellinabox");
+    }
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
     if (isset($_GET['lang'])) {
         $_SESSION['lang'] = $_GET['lang'];
     }
@@ -497,6 +508,7 @@
         <button id="btn-WiFi" class="tab-btn" onclick="openTab(event, 'WiFi')"><?php echo $TR[$lang]['tab_wifi']; ?></button>
         <button id="btn-Power" class="tab-btn" onclick="openTab(event, 'Power')"><?php echo $TR[$lang]['tab_power']; ?></button>
         <button id="btn-Logs" class="tab-btn" onclick="openTab(event, 'Logs')"><?php echo $TR[$lang]['tab_logs']; ?></button>
+        <button id="btn-SSH" class="tab-btn" onclick="openTab(event, 'SSH')">Terminal</button>
         <button id="btn-Help" class="tab-btn" onclick="openTab(event, 'Help')"><?php echo $TR[$lang]['tab_help']; ?></button>
     </div>
     <div id="Dashboard" class="tab-content active"><?php include 'tab_dashboard.php'; ?></div>
@@ -509,6 +521,7 @@
     <div id="Nodes" class="tab-content"><?php include 'tab_nodes.php'; ?></div>
     <div id="Help" class="tab-content"><?php include 'help.php'; ?></div>
     <div id="Logs" class="tab-content"><div id="log-content" class="log-box">...</div></div>
+    <div id="SSH" class="tab-content"><?php include 'tab_ssh.php'; ?></div>
 </div>
 <div class="main-footer">
     SvxLink v1.9.99.36@master Copyright (C) 2003-<?php echo date("Y"); ?> Tobias Blomberg / <span class="callsign-blue">SM0SVX</span><br>
