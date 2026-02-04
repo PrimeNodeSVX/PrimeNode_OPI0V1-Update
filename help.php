@@ -51,11 +51,13 @@ $H = [
         's4_tx' => '<strong>🔊 Suwak TX Volume:</strong> Reguluje jak głośno słyszysz rozmówców w swoim radiu.',
         's4_wifi' => '<strong>📶 WiFi:</strong> Zarządzanie sieciami bezprzewodowymi.',
 
-        's5_title' => '6. Zasilanie i Aktualizacje',
+        's5_title' => '6. Zasilanie, Aktualizacje i Terminal',
         's5_text' => 'Centrum sterowania życiem systemu.',
         's5_reb' => '<strong>🔄 Reboot / Wyłącz:</strong> Bezpieczne zamykanie systemu.',
         's5_upd' => '<strong>☁️ Aktualizuj System:</strong> Pobiera nowości z repozytoriów technicznych i naprawia błędy.',
         's5_rst' => '<strong>♻️ Restart Usługi SvxLink:</strong> "Lekarstwo na wszystko". Kliknij, jeśli zniknie dźwięk.',
+        's5_ssh' => '<strong>💻 Web Terminal (SSH):</strong>',
+        's5_ssh_d' => 'Dostęp do konsoli systemowej z przeglądarki. Kliknij zakładkę "Terminal" i "Uruchom". Pamiętaj o kliknięciu "Zatrzymaj" po pracy!',
 
         's6_title' => '7. Wskazówki (Warto wiedzieć)',
         's6_api' => '<strong>🔗 API Węzłów:</strong>',
@@ -128,11 +130,13 @@ $H = [
         's4_tx' => '<strong>🔊 TX Volume:</strong> Volume of others heard on your radio.',
         's4_wifi' => '<strong>📶 WiFi:</strong> Manage wireless networks.',
 
-        's5_title' => '6. Power & Updates',
+        's5_title' => '6. Power, Updates & Terminal',
         's5_text' => 'Control center for system life.',
         's5_reb' => '<strong>🔄 Reboot / Shutdown:</strong> Safe shutdown.',
         's5_upd' => '<strong>☁️ Update System:</strong> Pulls latest fixes from GitHub.',
         's5_rst' => '<strong>♻️ Restart SvxLink Service:</strong> "Cure for everything". Fixes audio issues.',
+        's5_ssh' => '<strong>💻 Web Terminal (SSH):</strong>',
+        's5_ssh_d' => 'System console access from browser. Click "Terminal" -> "Start". Remember to stop it after work!',
 
         's6_title' => '7. Tips (Pro Version)',
         's6_api' => '<strong>🔗 Node API:</strong>',
@@ -260,6 +264,7 @@ $H = [
             <li><?php echo $H[$lang]['s5_reb']; ?></li>
             <li><?php echo $H[$lang]['s5_upd']; ?></li>
             <li><?php echo $H[$lang]['s5_rst']; ?></li>
+            <li style="margin-top: 10px;"><?php echo $H[$lang]['s5_ssh']; ?> <?php echo $H[$lang]['s5_ssh_d']; ?></li>
         </ul>
     </div>
 </div>
