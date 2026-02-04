@@ -141,6 +141,7 @@ function formatCtcssCode($code, $map) {
 <div id="live-monitor" class="live-box">
     <div class="live-status"><?php echo $TD[$lang]['status_standby']; ?></div>
     <div class="live-callsign">---</div>
+    <div class="live-info" style="font-size: 16px; color: #4CAF50; font-weight: bold; margin-top: 2px; min-height: 20px;"></div>
     <div class="live-tg"></div>
 </div>
 

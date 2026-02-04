@@ -303,21 +303,44 @@ function loadLogsAndStatus() {
             currentCallsign = "LOKALNIE"; 
         }
         $(".live-box").removeClass("talking rx-active tx-active");
+        
         if (isTalking) {
             $(".live-status").text(statusText);
             $(".live-callsign").text(currentCallsign);
             if(currentTG) $(".live-tg").text("TG " + currentTG).css("color", "#FF9800");
-            
+
+            let infoText = "";
+            if (currentCallsign !== "LOKALNIE" && currentCallsign !== "---" && cachedNodesData[currentCallsign]) {
+                let node = cachedNodesData[currentCallsign];
+                let name = node.Sysop || node.sysop || "";
+                let city = node.Location || node.nodeLocation || "";
+                if (!city && node.qth && node.qth.length > 0 && node.qth[0].name) {
+                    city = node.qth[0].name;
+                }
+
+                if (name && city) {
+                    infoText = name + " • " + city;
+                } else if (name) {
+                    infoText = name;
+                } else if (city) {
+                    infoText = city;
+                }
+            }
+            $(".live-info").text(infoText);
+
             if (statusText.includes("RX") || statusText.includes("RECEIVING") || statusText.includes("ODBIERANIE")) {
                 $(".live-box").addClass("rx-active");
                 $(".live-status, .live-callsign").css("color", "#4CAF50");
+                $(".live-info").css("color", "#81C784");
             } else {
                 $(".live-box").addClass("tx-active");
                 $(".live-status, .live-callsign").css("color", "#FF9800");
+                $(".live-info").css("color", "#FFCC80");
             }
         } else {
             $(".live-status").text(T.standby).css("color", "#666");
             $(".live-callsign").text("---").css("color", "#fff");
+            $(".live-info").text("");
             $(".live-tg").text("");
         }
     });
