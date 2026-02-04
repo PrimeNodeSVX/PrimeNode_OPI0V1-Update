@@ -33,7 +33,7 @@ $H = [
         'roam_title' => '3. Roaming i Baza Sieci (NOWOŚĆ!)',
         'roam_text' => 'System PrimeNode obsługuje teraz dynamiczne przełączanie między różnymi sieciami (Reflektorami).',
         'roam_cfg' => '<strong>🛠️ Edytor w Configu:</strong>',
-        'roam_cfg_d' => 'W zakładce <strong>Config</strong> (na dole) znajdziesz nową sekcję "Baza Sieci". Możesz tam dodawać własne serwery (np. FM Poland, SQLink, lokalne). Przypisz im <strong>ID</strong> (numer porządkowy).',
+        'roam_cfg_d' => 'W zakładce <strong>Config</strong> znajdziesz nową sekcję "Baza Sieci". Możesz tam dodawać własne serwery (np. SQLink, FM Poland, lokalne).',
         'roam_dtmf' => '<strong>📞 Przełączanie z Radia (555):</strong>',
         'roam_dtmf_d' => 'Aby zmienić sieć bez wchodzenia na stronę, wpisz na radiu kod w formacie: <span style="color:#FF9800; font-weight:bold;">555 + ID + #</span>.',
         'roam_ex' => 'Przykład: <strong>5551#</strong> (Włącza sieć o ID 1), <strong>5552#</strong> (Włącza sieć o ID 2). System zrestartuje się i połączy z nowym serwerem.',
@@ -43,7 +43,7 @@ $H = [
         's3_tabs' => '<strong>📂 Własne Zakładki:</strong> Możesz tworzyć nowe grupy (np. "Moje Ulubione").',
         's3_btns' => '<strong>🎛️ Dodawanie Przycisków:</strong> Na dole każdej zakładki jest formularz. Wpisz <strong>Nazwę</strong> i <strong>Kod TG</strong>, kliknij "+".',
         's3_del' => '<strong>❌ Usuwanie:</strong> Każdy przycisk możesz usunąć małym "x".',
-        's3_info' => '<strong>ℹ️ Status (*#):</strong> Hotspot powie która godzina i jaki ma adres IP.',
+        's3_info' => '<strong>ℹ️ Status (*#):</strong> Hotspot powie która godzina itp.',
 
         's4_title' => '5. Audio i WiFi',
         's4_warn' => '⚠️ <strong>Ostrożnie z suwakami Audio!</strong>',
@@ -54,7 +54,7 @@ $H = [
         's5_title' => '6. Zasilanie i Aktualizacje',
         's5_text' => 'Centrum sterowania życiem systemu.',
         's5_reb' => '<strong>🔄 Reboot / Wyłącz:</strong> Bezpieczne zamykanie systemu.',
-        's5_upd' => '<strong>☁️ Aktualizuj System:</strong> Pobiera nowości z GitHub i naprawia błędy.',
+        's5_upd' => '<strong>☁️ Aktualizuj System:</strong> Pobiera nowości z repozytoriów technicznych i naprawia błędy.',
         's5_rst' => '<strong>♻️ Restart Usługi SvxLink:</strong> "Lekarstwo na wszystko". Kliknij, jeśli zniknie dźwięk.',
 
         's6_title' => '7. Wskazówki (Warto wiedzieć)',
