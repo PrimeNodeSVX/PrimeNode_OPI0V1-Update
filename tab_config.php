@@ -1,13 +1,99 @@
 <?php
-    $current_host = $vals['Host'];
-    $current_port = isset($vals['Port']) ? $vals['Port'] : '';
+    $net_file = '/etc/svxlink/networks.json';
+    
+    if (!file_exists($net_file)) {
+        $default_net = [
+            "active" => 1,
+            "list" => [
+                [
+                    "id" => 1,
+                    "name" => "SQLink Polska",
+                    "host" => "sqlink.pl",
+                    "port" => "5300",
+                    "pass" => "Haslo",
+                    "api" => "http://sqlink.pl:8091/status",
+                    "tgs" => "260,26077",
+                    "callsign" => "N0CALL",
+                    "deftg" => "260"
+                ]
+            ]
+        ];
+        file_put_contents($net_file, json_encode($default_net, JSON_PRETTY_PRINT));
+        exec("sudo chown www-data:www-data $net_file");
+        exec("sudo chmod 664 $net_file");
+    }
 
-    if (strpos($current_host, ':') !== false) {
-        $parts = explode(':', $current_host);
-        $current_host = $parts[0];
+    $networks = json_decode(file_get_contents($net_file), true);
+    $edit_mode = false;
+    $edit_data = ['id'=>'','name'=>'','host'=>'','port'=>'5300','pass'=>'','api'=>'','tgs'=>'','callsign'=>'','deftg'=>''];
+
+    if (isset($_POST['save_network'])) {
+        $id_to_save = $_POST['n_id'];
+        $is_new = true;
+
+        $new_data = [
+            'id' => ($id_to_save != '') ? $id_to_save : 0,
+            'name' => htmlspecialchars($_POST['n_name']),
+            'host' => htmlspecialchars($_POST['n_host']),
+            'port' => htmlspecialchars($_POST['n_port']),
+            'pass' => htmlspecialchars($_POST['n_pass']),
+            'api' => htmlspecialchars($_POST['n_api']),
+            'tgs' => htmlspecialchars($_POST['n_tgs']),
+            'callsign' => strtoupper(htmlspecialchars($_POST['n_callsign'])), // Zawsze duże litery
+            'deftg' => htmlspecialchars($_POST['n_deftg'])
+        ];
+
+        if ($id_to_save != '') {
+            foreach ($networks['list'] as $key => $net) {
+                if ($net['id'] == $id_to_save) {
+                    $networks['list'][$key] = $new_data;
+                    $is_new = false;
+                    break;
+                }
+            }
+        }
+
+        if ($is_new) {
+            $new_id = 1;
+            if (!empty($networks['list'])) {
+                $ids = array_column($networks['list'], 'id');
+                $new_id = max($ids) + 1;
+            }
+            $new_data['id'] = $new_id;
+            $networks['list'][] = $new_data;
+        }
         
-        if (empty($current_port) && isset($parts[1])) {
-            $current_port = $parts[1];
+        file_put_contents($net_file, json_encode($networks, JSON_PRETTY_PRINT));
+        echo "<script>window.location.href='index.php';</script>";
+    }
+
+    if (isset($_POST['del_network'])) {
+        foreach ($networks['list'] as $key => $net) {
+            if ($net['id'] == $_POST['del_network']) {
+                unset($networks['list'][$key]);
+            }
+        }
+        $networks['list'] = array_values($networks['list']);
+        file_put_contents($net_file, json_encode($networks, JSON_PRETTY_PRINT));
+        echo "<script>window.location.href='index.php';</script>";
+    }
+
+    if (isset($_POST['switch_network'])) {
+        $cmd = "sudo /usr/local/bin/switch_network.py --dtmf " . escapeshellarg($_POST['switch_network']);
+        shell_exec($cmd);
+        sleep(3); 
+        echo "<script>window.location.href='index.php';</script>";
+    }
+
+    if (isset($_POST['edit_network'])) {
+        $edit_mode = true;
+        foreach ($networks['list'] as $net) {
+            if ($net['id'] == $_POST['edit_network']) {
+                $edit_data = $net;
+                if(!isset($edit_data['callsign'])) $edit_data['callsign'] = $vals['Callsign']; 
+                if(!isset($edit_data['deftg'])) $edit_data['deftg'] = $vals['DefaultTG'];
+                break;
+            }
         }
     }
 
@@ -16,146 +102,210 @@
     $TC = [
         'pl' => [
             'header' => 'Konfiguracja SvxLink',
-            'sect_ref' => 'Reflector (SQLink)',
-            'lbl_node' => 'Znak Noda',
-            'lbl_pass' => 'Hasło',
-            'lbl_host' => 'Host',
-            'lbl_port' => 'Port',
-            'lbl_def_tg' => 'Domyślna Grupa (TG)',
-            'lbl_mon_tg' => 'Monitorowane Grupy (TG)',
-            'ph_mon_tg' => 'np. 260, 26077',
-            'help_comma' => 'Oddzielone przecinkami',
-            'lbl_api_url' => 'Adres API Węzłów',
-            'ph_api_url' => 'np. http://146.59.87.158:8091/status',
+            'sect_roam' => 'Menedżer Sieci (Roaming)',
+            'th_name' => 'Nazwa',
+            'th_host' => 'Host',
+            'th_dtmf' => 'Kod DTMF',
+            'th_act' => 'Akcja',
+            'btn_switch' => 'PRZEŁĄCZ',
+            'btn_edit' => 'EDYTUJ',
+            'lbl_active' => 'AKTYWNY',
+            'lbl_add_new' => 'Edycja / Dodawanie Sieci:',
+            'btn_add' => 'ZAPISZ SIEC',
+            'btn_cancel' => 'ANULUJ',
+            'ph_name' => 'Nazwa (np. Mój Serwer)',
+            'ph_host' => 'Host (np. sqlink.pl)',
+            'ph_pass' => 'Hasło',
+            'ph_tgs' => 'Monitorowane TG (np. 260)',
+            'ph_call' => 'Znak Noda',
+            'ph_deftg' => 'Startowe TG',
             'sect_el' => 'EchoLink',
             'lbl_el_call' => 'Znak EchoLink',
             'lbl_el_pass' => 'Hasło EchoLink',
-            'lbl_el_sysop' => 'Nazwa Sysop (Widoczna)',
+            'lbl_el_sysop' => 'Nazwa Sysop',
             'lbl_el_desc' => 'Opis Stacji',
             'lbl_el_proxy' => 'Proxy (IP)',
             'ph_el_proxy' => 'np. 44.31.61.106',
-            'help_proxy' => 'Zostaw puste aby wyłączyć proxy.',
             'btn_proxy' => '♻️ Auto-Proxy',
-            'conf_proxy' => 'Skrypt pobierze listę publicznych proxy, znajdzie serwer Ready i zrestartuje SvxLink. Kontynuować?',
             'sect_loc' => 'Lokalizacja i Operator',
             'lbl_name' => 'Imię Operatora',
             'lbl_city' => 'Miasto (QTH)',
             'lbl_loc' => 'QTH Locator',
-            'ph_loc' => 'np. JO91SV',
-            'help_loc' => 'Dane te zostaną wysłane do sieci i będą widoczne na mapie.',
-            'sect_map' => 'Wygląd Mapy (Grid Mapper)',
-            'lbl_map_style' => 'Wybierz Styl Mapy',
-            'btn_dark' => '🌑 Ciemna (Dark)',
-            'btn_light' => '☀️ Jasna (Light)',
-            'btn_osm' => '🗺️ Kolorowa (OSM)',
-            'sect_adv' => 'Zaawansowane / Audio',
+            'sect_map' => 'Wygląd Mapy',
+            'btn_dark' => '🌑 Ciemna',
+            'btn_light' => '☀️ Jasna',
+            'btn_osm' => '🗺️ Kolorowa',
+            'sect_adv' => 'Audio i Moduły',
             'lbl_modules' => 'Aktywne Moduły',
-            'btn_help' => 'Pomoc (Help)',
-            'btn_parrot' => 'Papuga (Parrot)',
+            'btn_help' => 'Pomoc',
+            'btn_parrot' => 'Papuga',
             'btn_el' => 'EchoLink',
-            'lbl_tg_time' => 'TG Timeout (s)',
-            'lbl_tmp_time' => 'Tmp Timeout (s)',
+            'lbl_tg_time' => 'TG Timeout',
+            'lbl_tmp_time' => 'Tmp Timeout',
             'lbl_beep' => 'Beep 3-ton',
             'lbl_ann_tg' => 'Zapowiedź TG',
             'lbl_info' => 'Info Link',
             'lbl_roger' => 'Roger Beep',
             'lbl_voice_id' => 'Recytowanie Znaku',
-            'lbl_lang_audio' => 'Język Komunikatów',
+            'lbl_lang_audio' => 'Język Audio',
             'opt_yes' => 'TAK',
             'opt_no' => 'NIE',
-            'btn_save' => 'Zapisz Wszystko i Restartuj'
+            'btn_save' => 'Zapisz Ustawienia Globalne'
         ],
         'en' => [
             'header' => 'SvxLink Configuration',
-            'sect_ref' => 'Reflector (SQLink)',
-            'lbl_node' => 'Node Callsign',
-            'lbl_pass' => 'Password',
-            'lbl_host' => 'Host',
-            'lbl_port' => 'Port',
-            'lbl_def_tg' => 'Default TG',
-            'lbl_mon_tg' => 'Monitored TGs',
-            'ph_mon_tg' => 'e.g. 260, 26077',
-            'help_comma' => 'Comma separated',
-            'lbl_api_url' => 'Nodes API URL',
-            'ph_api_url' => 'e.g. http://146.59.87.158:8091/status',
+            'sect_roam' => 'Network Manager (Roaming)',
+            'th_name' => 'Name',
+            'th_host' => 'Host',
+            'th_dtmf' => 'DTMF Code',
+            'th_act' => 'Action',
+            'btn_switch' => 'SWITCH',
+            'btn_edit' => 'EDIT',
+            'lbl_active' => 'ACTIVE',
+            'lbl_add_new' => 'Edit / Add Network:',
+            'btn_add' => 'SAVE NETWORK',
+            'btn_cancel' => 'CANCEL',
+            'ph_name' => 'Name',
+            'ph_host' => 'Host',
+            'ph_pass' => 'Password',
+            'ph_tgs' => 'Monitor TGs',
+            'ph_call' => 'Node Callsign',
+            'ph_deftg' => 'Default TG',
             'sect_el' => 'EchoLink',
             'lbl_el_call' => 'EchoLink Callsign',
             'lbl_el_pass' => 'EchoLink Password',
-            'lbl_el_sysop' => 'Sysop Name (Visible)',
-            'lbl_el_desc' => 'Station Description',
+            'lbl_el_sysop' => 'Sysop Name',
+            'lbl_el_desc' => 'Description',
             'lbl_el_proxy' => 'Proxy (IP)',
             'ph_el_proxy' => 'e.g. 44.31.61.106',
-            'help_proxy' => 'Leave empty to disable proxy.',
             'btn_proxy' => '♻️ Auto-Proxy',
-            'conf_proxy' => 'Script will download public proxy list, find a Ready server and restart SvxLink. Continue?',
             'sect_loc' => 'Location & Operator',
             'lbl_name' => 'Operator Name',
             'lbl_city' => 'City (QTH)',
             'lbl_loc' => 'QTH Locator',
-            'ph_loc' => 'e.g. JO91SV',
-            'help_loc' => 'This data will be sent to the network and visible on the map.',
-            'sect_map' => 'Map Style (Grid Mapper)',
-            'lbl_map_style' => 'Choose Map Style',
+            'sect_map' => 'Map Style',
             'btn_dark' => '🌑 Dark',
             'btn_light' => '☀️ Light',
-            'btn_osm' => '🗺️ Colorful (OSM)',
-            'sect_adv' => 'Advanced / Audio',
+            'btn_osm' => '🗺️ Colorful',
+            'sect_adv' => 'Audio & Modules',
             'lbl_modules' => 'Active Modules',
             'btn_help' => 'Help',
             'btn_parrot' => 'Parrot',
             'btn_el' => 'EchoLink',
-            'lbl_tg_time' => 'TG Timeout (s)',
-            'lbl_tmp_time' => 'Tmp Timeout (s)',
+            'lbl_tg_time' => 'TG Timeout',
+            'lbl_tmp_time' => 'Tmp Timeout',
             'lbl_beep' => '3-Tone Beep',
             'lbl_ann_tg' => 'Announce TG',
             'lbl_info' => 'Link Info',
             'lbl_roger' => 'Roger Beep',
-            'lbl_voice_id' => 'Voice ID (Callsign)',
-            'lbl_lang_audio' => 'Voice Language',
+            'lbl_voice_id' => 'Voice ID',
+            'lbl_lang_audio' => 'Audio Lang',
             'opt_yes' => 'YES',
             'opt_no' => 'NO',
-            'btn_save' => 'Save All & Restart'
+            'btn_save' => 'Save Global Settings'
         ]
     ];
 ?>
+
 <h3><?php echo $TC[$lang]['header']; ?></h3>
+
+<div class="panel-box box-full" style="border: 1px solid #FF9800;">
+    <h4 class="panel-title" style="color:#FF9800; border-color:#FF9800;"><?php echo $TC[$lang]['sect_roam']; ?></h4>
+    <table class="wifi-saved-table">
+        <tr>
+            <th><?php echo $TC[$lang]['th_name']; ?></th>
+            <th><?php echo $TC[$lang]['th_host']; ?></th>
+            <th><?php echo $TC[$lang]['th_dtmf']; ?></th>
+            <th><?php echo $TC[$lang]['th_act']; ?></th>
+        </tr>
+        <?php if(isset($networks['list'])): foreach($networks['list'] as $net): ?>
+        <tr style="<?php echo ($networks['active'] == $net['id'] ? 'background:rgba(76,175,80,0.1); border-left: 3px solid #4CAF50;' : ''); ?>">
+            <td><?php echo $net['name']; ?></td>
+            <td><?php echo $net['host']; ?></td>
+            <td style="font-weight:bold; color:#FF9800;">555<?php echo $net['id']; ?>#</td>
+            <td style="display:flex; gap:5px; align-items: center;">
+                <?php if($networks['active'] != $net['id']): ?>
+                    <form method="post" style="margin:0;">
+                        <button type="submit" name="switch_network" value="<?php echo $net['id']; ?>" class="btn-small-del" style="background:#2196F3; font-weight:bold;"><?php echo $TC[$lang]['btn_switch']; ?></button>
+                    </form>
+                <?php else: ?>
+                    <span style="color:#4CAF50; font-weight:bold; padding:5px; font-size:12px;"><?php echo $TC[$lang]['lbl_active']; ?></span>
+                <?php endif; ?>
+                
+                <form method="post" style="margin:0;">
+                    <button type="submit" name="edit_network" value="<?php echo $net['id']; ?>" class="btn-small-del" style="background:#FF9800;"><?php echo $TC[$lang]['btn_edit']; ?></button>
+                </form>
+
+                <form method="post" style="margin:0;">
+                    <button type="submit" name="del_network" value="<?php echo $net['id']; ?>" class="btn-small-del" onclick="return confirm('Delete?');">X</button>
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; endif; ?>
+    </table>
+
+    <div style="background:#2a2a2a; padding:15px; border-radius:5px; margin-top:15px; border:1px solid #444;">
+        <label style="margin-bottom:8px; color:#ddd; font-size:14px;"><?php echo $TC[$lang]['lbl_add_new']; ?></label>
+        <form method="post">
+            <input type="hidden" name="n_id" value="<?php echo $edit_data['id']; ?>">
+            
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                <div style="flex:1; min-width:150px;">
+                    <input type="text" name="n_name" placeholder="<?php echo $TC[$lang]['ph_name']; ?>" value="<?php echo $edit_data['name']; ?>" required>
+                </div>
+                <div style="flex:1; min-width:150px;">
+                    <input type="text" name="n_host" placeholder="<?php echo $TC[$lang]['ph_host']; ?>" value="<?php echo $edit_data['host']; ?>" required>
+                </div>
+                <div style="width:80px;">
+                    <input type="number" name="n_port" placeholder="5300" value="<?php echo $edit_data['port']; ?>" required>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                <div style="flex:1; min-width:120px;">
+                    <input type="text" name="n_callsign" placeholder="<?php echo $TC[$lang]['ph_call']; ?>" value="<?php echo $edit_data['callsign']; ?>" oninput="this.value = this.value.toUpperCase()" style="text-transform:uppercase;" required>
+                </div>
+                <div style="flex:1; min-width:120px;">
+                    <input type="password" name="n_pass" placeholder="<?php echo $TC[$lang]['ph_pass']; ?>" value="<?php echo $edit_data['pass']; ?>" required>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                <div style="flex:2; min-width:200px;">
+                    <input type="text" name="n_api" placeholder="API URL (http://...)" value="<?php echo $edit_data['api']; ?>">
+                </div>
+                 <div style="flex:1; min-width:100px;">
+                    <input type="text" name="n_tgs" placeholder="<?php echo $TC[$lang]['ph_tgs']; ?>" value="<?php echo $edit_data['tgs']; ?>">
+                </div>
+                 <div style="flex:1; min-width:100px;">
+                    <input type="text" name="n_deftg" placeholder="<?php echo $TC[$lang]['ph_deftg']; ?>" value="<?php echo $edit_data['deftg']; ?>">
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:5px;">
+                <button type="submit" name="save_network" class="btn-small-del" style="background:#4CAF50; color:#fff; font-weight:bold; width:auto; padding:10px 30px; font-size:14px;"><?php echo $TC[$lang]['btn_add']; ?></button>
+                <?php if($edit_mode): ?>
+                    <a href="index.php" class="btn-small-del" style="background:#777; text-decoration:none; padding:10px 20px; display:inline-block;"><?php echo $TC[$lang]['btn_cancel']; ?></a>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
+</div>
 <form method="post">
     <input type="hidden" name="active_tab" class="active-tab-input" value="SvxConfig">
     
     <div class="form-grid-layout">
-        <div class="panel-box">
-            <h4 class="panel-title"><?php echo $TC[$lang]['sect_ref']; ?></h4>
-            <div class="form-group">
-                <label><?php echo $TC[$lang]['lbl_node']; ?></label>
-                <input type="text" name="Callsign" value="<?php echo $vals['Callsign']; ?>" oninput="this.value = this.value.toUpperCase()" style="text-transform:uppercase;">
-            </div>
-            <div class="form-group"><label><?php echo $TC[$lang]['lbl_pass']; ?></label><input type="password" name="Password" value="<?php echo $vals['Password']; ?>"></div>
-            <div class="form-group"><label><?php echo $TC[$lang]['lbl_host']; ?></label><input type="text" name="Host" value="<?php echo $current_host; ?>"></div>
-            
-            <div class="form-group"><label><?php echo $TC[$lang]['lbl_port']; ?></label><input type="number" name="Port" value="<?php echo $current_port; ?>" placeholder="5300"></div>
-            
-            <div class="form-group">
-                <label><?php echo $TC[$lang]['lbl_api_url']; ?></label>
-                <input type="text" name="node_api_url" value="<?php echo isset($radio['node_api_url']) ? $radio['node_api_url'] : 'http://146.59.87.158:8091/status'; ?>" placeholder="<?php echo $TC[$lang]['ph_api_url']; ?>">
-            </div>
-
-            <div class="form-group"><label><?php echo $TC[$lang]['lbl_def_tg']; ?></label><input type="text" name="DefaultTG" value="<?php echo $vals['DefaultTG']; ?>"></div>
-            
-            <div class="form-group">
-                <label><?php echo $TC[$lang]['lbl_mon_tg']; ?></label>
-                <input type="text" name="MonitorTGs" value="<?php echo $vals['MonitorTGs']; ?>" placeholder="<?php echo $TC[$lang]['ph_mon_tg']; ?>">
-                <small style="color:#888; font-size:10px;"><?php echo $TC[$lang]['help_comma']; ?></small>
-            </div>
-        </div>
         
-        <div class="panel-box">
+        <div class="panel-box box-full">
             <h4 class="panel-title blue"><?php echo $TC[$lang]['sect_el']; ?></h4>
-            <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_call']; ?></label><input type="text" name="EL_Callsign" value="<?php echo $vals_el['Callsign']; ?>"></div>
-            <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_pass']; ?></label><input type="password" name="EL_Password" id="el-pass" value="<?php echo $vals_el['Password']; ?>"></div>
-            <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_sysop']; ?></label><input type="text" name="EL_Sysop" value="<?php echo $vals_el['Sysop']; ?>"></div>
-            <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_desc']; ?></label><input type="text" name="EL_Desc" value="<?php echo $vals_el['Desc']; ?>"></div>
-            <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_proxy']; ?></label><input type="text" name="EL_ProxyHost" value="<?php echo $vals_el['Proxy']; ?>" placeholder="<?php echo $TC[$lang]['ph_el_proxy']; ?>"><small style="color:#888; font-size:10px;"><?php echo $TC[$lang]['help_proxy']; ?></small></div>
-            <div style="margin-top:5px; display:flex; gap:10px; align-items:center;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_call']; ?></label><input type="text" name="EL_Callsign" value="<?php echo $vals_el['Callsign']; ?>"></div>
+                <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_pass']; ?></label><input type="password" name="EL_Password" id="el-pass" value="<?php echo $vals_el['Password']; ?>"></div>
+                <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_sysop']; ?></label><input type="text" name="EL_Sysop" value="<?php echo $vals_el['Sysop']; ?>"></div>
+                <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_desc']; ?></label><input type="text" name="EL_Desc" value="<?php echo $vals_el['Desc']; ?>"></div>
+            </div>
+            <div class="form-group" style="margin-top:15px;"><label><?php echo $TC[$lang]['lbl_el_proxy']; ?></label><input type="text" name="EL_ProxyHost" value="<?php echo $vals_el['Proxy']; ?>" placeholder="<?php echo $TC[$lang]['ph_el_proxy']; ?>"><small style="color:#888; font-size:10px;"><?php echo $TC[$lang]['help_proxy']; ?></small></div>
+            <div style="margin-top:5px;">
                 <button type="submit" name="auto_proxy" class="btn btn-green" style="margin:0; padding:8px; font-size:12px;" onclick="return confirm('<?php echo $TC[$lang]['conf_proxy']; ?>')"><?php echo $TC[$lang]['btn_proxy']; ?></button>
             </div>
         </div>

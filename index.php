@@ -517,5 +517,29 @@
 </div>
 <script> const GLOBAL_CALLSIGN = "<?php echo $vals['Callsign']; ?>"; </script>
 <script src="script.js?v=<?php echo time(); ?>"></script>
+<script>
+(function() {
+
+    let currentNetId = null;
+    function checkNetworkStatus() {
+        fetch('check_net.php')
+            .then(response => response.text())
+            .then(netId => {
+                netId = netId.trim();
+                if (currentNetId === null) {
+                    currentNetId = netId;
+                } 
+                else if (netId !== currentNetId && netId !== '0') {
+                    console.log("Wykryto zmianę sieci z " + currentNetId + " na " + netId + ". Odświeżam...");
+                    location.reload();
+                }
+            })
+            .catch(err => console.error('Blad sprawdzania sieci:', err));
+    }
+
+    setInterval(checkNetworkStatus, 3000);
+    checkNetworkStatus();
+})();
+</script>
 </body>
 </html>
