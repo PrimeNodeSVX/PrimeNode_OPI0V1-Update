@@ -68,12 +68,29 @@
     }
 
     if (isset($_POST['del_network'])) {
+        $del_id = $_POST['del_network'];
+        $was_active = ($networks['active'] == $del_id);
+
         foreach ($networks['list'] as $key => $net) {
-            if ($net['id'] == $_POST['del_network']) {
+            if ($net['id'] == $del_id) {
                 unset($networks['list'][$key]);
             }
         }
         $networks['list'] = array_values($networks['list']);
+
+        if ($was_active) {
+            $networks['active'] = 0;
+            $disconnect_data = [
+                'Host' => '',
+                'Port' => '0',
+                'Password' => '',
+                'MonitorTGs' => ''
+            ];
+            file_put_contents('/tmp/svx_new_settings.json', json_encode($disconnect_data));
+            shell_exec('sudo /usr/bin/python3 /usr/local/bin/update_svx_full.py 2>&1');
+            shell_exec('sudo /usr/bin/systemctl restart svxlink > /dev/null 2>&1 &');
+        }
+
         file_put_contents($net_file, json_encode($networks, JSON_PRETTY_PRINT));
         echo "<script>window.location.href='index.php';</script>";
     }
@@ -90,8 +107,8 @@
         foreach ($networks['list'] as $net) {
             if ($net['id'] == $_POST['edit_network']) {
                 $edit_data = $net;
-                if(!isset($edit_data['callsign'])) $edit_data['callsign'] = $vals['Callsign']; 
-                if(!isset($edit_data['deftg'])) $edit_data['deftg'] = $vals['DefaultTG'];
+                if(!isset($edit_data['callsign'])) $edit_data['callsign'] = isset($vals['Callsign']) ? $vals['Callsign'] : ''; 
+                if(!isset($edit_data['deftg'])) $edit_data['deftg'] = isset($vals['DefaultTG']) ? $vals['DefaultTG'] : '';
                 break;
             }
         }
@@ -318,6 +335,15 @@
                 <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_loc']; ?></label><input type="text" name="qth_loc" value="<?php echo isset($radio['qth_loc']) ? $radio['qth_loc'] : ''; ?>" placeholder="<?php echo $TC[$lang]['ph_loc']; ?>"></div>
             </div>
             <small style="color:#888; font-size:10px; display:block; margin-top:5px;"><?php echo $TC[$lang]['help_loc']; ?></small>
+        </div>
+
+        <div class="panel-box box-full">
+            <h4 class="panel-title"><?php echo $TC[$lang]['sect_map']; ?></h4>
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button type="button" id="btn-map-dark" onclick="setMapStyle('dark')" class="mod-btn"><?php echo $TC[$lang]['btn_dark']; ?></button>
+                <button type="button" id="btn-map-light" onclick="setMapStyle('light')" class="mod-btn"><?php echo $TC[$lang]['btn_light']; ?></button>
+                <button type="button" id="btn-map-osm" onclick="setMapStyle('osm')" class="mod-btn"><?php echo $TC[$lang]['btn_osm']; ?></button>
+            </div>
         </div>
 
         <div class="panel-box box-full">
