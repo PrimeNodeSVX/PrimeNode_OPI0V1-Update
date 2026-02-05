@@ -39,7 +39,7 @@
             'pass' => htmlspecialchars($_POST['n_pass']),
             'api' => htmlspecialchars($_POST['n_api']),
             'tgs' => htmlspecialchars($_POST['n_tgs']),
-            'callsign' => strtoupper(htmlspecialchars($_POST['n_callsign'])), // Zawsze duże litery
+            'callsign' => strtoupper(htmlspecialchars($_POST['n_callsign'])),
             'deftg' => htmlspecialchars($_POST['n_deftg'])
         ];
 
