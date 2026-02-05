@@ -69,7 +69,7 @@
 
     if (isset($_POST['del_network'])) {
         $del_id = $_POST['del_network'];
-        $was_active = ($networks['active'] == $del_id);
+        $was_active = ($networks['active'] == $del_id); 
 
         foreach ($networks['list'] as $key => $net) {
             if ($net['id'] == $del_id) {
@@ -77,7 +77,7 @@
             }
         }
         $networks['list'] = array_values($networks['list']);
-
+        
         if ($was_active) {
             $networks['active'] = 0;
             $disconnect_data = [
@@ -137,6 +137,11 @@
             'ph_tgs' => 'Monitorowane TG (np. 260)',
             'ph_call' => 'Znak Noda',
             'ph_deftg' => 'Startowe TG',
+            
+            'sect_main' => 'Główne Ustawienia',
+            'lbl_callsign' => 'Znak Stacji (Callsign)',
+            'hlp_callsign' => 'To jest główny znak Twojego hotspota (używany do identyfikacji głosowej).',
+
             'sect_el' => 'EchoLink',
             'lbl_el_call' => 'Znak EchoLink',
             'lbl_el_pass' => 'Hasło EchoLink',
@@ -189,6 +194,11 @@
             'ph_tgs' => 'Monitor TGs',
             'ph_call' => 'Node Callsign',
             'ph_deftg' => 'Default TG',
+
+            'sect_main' => 'Main Settings',
+            'lbl_callsign' => 'Station Callsign',
+            'hlp_callsign' => 'Main hotspot callsign (used for Voice ID).',
+
             'sect_el' => 'EchoLink',
             'lbl_el_call' => 'EchoLink Callsign',
             'lbl_el_pass' => 'EchoLink Password',
@@ -314,6 +324,15 @@
     
     <div class="form-grid-layout">
         
+        <div class="panel-box box-full" style="border-top: 3px solid #FF5722;">
+            <h4 class="panel-title" style="color:#FF5722; border-color:#FF5722;"><?php echo $TC[$lang]['sect_main']; ?></h4>
+            <div class="form-group" style="margin-bottom:0;">
+                <label><?php echo $TC[$lang]['lbl_callsign']; ?></label>
+                <input type="text" name="Callsign" value="<?php echo $vals['Callsign']; ?>" oninput="this.value = this.value.toUpperCase()" style="font-weight:bold; font-size:16px;">
+                <small style="color:#888; font-size:10px; display:block; margin-top:5px;"><?php echo $TC[$lang]['hlp_callsign']; ?></small>
+            </div>
+        </div>
+
         <div class="panel-box box-full">
             <h4 class="panel-title blue"><?php echo $TC[$lang]['sect_el']; ?></h4>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
