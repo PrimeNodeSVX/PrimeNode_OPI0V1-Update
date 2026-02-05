@@ -26,14 +26,12 @@
     $networks = json_decode(file_get_contents($net_file), true);
     $edit_mode = false;
     $edit_data = ['id'=>'','name'=>'','host'=>'','port'=>'5300','pass'=>'','api'=>'','tgs'=>'','callsign'=>'','deftg'=>''];
-    $active_callsign = $vals['Callsign'];
-    $active_net_name = "Brak / Manual";
+    $active_callsign = isset($vals['Callsign']) ? $vals['Callsign'] : ''; 
     
     if (isset($networks['active']) && $networks['active'] > 0 && isset($networks['list'])) {
         foreach ($networks['list'] as $net) {
             if ($net['id'] == $networks['active']) {
                 $active_callsign = $net['callsign'];
-                $active_net_name = $net['name'];
                 break;
             }
         }
@@ -97,7 +95,8 @@
                 'Port' => '0',
                 'Password' => '',
                 'MonitorTGs' => '',
-                'node_api_url' => ''
+                'node_api_url' => '',
+                'Callsign' => ''
             ];
             file_put_contents('/tmp/svx_new_settings.json', json_encode($disconnect_data));
             shell_exec('sudo /usr/bin/python3 /usr/local/bin/update_svx_full.py 2>&1');
@@ -150,7 +149,6 @@
             'ph_call' => 'Znak Noda',
             'ph_deftg' => 'Startowe TG',
             
-            'lbl_active_call' => 'Używany Znak (z sieci):',
             'sect_el' => 'EchoLink',
             'lbl_el_call' => 'Znak EchoLink',
             'lbl_el_pass' => 'Hasło EchoLink',
@@ -204,7 +202,6 @@
             'ph_call' => 'Node Callsign',
             'ph_deftg' => 'Default TG',
 
-            'lbl_active_call' => 'Active Callsign (from net):',
             'sect_el' => 'EchoLink',
             'lbl_el_call' => 'EchoLink Callsign',
             'lbl_el_pass' => 'EchoLink Password',
@@ -334,10 +331,6 @@
         
         <div class="panel-box box-full">
             <h4 class="panel-title blue"><?php echo $TC[$lang]['sect_el']; ?></h4>
-            <div style="text-align:center; margin-bottom:10px; font-size:12px; color:#aaa; background:#222; padding:5px; border-radius:4px;">
-                <?php echo $TC[$lang]['lbl_active_call']; ?> <strong style="color:#FF9800; font-size:14px;"><?php echo $active_callsign; ?></strong>
-            </div>
-
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_call']; ?></label><input type="text" name="EL_Callsign" value="<?php echo $vals_el['Callsign']; ?>"></div>
                 <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_pass']; ?></label><input type="password" name="EL_Password" id="el-pass" value="<?php echo $vals_el['Password']; ?>"></div>
