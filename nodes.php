@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-$url = 'http://146.59.87.158:8091/status';
+$url = ''; 
 
 $configFile = '/var/www/html/radio_config.json';
 if (file_exists($configFile)) {
@@ -9,6 +9,11 @@ if (file_exists($configFile)) {
     if (isset($config['node_api_url']) && !empty($config['node_api_url'])) {
         $url = $config['node_api_url'];
     }
+}
+
+if (empty($url)) {
+    echo json_encode([]);
+    exit;
 }
 
 $ctx = stream_context_create(array(

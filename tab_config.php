@@ -84,7 +84,8 @@
                 'Host' => '',
                 'Port' => '0',
                 'Password' => '',
-                'MonitorTGs' => ''
+                'MonitorTGs' => '',
+                'node_api_url' => ''
             ];
             file_put_contents('/tmp/svx_new_settings.json', json_encode($disconnect_data));
             shell_exec('sudo /usr/bin/python3 /usr/local/bin/update_svx_full.py 2>&1');
