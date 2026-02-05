@@ -115,20 +115,30 @@ fi
 
 rm -f /usr/local/bin/watchdog_el.sh
 rm -f /usr/local/bin/fix_svxlink_nodes.sh
+rm -f /usr/local/bin/svx_watchdog.sh
+
 chown -R www-data:www-data $WWW_DIR
 chmod -R 755 $WWW_DIR
 sed -i '/wifi_guard.sh/d' /etc/rc.local
 sed -i '/fix_svxlink_nodes.sh/d' /etc/rc.local
+sed -i '/svx_watchdog.sh/d' /etc/rc.local
 
 if ! grep -q "clean_logs_on_boot.sh" /etc/rc.local; then
     sed -i -e '$i \/usr/local/bin/clean_logs_on_boot.sh &\n' /etc/rc.local
-    chmod +x /etc/rc.local
 fi
+
+if ! grep -q "svx_reconnect.sh" /etc/rc.local; then
+    sed -i -e '$i \/usr/local/bin/svx_reconnect.sh &\n' /etc/rc.local
+fi
+
+chmod +x /etc/rc.local
 
 echo ">> Restartowanie usług..."
 ps -ef | grep "tail" | grep "/var/log/svxlink" | grep -v grep | awk '{print $2}' | xargs -r kill -9
 pkill -9 -f "svx_event_logger.sh"
 pkill -9 -f "watchdog_el.sh"
+pkill -9 -f "svx_watchdog.sh"
+pkill -9 -f "svx_reconnect.sh"
 
 FINAL_STATUS="UP_TO_DATE"
 if [[ "$SELF_UPDATED" == "1" ]]; then
@@ -146,7 +156,9 @@ if [[ "$FINAL_STATUS" == "UP_TO_DATE" ]]; then
         touch /dev/shm/svxlink.log
         chmod 777 /dev/shm/svxlink.log
     fi
+
     nohup /usr/local/bin/svx_event_logger.sh > /dev/null 2>&1 &
+    nohup /usr/local/bin/svx_reconnect.sh > /dev/null 2>&1 &
 fi
 
 exit 0
