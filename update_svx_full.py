@@ -17,7 +17,6 @@ def save_lines(path, lines):
     with open(path, 'w', encoding='utf-8') as f: f.writelines(lines)
 
 def sanitize_lines(lines):
-
     seen_headers = set()
     clean_lines = []
     skip_mode = False
@@ -44,11 +43,11 @@ def sanitize_lines(lines):
             current_section = stripped
             final_lines.append(line)
             continue
-            
 
-        if (stripped.startswith("HOST=") or stripped.startswith("PORT=") or \
-            stripped.startswith("HOSTS=") or stripped.startswith("HOST_PORT=")):
-            
+        if stripped.startswith("HOSTS=") or stripped.startswith("HOST_PORT="):
+            continue
+
+        if stripped.startswith("HOST=") or stripped.startswith("PORT="):
             if current_section == "[ReflectorLogic]":
                 final_lines.append(line)
             else:
@@ -81,7 +80,6 @@ def update_key_in_lines(lines, section, key, value):
             continue
 
         if in_section:
-
             if stripped.startswith(key + "="):
                 new_lines.append(f"{key}={value}\n")
                 key_found = True
@@ -114,7 +112,7 @@ def main():
         with open(INPUT_JSON, 'r') as f: data = json.load(f)
 
     lines = load_lines(CONFIG_FILE)
-    lines = sanitize_lines(lines)
+    lines = sanitize_lines(lines) 
     lines = update_key_in_lines(lines, "GLOBAL", "LOGFILE", LOG_FILE_RAM)
 
     if os.path.exists(INPUT_JSON):
@@ -196,10 +194,8 @@ def main():
         mapping = {
             "ReflectorLogic": {
                 "CALLSIGN": reflector_callsign, "AUTH_KEY": data.get('Password'),
-                "HOST": data.get('Host'),      
-                "HOSTS": data.get('Host'),     
+                "HOST": data.get('Host'),       
                 "PORT": data.get('Port'),      
-                "HOST_PORT": data.get('Port'), 
                 "DEFAULT_TG": data.get('DefaultTG'), "MONITOR_TGS": data.get('MonitorTGs'),
                 "TG_SELECT_TIMEOUT": data.get('TgTimeout'), "TMP_MONITOR_TIMEOUT": data.get('TmpTimeout'),
                 "TGSTBEEP_ENABLE": data.get('Beep3Tone'), "TGREANON_ENABLE": data.get('AnnounceTG'),
