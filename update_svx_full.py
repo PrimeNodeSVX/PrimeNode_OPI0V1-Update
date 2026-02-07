@@ -190,7 +190,8 @@ def main():
         mapping = {
             "ReflectorLogic": {
                 "CALLSIGN": reflector_callsign, "AUTH_KEY": data.get('Password'),
-                "HOSTS": data.get('Host'), "HOST_PORT": data.get('Port'),
+                "HOST": data.get('Host'),
+                "PORT": data.get('Port'),
                 "DEFAULT_TG": data.get('DefaultTG'), "MONITOR_TGS": data.get('MonitorTGs'),
                 "TG_SELECT_TIMEOUT": data.get('TgTimeout'), "TMP_MONITOR_TIMEOUT": data.get('TmpTimeout'),
                 "TGSTBEEP_ENABLE": data.get('Beep3Tone'), "TGREANON_ENABLE": data.get('AnnounceTG'),
@@ -211,7 +212,11 @@ def main():
                 "DESCRIPTION": data.get('EL_Desc'), "PROXY_SERVER": data.get('EL_ProxyHost'),
                 "TIMEOUT": data.get('EL_ModTimeout'), "LINK_IDLE_TIMEOUT": data.get('EL_IdleTimeout')
             },
-            "Rx1": { "DTMF_SERIAL": serial_port, "SQL_GPIOD_LINE": gpio_sql },
+            "Rx1": { 
+                "DTMF_SERIAL": serial_port, 
+                "SQL_GPIOD_LINE": gpio_sql,
+                "PREAMP": "6",
+            },
             "Tx1": { "PTT_GPIOD_LINE": gpio_ptt }
         }
         
