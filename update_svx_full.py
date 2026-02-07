@@ -7,7 +7,6 @@ CONFIG_FILE = "/etc/svxlink/svxlink.conf"
 INPUT_JSON = "/tmp/svx_new_settings.json"
 RADIO_JSON = "/var/www/html/radio_config.json"
 NODE_INFO_FILE = "/etc/svxlink/node_info.json"
-
 LOG_FILE_RAM = "/dev/shm/svxlink.log"
 
 def load_lines(path):
@@ -16,6 +15,25 @@ def load_lines(path):
 
 def save_lines(path, lines):
     with open(path, 'w', encoding='utf-8') as f: f.writelines(lines)
+
+def sanitize_lines(lines):
+    seen_headers = set()
+    clean_lines = []
+    skip_mode = False
+    
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("[") and stripped.endswith("]"):
+            if stripped in seen_headers:
+                skip_mode = True
+            else:
+                seen_headers.add(stripped)
+                skip_mode = False
+                clean_lines.append(line)
+        else:
+            if not skip_mode:
+                clean_lines.append(line)
+    return clean_lines
 
 def update_key_in_lines(lines, section, key, value):
     new_lines = []
@@ -36,62 +54,65 @@ def update_key_in_lines(lines, section, key, value):
         stripped = line.strip()
         if stripped.startswith("[") and stripped.endswith("]"):
             in_section = (stripped == section_header)
-        
-        if in_section and "=" in stripped and not stripped.startswith(("#", ";")):
-            parts = stripped.split("=", 1)
-            current_key = parts[0].strip()
-            if current_key == key:
-                new_lines.append(f"{key}={value}\n")
-                key_found = True
-                continue 
+            new_lines.append(line)
+            continue
 
-        new_lines.append(line)
+        if in_section and stripped.startswith(key + "="):
+            new_lines.append(f"{key}={value}\n")
+            key_found = True
+        else:
+            new_lines.append(line)
 
-    if not key_found:
+    if section_exists and not key_found:
         final_lines = []
         in_tgt_sec = False
-        added = False
+        inserted = False
         for l in new_lines:
             s = l.strip()
             if s == section_header:
                 in_tgt_sec = True
                 final_lines.append(l)
                 continue
-            if in_tgt_sec and s.startswith("["):
-                if not added:
-                    final_lines.append(f"{key}={value}\n")
-                    added = True
+            
+            if in_tgt_sec and s.startswith("[") and s.endswith("]"):
+                if not inserted:
+                    final_lines.insert(-1, f"{key}={value}\n")
+                    inserted = True
                 in_tgt_sec = False
+            
             final_lines.append(l)
-        if in_tgt_sec and not added:
-             final_lines.append(f"{key}={value}\n")
-             added = True
-        if not added:
-             final_lines.append(f"{key}={value}\n")
+        
+        if not inserted and in_tgt_sec:
+            final_lines.append(f"{key}={value}\n")
+        
+        if not inserted and not in_tgt_sec:
+             for idx, l in enumerate(final_lines):
+                 if l.strip() == section_header:
+                     final_lines.insert(idx + 1, f"{key}={value}\n")
+                     break
         return final_lines
 
     return new_lines
 
 def main():
-
     if not os.path.exists(LOG_FILE_RAM):
         with open(LOG_FILE_RAM, 'w') as f: pass
-    
     try:
         os.chmod(LOG_FILE_RAM, 0o666)
     except:
         pass
 
-    if not os.path.exists(INPUT_JSON): 
+    if not os.path.exists(INPUT_JSON):
         pass
     else:
         with open(INPUT_JSON, 'r') as f: data = json.load(f)
 
     lines = load_lines(CONFIG_FILE)
+    lines = sanitize_lines(lines)
     lines = update_key_in_lines(lines, "GLOBAL", "LOGFILE", LOG_FILE_RAM)
 
     if os.path.exists(INPUT_JSON):
-        with open(INPUT_JSON, 'r') as f: data = json.load(f) # reload
+        with open(INPUT_JSON, 'r') as f: data = json.load(f)
         
         radio_data = {}
         if os.path.exists(RADIO_JSON):
@@ -160,6 +181,11 @@ def main():
         announce_call = data.get('AnnounceCall', '1')
         reflector_callsign = main_callsign
         simplex_callsign = main_callsign if announce_call=="1" else ""
+        
+        ident_int = "60"
+        if not main_callsign:
+            ident_int = "0"
+            simplex_callsign = ""
 
         mapping = {
             "ReflectorLogic": {
@@ -175,8 +201,8 @@ def main():
             "SimplexLogic": {
                 "CALLSIGN": simplex_callsign, "RGR_SOUND_ALWAYS": data.get('RogerBeep'),
                 "MODULES": data.get('Modules'),
-                "SHORT_IDENT_INTERVAL": "60" if announce_call=="1" else "0",
-                "LONG_IDENT_INTERVAL": "60" if announce_call=="1" else "0",
+                "SHORT_IDENT_INTERVAL": ident_int,
+                "LONG_IDENT_INTERVAL": ident_int,
                 "DEFAULT_LANG": data.get('AudioLang')
             },
             "EchoLink": {
@@ -189,10 +215,6 @@ def main():
             "Tx1": { "PTT_GPIOD_LINE": gpio_ptt }
         }
         
-        if main_callsign is None:
-            mapping["SimplexLogic"]["SHORT_IDENT_INTERVAL"] = None
-            mapping["SimplexLogic"]["LONG_IDENT_INTERVAL"] = None
-
         for section, keys in mapping.items():
             for cfg_key, json_val in keys.items():
                 if json_val is not None:
@@ -213,7 +235,7 @@ def main():
             json.dump(radio_data, f, indent=4)
 
     save_lines(CONFIG_FILE, lines)
-    print("SUKCES")
+    print("DONE")
 
 if __name__ == "__main__":
     main()
