@@ -100,7 +100,6 @@
         $target_id = $_POST['switch_network'];
         $selected_net = null;
 
-        // 1. Znajdujemy wybraną sieć w tablicy
         foreach ($networks['list'] as $net) {
             if ($net['id'] == $target_id) {
                 $selected_net = $net;
