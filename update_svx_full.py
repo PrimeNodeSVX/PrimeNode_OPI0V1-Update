@@ -17,6 +17,7 @@ def save_lines(path, lines):
     with open(path, 'w', encoding='utf-8') as f: f.writelines(lines)
 
 def sanitize_lines(lines):
+
     seen_headers = set()
     clean_lines = []
     skip_mode = False
@@ -33,7 +34,29 @@ def sanitize_lines(lines):
         else:
             if not skip_mode:
                 clean_lines.append(line)
-    return clean_lines
+
+    final_lines = []
+    current_section = ""
+    
+    for line in clean_lines:
+        stripped = line.strip()
+        if stripped.startswith("[") and stripped.endswith("]"):
+            current_section = stripped
+            final_lines.append(line)
+            continue
+            
+
+        if (stripped.startswith("HOST=") or stripped.startswith("PORT=") or \
+            stripped.startswith("HOSTS=") or stripped.startswith("HOST_PORT=")):
+            
+            if current_section == "[ReflectorLogic]":
+                final_lines.append(line)
+            else:
+                pass
+        else:
+            final_lines.append(line)
+            
+    return final_lines
 
 def update_key_in_lines(lines, section, key, value):
     new_lines = []
@@ -41,7 +64,7 @@ def update_key_in_lines(lines, section, key, value):
     key_found = False
     section_header = f"[{section}]"
     section_exists = False
-    
+
     for line in lines:
         if line.strip() == section_header:
             section_exists = True
@@ -57,39 +80,22 @@ def update_key_in_lines(lines, section, key, value):
             new_lines.append(line)
             continue
 
-        if in_section and stripped.startswith(key + "="):
-            new_lines.append(f"{key}={value}\n")
-            key_found = True
+        if in_section:
+
+            if stripped.startswith(key + "="):
+                new_lines.append(f"{key}={value}\n")
+                key_found = True
+            else:
+                new_lines.append(line)
         else:
             new_lines.append(line)
 
     if section_exists and not key_found:
         final_lines = []
-        in_tgt_sec = False
-        inserted = False
-        for l in new_lines:
-            s = l.strip()
-            if s == section_header:
-                in_tgt_sec = True
-                final_lines.append(l)
-                continue
-            
-            if in_tgt_sec and s.startswith("[") and s.endswith("]"):
-                if not inserted:
-                    final_lines.insert(-1, f"{key}={value}\n")
-                    inserted = True
-                in_tgt_sec = False
-            
-            final_lines.append(l)
-        
-        if not inserted and in_tgt_sec:
-            final_lines.append(f"{key}={value}\n")
-        
-        if not inserted and not in_tgt_sec:
-             for idx, l in enumerate(final_lines):
-                 if l.strip() == section_header:
-                     final_lines.insert(idx + 1, f"{key}={value}\n")
-                     break
+        for line in new_lines:
+            final_lines.append(line)
+            if line.strip() == section_header:
+                final_lines.append(f"{key}={value}\n")
         return final_lines
 
     return new_lines
@@ -190,10 +196,10 @@ def main():
         mapping = {
             "ReflectorLogic": {
                 "CALLSIGN": reflector_callsign, "AUTH_KEY": data.get('Password'),
-                "HOST": data.get('Host'),
-                "HOSTS": data.get('Host'),
-                "PORT": data.get('Port'),
-                "HOST_PORT": data.get('Port'),
+                "HOST": data.get('Host'),      
+                "HOSTS": data.get('Host'),     
+                "PORT": data.get('Port'),      
+                "HOST_PORT": data.get('Port'), 
                 "DEFAULT_TG": data.get('DefaultTG'), "MONITOR_TGS": data.get('MonitorTGs'),
                 "TG_SELECT_TIMEOUT": data.get('TgTimeout'), "TMP_MONITOR_TIMEOUT": data.get('TmpTimeout'),
                 "TGSTBEEP_ENABLE": data.get('Beep3Tone'), "TGREANON_ENABLE": data.get('AnnounceTG'),
@@ -217,7 +223,7 @@ def main():
             "Rx1": { 
                 "DTMF_SERIAL": serial_port, 
                 "SQL_GPIOD_LINE": gpio_sql,
-                "PREAMP": "0"
+                "PREAMP": "6"
             },
             "Tx1": { "PTT_GPIOD_LINE": gpio_ptt }
         }

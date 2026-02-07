@@ -3,20 +3,8 @@
     
     if (!file_exists($net_file)) {
         $default_net = [
-            "active" => 1,
-            "list" => [
-                [
-                    "id" => 1,
-                    "name" => "SQLink Polska",
-                    "host" => "sqlink.pl",
-                    "port" => "5300",
-                    "pass" => "Haslo",
-                    "api" => "http://sqlink.pl:8091/status",
-                    "tgs" => "260,26077",
-                    "callsign" => "N0CALL",
-                    "deftg" => "260"
-                ]
-            ]
+            "active" => 0,
+            "list" => []
         ];
         file_put_contents($net_file, json_encode($default_net, JSON_PRETTY_PRINT));
         exec("sudo chown www-data:www-data $net_file");
@@ -26,6 +14,8 @@
     $networks = json_decode(file_get_contents($net_file), true);
     $edit_mode = false;
     $edit_data = ['id'=>'','name'=>'','host'=>'','port'=>'5300','pass'=>'','api'=>'','tgs'=>'','callsign'=>'','deftg'=>''];
+    
+
     $active_callsign = isset($vals['Callsign']) ? $vals['Callsign'] : ''; 
     
     if (isset($networks['active']) && $networks['active'] > 0 && isset($networks['list'])) {
@@ -90,8 +80,9 @@
         
         if ($was_active) {
             $networks['active'] = 0;
+
             $disconnect_data = [
-                'Host' => '',
+                'Host' => '', 
                 'Port' => '0',
                 'Password' => '',
                 'MonitorTGs' => '',
@@ -239,7 +230,6 @@
 ?>
 
 <h3><?php echo $TC[$lang]['header']; ?></h3>
-
 <div class="panel-box box-full" style="border: 1px solid #FF9800;">
     <h4 class="panel-title" style="color:#FF9800; border-color:#FF9800;"><?php echo $TC[$lang]['sect_roam']; ?></h4>
     <table class="wifi-saved-table">
