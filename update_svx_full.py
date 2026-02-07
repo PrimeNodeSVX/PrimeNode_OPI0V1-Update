@@ -217,7 +217,7 @@ def main():
             "Rx1": { 
                 "DTMF_SERIAL": serial_port, 
                 "SQL_GPIOD_LINE": gpio_sql,
-                "PREAMP": "6"
+                "PREAMP": "0"
             },
             "Tx1": { "PTT_GPIOD_LINE": gpio_ptt }
         }
