@@ -14,8 +14,6 @@
     $networks = json_decode(file_get_contents($net_file), true);
     $edit_mode = false;
     $edit_data = ['id'=>'','name'=>'','host'=>'','port'=>'5300','pass'=>'','api'=>'','tgs'=>'','callsign'=>'','deftg'=>''];
-    
-
     $active_callsign = isset($vals['Callsign']) ? $vals['Callsign'] : ''; 
     
     if (isset($networks['active']) && $networks['active'] > 0 && isset($networks['list'])) {
@@ -99,10 +97,36 @@
     }
 
     if (isset($_POST['switch_network'])) {
-        $cmd = "sudo /usr/local/bin/switch_network.py --dtmf " . escapeshellarg($_POST['switch_network']);
-        shell_exec($cmd);
-        sleep(3); 
-        echo "<script>window.location.href='index.php';</script>";
+        $target_id = $_POST['switch_network'];
+        $selected_net = null;
+
+        // 1. Znajdujemy wybraną sieć w tablicy
+        foreach ($networks['list'] as $net) {
+            if ($net['id'] == $target_id) {
+                $selected_net = $net;
+                break;
+            }
+        }
+
+        if ($selected_net) {
+            $switch_data = [
+                'Callsign'   => $selected_net['callsign'],
+                'Host'       => $selected_net['host'],
+                'Port'       => $selected_net['port'],
+                'Password'   => $selected_net['pass'],
+                'DefaultTG'  => isset($selected_net['deftg']) ? $selected_net['deftg'] : '0',
+                'MonitorTGs' => isset($selected_net['tgs']) ? $selected_net['tgs'] : '',
+                'node_api_url' => isset($selected_net['api']) ? $selected_net['api'] : ''
+            ];
+
+            file_put_contents('/tmp/svx_new_settings.json', json_encode($switch_data));
+            shell_exec('sudo /usr/bin/python3 /usr/local/bin/update_svx_full.py 2>&1');
+            $networks['active'] = $target_id;
+            file_put_contents($net_file, json_encode($networks, JSON_PRETTY_PRINT));
+            shell_exec('sudo /usr/bin/systemctl restart svxlink > /dev/null 2>&1 &');
+            echo "<div class='alert alert-success'>Przełączono na: " . htmlspecialchars($selected_net['name']) . ". Restart...</div>";
+            echo "<script>setTimeout(function(){ window.location.href='index.php'; }, 3000);</script>";
+        }
     }
 
     if (isset($_POST['edit_network'])) {
