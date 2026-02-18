@@ -436,9 +436,26 @@
     }
     
     $cache_file = '/tmp/primenode_alert_cache.txt';
-    $cache_time = 3600; $alert_msg = "";
-    if (file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_time)) { $alert_msg = file_get_contents($cache_file); }
-    else { $ctx = stream_context_create(['http' => ['timeout' => 5]]); $remote_msg = @file_get_contents('https://raw.githubusercontent.com/PrimeNodeSVX/PrimeNode_OPI0V1-Update/main/alert.txt', false, $ctx); if ($remote_msg !== false) { $alert_msg = $remote_msg; file_put_contents($cache_file, $alert_msg); } elseif (file_exists($cache_file)) { $alert_msg = file_get_contents($cache_file); } }
+    $cache_time = 600; 
+    $alert_msg = "";
+
+    if (file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_time)) {
+        $alert_msg = @file_get_contents($cache_file);
+    } else {
+        $ctx = stream_context_create(['http' => ['timeout' => 4]]);
+        $remote_msg = @file_get_contents('https://raw.githubusercontent.com/PrimeNodeSVX/PrimeNode_OPI0V1-Update/main/alert.txt', false, $ctx);
+        
+        if ($remote_msg !== false) {
+
+            if (file_exists($cache_file)) { @unlink($cache_file); }
+            @file_put_contents($cache_file, $remote_msg);
+            @chmod($cache_file, 0666);
+            
+            $alert_msg = $remote_msg;
+        } elseif (file_exists($cache_file)) {
+            $alert_msg = @file_get_contents($cache_file);
+        }
+    }
     
     $alert_hash = md5($alert_msg);
 ?>

@@ -161,4 +161,6 @@ if [[ "$FINAL_STATUS" == "UP_TO_DATE" ]]; then
     nohup /usr/local/bin/svx_reconnect.sh > /dev/null 2>&1 &
 fi
 
+rm -f /tmp/primenode_alert_cache.txt
+
 exit 0
