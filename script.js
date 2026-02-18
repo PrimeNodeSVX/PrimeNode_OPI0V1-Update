@@ -239,7 +239,12 @@ function loadLogsAndStatus() {
         );
         let lastDisconnect = Math.max(
             data.lastIndexOf("ReflectorLogic: Disconnected"),
-            data.lastIndexOf("ReflectorLogic: Authentication failed")
+            data.lastIndexOf("ReflectorLogic: Authentication failed"),
+            data.lastIndexOf("ReflectorLogic: Connection failed"),
+            data.lastIndexOf("ReflectorLogic: Connection timed out"),
+            data.lastIndexOf("Could not load or initialize Logic"),
+            data.lastIndexOf("Removing logic from link"),
+            data.lastIndexOf("At least one of HOSTS")
         );
         let isOnline = false;
         if (data.length < 50) {
