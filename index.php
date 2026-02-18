@@ -435,7 +435,7 @@
         echo "<div class='alert alert-warning'>".$TR[$lang]['wifi_deleted']." ".htmlspecialchars($_POST['ssid'])."</div><meta http-equiv='refresh' content='2'>"; 
     }
     
-    $cache_file = '/tmp/primenode_alert_cache.txt';
+    $cache_file = '/dev/shm/primenode_alert_cache.txt';
     $cache_time = 600; 
     $alert_msg = "";
 
