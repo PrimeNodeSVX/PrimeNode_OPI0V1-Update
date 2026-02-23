@@ -159,6 +159,10 @@ def main():
         rx_freq = radio_data.get("rx", "")
         tx_freq = radio_data.get("tx", "")
         ctcss = radio_data.get("ctcss", "0")
+        if ctcss == "0000":
+            ctcss = "0"
+        elif len(ctcss) == 4 and ctcss.isdigit():
+            ctcss = str(float(ctcss) / 10.0)
         is_echolink = "1" if (data.get('Modules') and "EchoLink" in data['Modules']) else "0"
         current_default_tg = data.get('DefaultTG') or backup_info.get('DefaultTG', '0')
 
