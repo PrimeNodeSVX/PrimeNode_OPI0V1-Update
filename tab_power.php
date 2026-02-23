@@ -122,7 +122,26 @@ if (trim(@file_get_contents($update_flag_file)) === "UPDATE_AVAILABLE") {
     <h4 class="panel-title" style="color: #FF9800; border: none;"><?php echo $TP[$lang]['title_upd']; ?></h4>
     
     <?php if ($update_available): ?>
-        <div class="alert alert-success" style="margin-bottom: 15px; font-weight: bold; font-size: 13px;">
+        <style>
+            @keyframes pulse-update {
+                0% { background-color: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50; box-shadow: 0 0 10px rgba(76, 175, 80, 0.5); transform: scale(1); }
+                50% { background-color: rgba(255, 152, 0, 0.3); border-color: #FF9800; color: #FF9800; box-shadow: 0 0 20px rgba(255, 152, 0, 0.8); transform: scale(1.02); }
+                100% { background-color: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50; box-shadow: 0 0 10px rgba(76, 175, 80, 0.5); transform: scale(1); }
+            }
+            .persistent-update-box {
+                padding: 15px;
+                margin-bottom: 20px;
+                border-radius: 6px;
+                border: 2px solid;
+                text-align: center;
+                font-weight: bold;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                animation: pulse-update 2s infinite ease-in-out;
+            }
+        </style>
+        <div class="persistent-update-box">
             <?php echo $TP[$lang]['update_avail']; ?>
         </div>
     <?php endif; ?>
