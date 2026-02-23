@@ -10,7 +10,8 @@ $TP = [
         'ask_off' => 'Czy na pewno chcesz WYŁĄCZYĆ urządzenie?',
         'btn_off' => '🛑 Wyłącz Urządzenie',
         'title_upd' => 'Aktualizacja Systemu',
-        'btn_upd' => '☁️ Pobierz Aktualizację Dashboardu (GitHub)'
+        'btn_upd' => '☁️ Pobierz Aktualizację Dashboardu (GitHub)',
+        'update_avail' => '✨ Dostępna nowa aktualizacja! Możesz ją pobrać poniżej.'
     ],
     'en' => [
         'load_title' => 'UPDATING...',
@@ -22,9 +23,35 @@ $TP = [
         'ask_off' => 'Are you sure you want to SHUT DOWN the device?',
         'btn_off' => '🛑 Shutdown Device',
         'title_upd' => 'System Update',
-        'btn_upd' => '☁️ Download Dashboard Update (GitHub)'
+        'btn_upd' => '☁️ Download Dashboard Update (GitHub)',
+        'update_avail' => '✨ New update available! You can download it below.'
     ]
 ];
+
+$update_flag_file = '/dev/shm/primenode_update_status.txt';
+$update_available = false;
+
+if (!file_exists($update_flag_file)) {
+    $remote_hash = trim(shell_exec("timeout 4 git ls-remote https://github.com/PrimeNodeSVX/PrimeNode_OPI0V1-Update.git HEAD | awk '{print $1}' 2>/dev/null"));
+    $local_hash = trim(@file_get_contents('/var/www/html/local_hash.txt'));
+    
+    if (!empty($local_hash) && !empty($remote_hash)) {
+        if ($local_hash !== $remote_hash) {
+            @file_put_contents($update_flag_file, "UPDATE_AVAILABLE");
+        } else {
+            @file_put_contents($update_flag_file, "UP_TO_DATE");
+        }
+        @chmod($update_flag_file, 0666);
+    } else {
+        if (file_exists($update_flag_file)) {
+            @unlink($update_flag_file); 
+        }
+    }
+}
+
+if (trim(@file_get_contents($update_flag_file)) === "UPDATE_AVAILABLE") {
+    $update_available = true;
+}
 ?>
 <style>
     #loading-overlay {
@@ -93,6 +120,12 @@ $TP = [
 
     <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
     <h4 class="panel-title" style="color: #FF9800; border: none;"><?php echo $TP[$lang]['title_upd']; ?></h4>
+    
+    <?php if ($update_available): ?>
+        <div class="alert alert-success" style="margin-bottom: 15px; font-weight: bold; font-size: 13px;">
+            <?php echo $TP[$lang]['update_avail']; ?>
+        </div>
+    <?php endif; ?>
     
     <button type="submit" name="git_update" class="btn btn-green" onclick="showLoader()"><?php echo $TP[$lang]['btn_upd']; ?></button>
 </form>

@@ -163,4 +163,7 @@ fi
 
 rm -f /dev/shm/primenode_alert_cache.txt
 
+git -C /root/PrimeNode_OPI0V1-Update rev-parse HEAD > /var/www/html/local_hash.txt
+chmod 666 /var/www/html/local_hash.txt
+
 exit 0
