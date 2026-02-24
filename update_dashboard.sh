@@ -67,6 +67,8 @@ if [ -d "$GIT_DIR/PL" ]; then
     if [ -f "$SVX_CONF" ]; then
         sed -i '/^\[SimplexLogic\]/,/^\[/ s/DEFAULT_LANG=pl_PL/DEFAULT_LANG=PL/' "$SVX_CONF"
         sed -i '/^\[ReflectorLogic\]/,/^\[/ s/DEFAULT_LANG=pl_PL/DEFAULT_LANG=PL/' "$SVX_CONF"
+        sed -i -e 's/\x53\x51\x4C\x69\x6E\x6B/PrimeNode/g' "$SVX_CONF"
+        sed -i -e 's/PrimeNode Config   /PrimeNode Config/g' "$SVX_CONF"
     fi
 fi
 
