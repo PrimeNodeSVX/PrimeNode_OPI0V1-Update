@@ -488,6 +488,7 @@
     </style>
 </head>
 
+<body>
 <div id="changelog-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
     <div id="changelog-modal" data-version="1.3" style="background: #1e1e1e; border: 2px solid #4CAF50; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
         <h2 style="margin-top:0; color:#4CAF50; border-bottom: 1px solid #333; padding-bottom: 10px;">🚀 PrimeNode V1.3 - Co nowego?</h2>
@@ -501,19 +502,14 @@
                 <li>ℹ️ <b>Dane Radiowe:</b> Informacje o częstotliwości (QRG) i CTCSS dodane do wyskakujących wizytówek.</li>
                 <li>⚡ <b>Szybkie Przełączanie (Quick-Dial):</b> Kliknij nadający węzeł w zakładce, aby jednym przyciskiem przejść na jego rozmowę (TG)!</li>
                 <li>🎛️ <b>Smart Config:</b> Nowe, interaktywne okienko wyboru grup w Konfiguracji. Wybieraj startowe i monitorowane TG wygodnie z własnej listy DTMF zamiast wpisywać je ręcznie!</li>
-                <li>🐛 <b>Stabilność API:</b> Zoptymalizowano czas odświeżania i poprawiono odczyt danych z różnych sieci (np. FM Poland vs SQLink).</li>
+                <li>🐛 <b>Stabilność API:</b> Zoptymalizowano czas odświeżania i poprawiono odczyt danych z różnych sieci.</li>
             </ul>
         </div>
         
         <button class="btn btn-green" style="margin-top: 20px; width: 100%; font-size: 16px; padding: 12px;" onclick="closeChangelog()">Super, rozumiem!</button>
     </div>
 </div>
-        
-        <button class="btn btn-green" style="margin-top: 20px; width: 100%; font-size: 16px; padding: 12px;" onclick="closeChangelog()">Super, rozumiem!</button>
-    </div>
-</div>
 
-<body>
 <div class="container">
     <div class="lang-switcher">
         <a href="?lang=pl" class="<?php echo $lang=='pl'?'active':''; ?>"><img src="flags/pl.svg" alt="PL"></a>

@@ -612,12 +612,7 @@ function openGridMapper() {
                 var popupContent = "<div style='text-align:center; min-width:120px;'><b>" + callsign + "</b><br>" + loc;
                 if(n.Sysop) popupContent += "<br><span style='color:#bbb; font-size:11px;'>" + n.Sysop + "</span>";
                 if(radioData) popupContent += "<br><br><span style='color:#0288d1; font-weight:bold; font-size:12px;'>QRG: " + radioData + "</span>";
-               var popupContent = "<div style='text-align:center; min-width:120px;'><b>" + callsign + "</b><br>" + loc;
-                if(n.Sysop) popupContent += "<br><span style='color:#bbb; font-size:11px;'>" + n.Sysop + "</span>";
-                if(radioData) popupContent += "<br><br><span style='color:#0288d1; font-weight:bold; font-size:12px;'>QRG: " + radioData + "</span>";
-                var popupContent = "<div style='text-align:center; min-width:120px;'><b>" + callsign + "</b><br>" + loc;
-                if(n.Sysop) popupContent += "<br><span style='color:#bbb; font-size:11px;'>" + n.Sysop + "</span>";
-                if(radioData) popupContent += "<br><br><span style='color:#0288d1; font-weight:bold; font-size:12px;'>" + radioData + "</span>";
+                
                 var activeTg = (n.tg && n.tg !== 0) ? n.tg : "";
                 var isTx = (n.isTalker === true || n.isTalker === "1" || n.isTalker === 1);
                 if (isTx && activeTg) {

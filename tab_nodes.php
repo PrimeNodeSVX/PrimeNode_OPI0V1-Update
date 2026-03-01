@@ -76,10 +76,6 @@ $TN = [
         <div class="qrz-logo-container">
             <img src="qrz.png" alt="QRZ" class="qrz-img">
         </div>
-        
-        <div class="qrz-logo-container">
-            <img src="qrz.png" alt="QRZ" class="qrz-img">
-        </div>
     </div>
 </div>
 
