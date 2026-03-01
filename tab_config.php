@@ -213,7 +213,13 @@
             'lbl_lang_audio' => 'Język Audio',
             'opt_yes' => 'TAK',
             'opt_no' => 'NIE',
-            'btn_save' => 'Zapisz Ustawienia Globalne'
+            'btn_save' => 'Zapisz Ustawienia Globalne',
+	    'tg_modal_title' => '🎙️ Wybierz Grupy TG',
+            'tg_selected' => 'Wybrane:',
+            'tg_ph_manual' => 'Wpisz nr TG...',
+            'btn_add_tg' => 'DODAJ',
+            'btn_confirm' => '✅ ZATWIERDŹ',
+            'btn_cancel' => '❌ ANULUJ'
         ],
         'en' => [
             'header' => 'SvxLink Configuration',
@@ -266,7 +272,13 @@
             'lbl_lang_audio' => 'Audio Lang',
             'opt_yes' => 'YES',
             'opt_no' => 'NO',
-            'btn_save' => 'Save Global Settings'
+            'btn_save' => 'Save Global Settings',
+	    'tg_modal_title' => '🎙️ Select TG Groups',
+            'tg_selected' => 'Selected:',
+            'tg_ph_manual' => 'Enter TG no...',
+            'btn_add_tg' => 'ADD',
+            'btn_confirm' => '✅ CONFIRM',
+            'btn_cancel' => '❌ CANCEL'
         ]
     ];
 ?>
@@ -337,11 +349,11 @@
                 <div style="flex:1; min-width:200px;">
                     <input type="text" name="n_api" placeholder="API URL (http://...)" value="<?php echo $edit_data['api']; ?>">
                 </div>
-                <div style="flex:1; min-width:100px;">
-                    <input type="text" name="n_deftg" placeholder="<?php echo $TC[$lang]['ph_deftg']; ?>" value="<?php echo $edit_data['deftg']; ?>">
+               <div style="flex:1; min-width:100px;">
+                    <input type="text" id="n_deftg_input" name="n_deftg" placeholder="<?php echo $TC[$lang]['ph_deftg']; ?>" value="<?php echo $edit_data['deftg']; ?>" onclick="openTgSelector('n_deftg_input', 'single')" style="cursor: pointer;" readonly title="Kliknij, aby wybrać z listy">
                 </div>
                 <div style="flex:1; min-width:100px;">
-                    <input type="text" name="n_tgs" placeholder="<?php echo $TC[$lang]['ph_tgs']; ?>" value="<?php echo $edit_data['tgs']; ?>">
+                    <input type="text" id="n_tgs_input" name="n_tgs" placeholder="<?php echo $TC[$lang]['ph_tgs']; ?>" value="<?php echo $edit_data['tgs']; ?>" onclick="openTgSelector('n_tgs_input', 'multi')" style="cursor: pointer;" readonly title="Kliknij, aby wybrać z listy">
                 </div>
             </div>
 
@@ -431,3 +443,39 @@
     </div>
     <button type="submit" name="save_svx_full" class="btn btn-blue" style="margin-top:20px;"><?php echo $TC[$lang]['btn_save']; ?></button>
 </form>
+
+<?php
+$tg_list_data = [];
+$custom_dtmf_path = '/var/www/html/dtmf_custom.json';
+if (file_exists($custom_dtmf_path)) {
+    $tg_list_data = json_decode(file_get_contents($custom_dtmf_path), true);
+}
+?>
+
+<div id="tg-modal-overlay">
+    <div id="tg-modal">
+        <h3 style="margin-top:0; color:#2196F3; border-bottom: 1px solid #333; padding-bottom: 10px; display:flex; justify-content:space-between; align-items:center;">
+            <span><?php echo $TC[$lang]['tg_modal_title']; ?></span>
+            <span id="tg-modal-mode" style="font-size:12px; background:#333; color:#ccc; padding:3px 8px; border-radius:4px;"></span>
+        </h3>
+
+        <div style="font-size:11px; color:#888; margin-bottom:5px;"><?php echo $TC[$lang]['tg_selected']; ?></div>
+        <div class="tg-sel-box" id="tg-selected-container"></div>
+
+        <div class="tg-manual-add">
+            <input type="number" id="tg-manual-input" placeholder="<?php echo $TC[$lang]['tg_ph_manual']; ?>" style="flex:1; padding:8px; font-size:14px; background:#222; color:#fff; border:1px solid #444; border-radius:4px;">
+            <button class="btn btn-blue" style="width:auto; margin:0; padding:0 20px;" onclick="addManualTg()"><?php echo $TC[$lang]['btn_add_tg']; ?></button>
+        </div>
+
+        <div style="flex:1; overflow-y:auto; padding-right:5px; margin-bottom:15px;" id="tg-lists-container"></div>
+
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-green" style="margin:0;" onclick="saveTgSelection()"><?php echo $TC[$lang]['btn_confirm']; ?></button>
+            <button class="btn btn-red" style="margin:0;" onclick="closeTgSelector()"><?php echo $TC[$lang]['btn_cancel']; ?></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const tgDataGroups = <?php echo json_encode($tg_list_data); ?>;
+</script>

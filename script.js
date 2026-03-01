@@ -18,7 +18,11 @@ const TRANS = {
         rx_local: "ODBIERANIE (RX - LOCAL)...",
         standby: "STAN: CZUWANIE (Standby)",
         no_nodes: "Brak aktywnych węzłów",
-        no_tg: "Brak (Czuwanie)"
+        no_tg: "Brak (Czuwanie)",
+	tg_mode_single: "Wybór pojedynczy",
+        tg_mode_multi: "Wybór wielokrotny",
+        tg_empty_sel: "Brak wyznaczonych TG...",
+        tg_no_data: "Brak danych z zakładki DTMF."
     },
     en: {
         el_off: "EchoLink Off",
@@ -36,7 +40,11 @@ const TRANS = {
         rx_local: "RECEIVING (RX - LOCAL)...",
         standby: "STATUS: STANDBY",
         no_nodes: "No active nodes",
-        no_tg: "None (Standby)"
+        no_tg: "None (Standby)",
+	tg_mode_single: "Single selection",
+        tg_mode_multi: "Multiple selection",
+        tg_empty_sel: "No TGs selected...",
+        tg_no_data: "No data from DTMF tab."
     }
 };
 const T = TRANS[currentLang];
@@ -62,11 +70,27 @@ function sendAjax(code) { $.post("index.php", {ajax_dtmf: code}, function(result
 function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tab-content");
-    for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; }
+    for (i = 0; i < tabcontent.length; i++) { 
+        tabcontent[i].style.display = "none"; 
+        tabcontent[i].classList.remove("active");
+    }
+    
     tablinks = document.getElementsByClassName("tab-btn");
-    for (i = 0; i < tablinks.length; i++) { tablinks[i].className = tablinks[i].className.replace(" active", ""); }
-    document.getElementById(tabName).style.display = "block";
-    if(evt) { evt.currentTarget.className += " active"; } else { var btn = document.getElementById("btn-" + tabName); if(btn) btn.className += " active"; }
+    for (i = 0; i < tablinks.length; i++) { 
+        tablinks[i].className = tablinks[i].className.replace(" active", ""); 
+    }
+    
+    var targetTab = document.getElementById(tabName);
+    targetTab.style.display = "block";
+    targetTab.classList.add("active");
+
+    if(evt) { 
+        evt.currentTarget.className += " active"; 
+    } else { 
+        var btn = document.getElementById("btn-" + tabName); 
+        if(btn) btn.className += " active"; 
+    }
+    
     var inputs = document.getElementsByClassName("active-tab-input");
     for(var j=0; j<inputs.length; j++) { inputs[j].value = tabName; }
     localStorage.setItem('activeTab', tabName);
@@ -167,6 +191,7 @@ function checkAlert() {
 }
 document.addEventListener("DOMContentLoaded", function() {
     checkAlert();
+    checkChangelog();
     var storedTab = localStorage.getItem('activeTab');
     if (storedTab) { openTab(null, storedTab); } else { openTab(null, 'Dashboard'); }
     var storedDtmfTab = localStorage.getItem('activeDtmfTab');
@@ -360,24 +385,64 @@ function updateNodes() {
         var nodeKeys = Object.keys(data.nodes).sort();
         var html = "";
         if (nodeKeys.length === 0) {
-            html = "<div style='grid-column:1/-1;text-align:center;color:#777;'>" + T.no_nodes + "</div>";
-        } else {
-            nodeKeys.forEach(function(call) {
-                var isMe = (call === myCall);
-                var cssClass = isMe ? "node-item is-me" : "node-item";
-                html += `<div class="${cssClass}" onclick="window.open('https://www.qrz.com/db/${call}', '_blank')" onmouseenter="showTooltip(event, '${call}')" onmouseleave="hideTooltip()" onmousemove="moveTooltip(event)">
-                            <span class="node-icon">📻</span>
-                            <span class="node-name">${call}</span>
-                         </div>`;
-            });
-        }
-        $("#nodes-content").html(html);
+        html = "<div style='grid-column:1/-1;text-align:center;color:#777;'>" + T.no_nodes + "</div>";
+    } else {
+        nodeKeys.forEach(function(call) {
+            var n = data.nodes[call];
+            var isMe = (call === myCall);
+            var isTx = (n.isTalker === true || n.isTalker === "1" || n.isTalker === 1) ? " node-tx" : "";
+            var cssClass = "node-item" + (isMe ? " is-me" : "") + isTx;
+            var swIcon = getSwIcon(n.sw); 
+
+            html += `<div class="${cssClass}" onclick="handleNodeClick(event, '${call}')" onmouseenter="showTooltip(event, '${call}')" onmouseleave="hideTooltip()" onmousemove="moveTooltip(event)">
+                        <span class="node-icon">${swIcon}</span>
+                        <span class="node-name">${call}</span>
+                     </div>`;
+        });
+    }
+    $("#nodes-content").html(html);
     });
+}
+function getRadioInfo(n) {
+    let freq = "";
+    let ctcss = "";
+
+    if (n.RXFREQ && parseFloat(n.RXFREQ) > 0) freq = n.RXFREQ;
+    if (n.CTCSS) ctcss = n.CTCSS.toString();
+    if (!freq && n.qth && n.qth.length > 0) {
+        let q = n.qth[0];
+        if (q.rx && q.rx.R && q.rx.R.freq) freq = q.rx.R.freq;
+        if (q.rx && q.rx.R && q.rx.R.ctcssFreq) ctcss = q.rx.R.ctcssFreq.toString();
+    }
+
+
+    if (freq) {
+        let f = parseFloat(freq).toFixed(3);
+        let result = f + " MHz";
+        if (ctcss && parseFloat(ctcss) > 0) {
+            let c = parseFloat(ctcss);
+            if (c > 250) c = c / 10.0;
+            result += " (CTCSS: " + c.toFixed(1) + " Hz)";
+        }
+        return result;
+    }
+    return "";
+}
+
+function getSwIcon(sw) {
+    if (!sw) return "📻";
+    let s = sw.toLowerCase();
+    if (s.includes("hamlink") || s.includes("qsolink") || s.includes("latry") || s.includes("zello")) return "📱";
+    if (s.includes("linkify") || s.includes("desktop") || s.includes("pc")) return "💻";
+    return "📻";
 }
 function showTooltip(e, callsign) {
     if (!cachedNodesData[callsign]) return;
     var info = cachedNodesData[callsign];
     var tooltip = document.getElementById('node-tooltip');
+    if (tooltip.parentNode !== document.body) {
+        document.body.appendChild(tooltip);
+    }
     $("#nt-callsign").text(callsign);
     $("#nt-sw").text((info.sw || "") + " " + (info.swVer || ""));
     var name = "---";
@@ -411,16 +476,39 @@ function showTooltip(e, callsign) {
     }
     $("#nt-monitored").text(monitored);
     $("#nt-ver").text(info.projVer || "---");
+    var radioData = getRadioInfo(info);
+    var radioData = getRadioInfo(info);
+    if(radioData) {
+        $("#nt-radio").text(radioData);
+        $("#row-radio").show();
+    } else {
+        $("#row-radio").hide();
+    }
+
     tooltip.style.display = 'block';
     moveTooltip(e);
 }
+
 function moveTooltip(e) {
     var tooltip = document.getElementById('node-tooltip');
     if(tooltip.style.display === 'block') {
+        
+        var ttWidth = tooltip.offsetWidth;
+        var ttHeight = tooltip.offsetHeight;
         var x = e.clientX + 15;
         var y = e.clientY + 15;
-        if (x + 240 > window.innerWidth) { x = e.clientX - 240; }
-        if (y + 300 > window.innerHeight) { y = e.clientY - 300; }
+       
+        if (x + ttWidth > window.innerWidth) { 
+            x = e.clientX - ttWidth - 15; 
+        }
+        
+        if (y + ttHeight > window.innerHeight) { 
+            y = e.clientY - ttHeight - 15; 
+        }
+
+        if (x < 5) x = 5;
+        if (y < 5) y = 5;
+
         tooltip.style.left = x + 'px';
         tooltip.style.top = y + 'px';
     }
@@ -430,7 +518,7 @@ function hideTooltip() {
 }
 setInterval(loadLogsAndStatus, 1000);
 setInterval(updateStats, 10000);
-setInterval(updateNodes, 30000);
+setInterval(updateNodes, 15000);
 loadLogsAndStatus();
 updateStats();
 updateNodes();
@@ -442,50 +530,299 @@ function qthToLatLon(qth) {
     var lat = (qth.charCodeAt(1) - 65) * 10 - 90 + parseInt(qth.charAt(3)) + ((qth.charCodeAt(5) - 65) + 0.5) / 24;
     return [lat, lon];
 }
+
+function checkChangelog() {
+    var overlay = document.getElementById('changelog-overlay');
+    if (!overlay) return;
+    
+    var modal = document.getElementById('changelog-modal');
+    var currentVersion = modal.getAttribute('data-version');
+    var savedVersion = localStorage.getItem('primenode_version');
+    if (savedVersion !== currentVersion) {
+        overlay.style.display = 'flex';
+    }
+}
+
+function closeChangelog() {
+    var overlay = document.getElementById('changelog-overlay');
+    var modal = document.getElementById('changelog-modal');
+    var currentVersion = modal.getAttribute('data-version');
+    localStorage.setItem('primenode_version', currentVersion);
+    overlay.style.display = 'none';
+}
+
 function openGridMapper() {
-    document.getElementById('map-overlay').style.display = 'flex';
+    var overlay = document.getElementById('map-overlay');
+    if (overlay.parentNode !== document.body) {
+        document.body.appendChild(overlay);
+    }
+    
+    overlay.style.display = 'flex'; 
+    
     var style = localStorage.getItem('mapStyle') || 'dark';
     var tileUrl = '';
     var tileOptions = {
         maxZoom: 19,
+        minZoom: 2,
+        noWrap: true,
         attribution: '&copy; OpenStreetMap contributors'
     };
+    
     if(style === 'light') {
         tileUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
         tileOptions.subdomains = 'abcd';
         tileOptions.attribution += ' &copy; CARTO';
     } else if(style === 'osm') {
         tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        tileOptions.subdomains = 'abc'; 
+        tileOptions.subdomains = 'abc';
     } else {
         tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
         tileOptions.subdomains = 'abcd';
         tileOptions.attribution += ' &copy; CARTO';
     }
+    
     if (mapInstance) {
         mapInstance.remove();
         mapInstance = null;
     }
-    mapInstance = L.map('map-container').setView([52.0, 19.0], 6);
+    
+    mapInstance = L.map('map-container', {
+        maxBounds: [
+            [-90, -180],
+            [90, 180]
+        ],
+        maxBoundsViscosity: 1.0
+    }).setView([52.0, 19.0], 6);
+    
     L.tileLayer(tileUrl, tileOptions).addTo(mapInstance);
+    
     var nodes = cachedNodesData;
     if (!nodes) return;
+    
     Object.keys(nodes).forEach(function(callsign) {
         var n = nodes[callsign];
         var loc = "";
         if (n.Locator) loc = n.Locator;
         else if (n.qth && n.qth.length > 0 && n.qth[0].pos) loc = n.qth[0].pos.loc;
+        
         if (loc) {
             var coords = qthToLatLon(loc);
             if (coords) {
-                var popupContent = "<b>" + callsign + "</b><br>" + loc;
-                if(n.Sysop) popupContent += "<br>" + n.Sysop;
-                L.marker(coords).addTo(mapInstance).bindPopup(popupContent);
+                var radioData = getRadioInfo(n);
+                var popupContent = "<div style='text-align:center; min-width:120px;'><b>" + callsign + "</b><br>" + loc;
+                if(n.Sysop) popupContent += "<br><span style='color:#bbb; font-size:11px;'>" + n.Sysop + "</span>";
+                if(radioData) popupContent += "<br><br><span style='color:#0288d1; font-weight:bold; font-size:12px;'>QRG: " + radioData + "</span>";
+               var popupContent = "<div style='text-align:center; min-width:120px;'><b>" + callsign + "</b><br>" + loc;
+                if(n.Sysop) popupContent += "<br><span style='color:#bbb; font-size:11px;'>" + n.Sysop + "</span>";
+                if(radioData) popupContent += "<br><br><span style='color:#0288d1; font-weight:bold; font-size:12px;'>QRG: " + radioData + "</span>";
+                var popupContent = "<div style='text-align:center; min-width:120px;'><b>" + callsign + "</b><br>" + loc;
+                if(n.Sysop) popupContent += "<br><span style='color:#bbb; font-size:11px;'>" + n.Sysop + "</span>";
+                if(radioData) popupContent += "<br><br><span style='color:#0288d1; font-weight:bold; font-size:12px;'>" + radioData + "</span>";
+                var activeTg = (n.tg && n.tg !== 0) ? n.tg : "";
+                var isTx = (n.isTalker === true || n.isTalker === "1" || n.isTalker === 1);
+                if (isTx && activeTg) {
+                    popupContent += "<br><span style='display:inline-block; margin-top:8px; background:#F44336; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px; animation: tx-pulse-bg 1.5s infinite;'>🎙️ Nadaje na TG " + activeTg + "</span>";
+                }
+		 popupContent += "</div>";
+                var isTx = (n.isTalker === true || n.isTalker === "1" || n.isTalker === 1) ? " map-tx" : "";
+                var swIcon = getSwIcon(n.sw);
+
+                var customIcon = L.divIcon({
+                    className: 'custom-map-marker' + isTx,
+                    html: swIcon,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15],
+                    popupAnchor: [0, -18]
+                });
+
+                L.marker(coords, {icon: customIcon}).addTo(mapInstance).bindPopup(popupContent);
             }
         }
     });
-    setTimeout(function(){ mapInstance.invalidateSize(); }, 200);
+    
+    setTimeout(function(){
+        mapInstance.invalidateSize();
+        mapInstance.setView([52.0, 19.0], 5);
+    }, 450);
 }
+
 function closeGridMapper() {
     document.getElementById('map-overlay').style.display = 'none';
+}
+
+function handleNodeClick(e, callsign) {
+    var node = cachedNodesData[callsign];
+    if (!node) return;
+
+    var isTx = (node.isTalker === true || node.isTalker === "1" || node.isTalker === 1);
+    var activeTg = (node.tg && node.tg !== 0) ? node.tg : "";
+
+    if (isTx && activeTg) {
+        var menu = document.getElementById('node-action-menu');
+        if (menu.parentNode !== document.body) {
+            document.body.appendChild(menu);
+        }
+
+        document.getElementById('nam-title').innerHTML = "<span style='color:#FF9800;'>" + callsign + "</span> nadaje!";
+        var btnTg = document.getElementById('nam-btn-tg');
+        btnTg.innerText = "🎙️ Przełącz na TG " + activeTg;
+        btnTg.onclick = function() {
+            sendAjax("*91" + activeTg + "#");
+            closeNodeActionMenu();
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        };
+
+        var btnQrz = document.getElementById('nam-btn-qrz');
+        btnQrz.onclick = function() {
+            window.open('https://www.qrz.com/db/' + callsign, '_blank');
+            closeNodeActionMenu();
+        };
+
+        var x = e.clientX + 10;
+        var y = e.clientY + 10;
+        menu.style.display = 'block';
+        menu.classList.add('active-menu-anim');
+        var mWidth = menu.offsetWidth;
+        var mHeight = menu.offsetHeight;
+        if (x + mWidth > window.innerWidth) x = e.clientX - mWidth - 15;
+        if (y + mHeight > window.innerHeight) y = e.clientY - mHeight - 15;
+        if (x < 5) x = 5;
+        if (y < 5) y = 5;
+
+        menu.style.left = x + 'px';
+        menu.style.top = y + 'px';
+    } else {
+        window.open('https://www.qrz.com/db/' + callsign, '_blank');
+    }
+}
+
+function closeNodeActionMenu() {
+    var menu = document.getElementById('node-action-menu');
+    if(menu) {
+        menu.style.display = 'none';
+        menu.classList.remove('active-menu-anim');
+    }
+}
+
+document.addEventListener('click', function(e) {
+    var menu = document.getElementById('node-action-menu');
+    if (menu && menu.style.display === 'block') {
+        if (!menu.contains(e.target) && !e.target.closest('.node-item')) {
+            closeNodeActionMenu();
+        }
+    }
+});
+
+let tgCurrentTargetId = '';
+let tgCurrentMode = 'multi';
+let tgSelectedArray = [];
+
+function openTgSelector(targetInputId, mode) {
+    tgCurrentTargetId = targetInputId;
+    tgCurrentMode = mode;
+    
+    document.getElementById('tg-modal-mode').innerText = (mode === 'single') ? T.tg_mode_single : T.tg_mode_multi;
+    
+    let currentVal = document.getElementById(targetInputId).value.trim();
+    if (currentVal) {
+        tgSelectedArray = currentVal.split(',').map(s => s.trim()).filter(s => s !== "");
+    } else {
+        tgSelectedArray = [];
+    }
+    
+    renderTgChips();
+    renderTgLists();
+    
+    document.getElementById('tg-modal-overlay').style.display = 'flex';
+}
+
+function closeTgSelector() {
+    document.getElementById('tg-modal-overlay').style.display = 'none';
+}
+
+function saveTgSelection() {
+    document.getElementById(tgCurrentTargetId).value = tgSelectedArray.join(',');
+    closeTgSelector();
+}
+
+function addManualTg() {
+    let input = document.getElementById('tg-manual-input');
+    let val = input.value.trim();
+    if (val) {
+        addTgToSelection(val);
+        input.value = '';
+    }
+}
+
+function addTgToSelection(tgNum) {
+    if (tgCurrentMode === 'single') {
+        tgSelectedArray = [tgNum];
+    } else {
+        if (!tgSelectedArray.includes(tgNum)) {
+            tgSelectedArray.push(tgNum);
+        }
+    }
+    renderTgChips();
+}
+
+function removeTgFromSelection(tgNum) {
+    tgSelectedArray = tgSelectedArray.filter(t => t !== tgNum);
+    renderTgChips();
+}
+
+function renderTgChips() {
+    let container = document.getElementById('tg-selected-container');
+    container.innerHTML = '';
+    
+    if (tgSelectedArray.length === 0) {
+        container.innerHTML = '<span style="color:#555; font-style:italic;">' + T.tg_empty_sel + '</span>';
+        return;
+    }
+    
+    tgSelectedArray.forEach(tg => {
+        let chip = document.createElement('div');
+        chip.className = 'tg-chip';
+        chip.innerHTML = `
+            TG ${tg}
+            <div class="tg-chip-del" onclick="removeTgFromSelection('${tg}')">✕</div>
+        `;
+        container.appendChild(chip);
+    });
+}
+
+function renderTgLists() {
+    let container = document.getElementById('tg-lists-container');
+    container.innerHTML = '';
+    if (typeof tgDataGroups === 'undefined' || !tgDataGroups || tgDataGroups.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#777; padding:20px;">' + T.tg_no_data + '</div>';
+        return;
+    }
+    
+    tgDataGroups.forEach(group => {
+        if (!group.buttons || group.buttons.length === 0) return;
+        
+        let validButtons = group.buttons.filter(b => b.tg && b.tg.trim() !== "");
+        if (validButtons.length === 0) return;
+        
+        let title = document.createElement('div');
+        title.className = 'tg-cat-title';
+        title.innerText = group.name;
+        container.appendChild(title);
+        
+        let grid = document.createElement('div');
+        grid.className = 'tg-grid';
+        
+        validButtons.forEach(btn => {
+            let tile = document.createElement('div');
+            tile.className = 'tg-tile';
+            tile.onclick = () => addTgToSelection(btn.tg);
+            tile.innerHTML = `
+                <div class="tg-tile-num">${btn.tg}</div>
+                <div class="tg-tile-name">${btn.name}</div>
+            `;
+            grid.appendChild(tile);
+        });
+        
+        container.appendChild(grid);
+    });
 }

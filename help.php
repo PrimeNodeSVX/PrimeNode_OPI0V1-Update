@@ -30,10 +30,10 @@ $H = [
         's2_warn' => '🛑 <strong>WAŻNE - KONIEC ROZMOWY:</strong>',
         's2_disc' => 'Aby wrócić do sieci reflektora, musisz wyjść z EchoLinka przyciskiem <span style="color:#F44336; font-weight:bold;">Rozłącz (#)</span>.',
 
-        'roam_title' => '3. Roaming i Baza Sieci (NOWOŚĆ!)',
-        'roam_text' => 'System PrimeNode obsługuje teraz dynamiczne przełączanie między różnymi sieciami (Reflektorami).',
+        'roam_title' => '3. Roaming i Baza Sieci',
+        'roam_text' => 'System PrimeNode obsługuje dynamiczne przełączanie między różnymi sieciami (Reflektorami).',
         'roam_cfg' => '<strong>🛠️ Edytor w Configu:</strong>',
-        'roam_cfg_d' => 'W zakładce <strong>Config</strong> znajdziesz nową sekcję "Baza Sieci". Możesz tam dodawać własne serwery (np. SQLink, FM Poland, lokalne).',
+        'roam_cfg_d' => 'W zakładce <strong>Config</strong> znajdziesz sekcję "Menedżer Sieci". Możesz tam dodawać własne serwery (np. SQLink, FM Poland, lokalne).',
         'roam_dtmf' => '<strong>📞 Przełączanie z Radia (555):</strong>',
         'roam_dtmf_d' => 'Aby zmienić sieć bez wchodzenia na stronę, wpisz na radiu kod w formacie: <span style="color:#FF9800; font-weight:bold;">555 + ID + #</span>.',
         'roam_ex' => 'Przykład: <strong>5551#</strong> (Włącza sieć o ID 1), <strong>5552#</strong> (Włącza sieć o ID 2). System zrestartuje się i połączy z nowym serwerem.',
@@ -71,6 +71,14 @@ $H = [
         's6_card_d' => 'Uzupełnij "Lokalizacja i Operator" w Configu, by inni widzieli Cię na mapie.',
         's6_map' => '<strong>🗺️ Grid Mapper:</strong>',
         's6_map_d' => 'Mapa aktywnych stacji w zakładce <strong>Nodes</strong>.',
+
+        // --- NOWA SEKCJA V1.3 ---
+        's7_title' => '8. Mega Nowości (Wersja V1.3)',
+        's7_tx' => '<strong>🔴 Wizualizacja Nadawania (TX):</strong> Kiedy ktoś z sieci nadaje, jego kafelek w zakładce Nodes i znacznik na mapie dynamicznie pulsują na czerwono.',
+        's7_icons' => '<strong>📱 Inteligentne Ikony:</strong> Rozpoznawanie sprzętu operatora na liście węzłów: Radio (📻), Aplikacja mobilna (📱), Komputer PC (💻).',
+        's7_quick' => '<strong>⚡ Szybkie Dołączanie (Quick-Dial):</strong> Widzisz, że ktoś ciekawy nadaje? Kliknij w jego pulsujący na czerwono kafelek w zakładce Nodes, aby jednym przyciskiem przełączyć radio na jego grupę TG!',
+        's7_radio' => '<strong>📻 Dane Radiowe:</strong> Najechanie myszką na węzeł (lub kliknięcie kropki na mapie) zdradza jego częstotliwość QRG i ton CTCSS.',
+        's7_cfg' => '<strong>🎛️ Smart Config:</strong> Koniec z ręcznym wpisywaniem numerów TG! Kliknij pole <em>Startowe TG</em> lub <em>Monitorowane TG</em> w konfiguracji, by otworzyć dotykowy panel wyboru, który sam zaciąga dane z Twoich własnych list DTMF.',
 
         'qa_title' => 'Szybka Pomoc (Q&A)',
         'qa_q1' => '❓ Nie mogę połączyć się z EchoLinkiem (Status: Disconnected).',
@@ -110,10 +118,10 @@ $H = [
         's2_warn' => '🛑 <strong>IMPORTANT - END CALL:</strong>',
         's2_disc' => 'To return to reflector, use <span style="color:#F44336; font-weight:bold;">Disconnect (#)</span> button.',
 
-        'roam_title' => '3. Roaming & Network Database (NEW!)',
-        'roam_text' => 'PrimeNode system now supports dynamic switching between different networks (Reflectors).',
+        'roam_title' => '3. Roaming & Network Database',
+        'roam_text' => 'PrimeNode system supports dynamic switching between different networks (Reflectors).',
         'roam_cfg' => '<strong>🛠️ Config Editor:</strong>',
-        'roam_cfg_d' => 'In <strong>Config</strong> tab (bottom), you will find "Network Database". Add your favorite servers here and assign them an <strong>ID</strong>.',
+        'roam_cfg_d' => 'In <strong>Config</strong> tab, you will find "Network Manager". Add your favorite servers here and assign them an <strong>ID</strong>.',
         'roam_dtmf' => '<strong>📞 DTMF Switching (555):</strong>',
         'roam_dtmf_d' => 'To switch network via radio, dial: <span style="color:#FF9800; font-weight:bold;">555 + ID + #</span>.',
         'roam_ex' => 'Example: <strong>5551#</strong> (Switch to ID 1), <strong>5552#</strong> (Switch to ID 2). System will reboot to new server.',
@@ -144,13 +152,21 @@ $H = [
         's6_api' => '<strong>🔗 Node API:</strong>',
         's6_api_d' => 'Source of station list in Config.',
         's6_mute' => '<strong>🔇 Silence on Air:</strong>',
-        's6_mute_d' => 'Disable "Callsign Recitation" in Config.',
+        's6_mute_d' => 'Disable "Voice ID" in Config.',
         's6_hw' => '<strong>🛠️ Hardware & GPIO:</strong>',
         's6_hw_d' => 'Change UART ports and GPIO in <strong>Radio</strong> tab.',
         's6_card' => '<strong>🌍 Network Card:</strong>',
         's6_card_d' => 'Fill "Location & Operator" in Config to be visible on map.',
         's6_map' => '<strong>🗺️ Grid Mapper:</strong>',
         's6_map_d' => 'Map of active stations in <strong>Nodes</strong> tab.',
+
+        // --- NEW SECTION V1.3 ---
+        's7_title' => '8. Mega Features (Version V1.3)',
+        's7_tx' => '<strong>🔴 TX Visualization:</strong> When a user transmits, their tile in the Nodes tab and map marker dynamically pulse red.',
+        's7_icons' => '<strong>📱 Smart Icons:</strong> Node hardware recognition: Radio (📻), Mobile App (📱), PC (💻).',
+        's7_quick' => '<strong>⚡ Quick-Dial:</strong> See someone interesting talking? Click their pulsing tile in the Nodes tab to instantly jump to their TG with one click!',
+        's7_radio' => '<strong>📻 Radio Data:</strong> Hovering over a node (or clicking a dot on the map) reveals its QRG frequency and CTCSS tone.',
+        's7_cfg' => '<strong>🎛️ Smart Config:</strong> No more typing TG numbers manually! Click the <em>Default TG</em> or <em>Monitor TGs</em> fields in the config to open a touch-friendly selector pulled directly from your custom DTMF groups.',
 
         'qa_title' => 'Quick Help (Q&A)',
         'qa_q1' => '❓ EchoLink not connecting.',
@@ -174,9 +190,7 @@ $H = [
         <ul>
             <li style="margin-bottom: 5px;"><strong><?php echo $H[$lang]['s1_msg']; ?></strong> <?php echo $H[$lang]['s1_msg_d']; ?></li>
             <li><strong><?php echo $H[$lang]['s1_stat']; ?></strong> <?php echo $H[$lang]['s1_stat_d']; ?></li>
-            <li><strong><?php echo $H[$lang]['s1_temp']; ?></strong> <?php echo $H[$lang]['s1_temp_d']; ?>
-                <br><small><?php echo $H[$lang]['s1_temp_ok']; ?><br><?php echo $H[$lang]['s1_temp_hot']; ?></small>
-            </li>
+            <li><strong><?php echo $H[$lang]['s1_temp']; ?></strong> <?php echo $H[$lang]['s1_temp_d']; ?></li>
             <li><strong><?php echo $H[$lang]['s1_mon']; ?></strong> <?php echo $H[$lang]['s1_mon_d']; ?>
                 <ul>
                     <li><?php echo $H[$lang]['s1_mon_stby']; ?></li>
@@ -295,6 +309,18 @@ $H = [
     </div>
 </div>
 
+<div class="help-section" style="border-left: 3px solid #4CAF50; background: rgba(76, 175, 80, 0.05); padding: 15px;">
+    <div class="help-title" style="color: #4CAF50;"><span class="help-icon">🚀</span> <?php echo $H[$lang]['s7_title']; ?></div>
+    <div class="help-text">
+        <ul style="list-style-type: none; padding-left: 0;">
+            <li style="margin-bottom: 12px;"><?php echo $H[$lang]['s7_tx']; ?></li>
+            <li style="margin-bottom: 12px;"><?php echo $H[$lang]['s7_icons']; ?></li>
+            <li style="margin-bottom: 12px;"><?php echo $H[$lang]['s7_quick']; ?></li>
+            <li style="margin-bottom: 12px;"><?php echo $H[$lang]['s7_radio']; ?></li>
+            <li style="margin-bottom: 12px;"><?php echo $H[$lang]['s7_cfg']; ?></li>
+        </ul>
+    </div>
+</div>
 <div class="help-section" style="border:none;">
     <div class="help-title"><span class="help-icon">🔧</span> <?php echo $H[$lang]['qa_title']; ?></div>
     <div class="help-text">

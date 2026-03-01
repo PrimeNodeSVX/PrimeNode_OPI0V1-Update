@@ -487,6 +487,32 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
+
+<div id="changelog-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+    <div id="changelog-modal" data-version="1.3" style="background: #1e1e1e; border: 2px solid #4CAF50; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
+        <h2 style="margin-top:0; color:#4CAF50; border-bottom: 1px solid #333; padding-bottom: 10px;">🚀 PrimeNode V1.3 - Co nowego?</h2>
+        
+        <div style="text-align: left; font-size: 14px; color: #ccc; line-height: 1.6; max-height: 50vh; overflow-y: auto; padding-right: 10px;">
+            <ul style="padding-left: 20px;">
+                <li>🌟 <b>Płynne animacje:</b> Smartfonowe, płynne przełączanie zakładek.</li>
+                <li>🗺️ <b>Stabilna Mapa (GridMapper):</b> Pełnoekranowa mapa z blokadą uciekania w "szarą pustkę".</li>
+                <li>📡 <b>Wizualizacja Nadawania (TX):</b> Kafelki węzłów i znaczniki na mapie dynamicznie pulsują na czerwono, gdy ktoś nadaje!</li>
+                <li>📱 <b>Inteligentne Ikonki:</b> Automatyczne rozpoznawanie typu węzła (Radio 📻, Aplikacja mobilna 📱, PC 💻).</li>
+                <li>ℹ️ <b>Dane Radiowe:</b> Informacje o częstotliwości (QRG) i CTCSS dodane do wyskakujących wizytówek.</li>
+                <li>⚡ <b>Szybkie Przełączanie (Quick-Dial):</b> Kliknij nadający węzeł w zakładce, aby jednym przyciskiem przejść na jego rozmowę (TG)!</li>
+                <li>🎛️ <b>Smart Config:</b> Nowe, interaktywne okienko wyboru grup w Konfiguracji. Wybieraj startowe i monitorowane TG wygodnie z własnej listy DTMF zamiast wpisywać je ręcznie!</li>
+                <li>🐛 <b>Stabilność API:</b> Zoptymalizowano czas odświeżania i poprawiono odczyt danych z różnych sieci (np. FM Poland vs SQLink).</li>
+            </ul>
+        </div>
+        
+        <button class="btn btn-green" style="margin-top: 20px; width: 100%; font-size: 16px; padding: 12px;" onclick="closeChangelog()">Super, rozumiem!</button>
+    </div>
+</div>
+        
+        <button class="btn btn-green" style="margin-top: 20px; width: 100%; font-size: 16px; padding: 12px;" onclick="closeChangelog()">Super, rozumiem!</button>
+    </div>
+</div>
+
 <body>
 <div class="container">
     <div class="lang-switcher">
@@ -570,7 +596,7 @@
 </div>
 <div class="main-footer">
     SvxLink v1.9.99.36@master Copyright (C) 2003-<?php echo date("Y"); ?> Tobias Blomberg / <span class="callsign-blue">SM0SVX</span><br>
-    PrimeNode System • By SQ7UTP <span style="color: #aaa;">| Version: <strong style="color: #4CAF50;">V1.2</strong></span><br>
+    PrimeNode System • By SQ7UTP <span style="color: #aaa;">| Version: <strong style="color: #4CAF50;">V1.3</strong></span><br>
     Copyright © 2025-<?php echo date("Y"); ?>
 </div>
 <script> const GLOBAL_CALLSIGN = "<?php echo $vals['Callsign']; ?>"; </script>
