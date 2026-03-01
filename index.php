@@ -490,7 +490,7 @@
 
 <body>
 <div id="changelog-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
-    <div id="changelog-modal" data-version="1.3" style="background: #1e1e1e; border: 2px solid #4CAF50; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
+    <div id="changelog-modal" data-version="1.3a" style="background: #1e1e1e; border: 2px solid #4CAF50; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
         <h2 style="margin-top:0; color:#4CAF50; border-bottom: 1px solid #333; padding-bottom: 10px;">🚀 PrimeNode V1.3 - Co nowego?</h2>
         
         <div style="text-align: left; font-size: 14px; color: #ccc; line-height: 1.6; max-height: 50vh; overflow-y: auto; padding-right: 10px;">
