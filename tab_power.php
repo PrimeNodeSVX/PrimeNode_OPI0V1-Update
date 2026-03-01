@@ -99,12 +99,6 @@ if (trim(@file_get_contents($update_flag_file)) === "UPDATE_AVAILABLE") {
     }
 </style>
 
-<div id="loading-overlay">
-    <div class="spinner"></div>
-    <div class="loading-text"><?php echo $TP[$lang]['load_title']; ?></div>
-    <div class="loading-subtext"><?php echo $TP[$lang]['load_text']; ?></div>
-</div>
-
 <h4 class="panel-title"><?php echo $TP[$lang]['title_pwr']; ?></h4>
 <form method="post" id="power-form">
     <input type="hidden" name="active_tab" class="active-tab-input" value="Power">

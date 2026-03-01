@@ -510,6 +510,12 @@
     </div>
 </div>
 
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loading-text">Aktualizacja w toku...</div>
+    <div class="loading-subtext">Nie wyłączaj urządzenia i nie odświeżaj strony.</div>
+</div>
+
 <div class="container">
     <div class="lang-switcher">
         <a href="?lang=pl" class="<?php echo $lang=='pl'?'active':''; ?>"><img src="flags/pl.svg" alt="PL"></a>
