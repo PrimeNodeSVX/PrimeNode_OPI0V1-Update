@@ -75,43 +75,59 @@ $response = [
 $temp = @file_get_contents('/sys/class/thermal/thermal_zone0/temp');
 $response['temp'] = $temp ? round($temp / 1000, 1) : 0;
 
-if (file_exists($logFile)) {
-    $lines = array_slice(file($logFile), -300);
-    $logContent = implode("", $lines);
+if (file_exists($logFile) && is_readable($logFile)) {
 
-    $lastConnect = max(
-        (int)strrpos($logContent, "ReflectorLogic: Connection established"),
-        (int)strrpos($logContent, "ReflectorLogic: Connected nodes"),
-        (int)strrpos($logContent, "ReflectorLogic: Talker start")
-    );
-    $lastDisconnect = max(
-        (int)strrpos($logContent, "ReflectorLogic: Disconnected"),
-        (int)strrpos($logContent, "ReflectorLogic: Authentication failed")
-    );
+    exec("tail -n 300 " . escapeshellarg($logFile), $lines);
+    $lastConnStatus = exec("tac " . escapeshellarg($logFile) . " | grep -m 1 -E 'ReflectorLogic: Connection established|ReflectorLogic: Disconnected|ReflectorLogic: Authentication failed'");
+    
+    if (strpos($lastConnStatus, 'Connection established') !== false) {
+        $status = 'ONLINE';
+    } else {
+        $status = 'OFFLINE';
+    }
 
-    if ($lastConnect > $lastDisconnect) {
+    $selectedTg = '0';
+    $activeCallsign = '---';
+    $talkerTg = '0';
+    foreach ($lines as $line) {
+        if (strpos($line, "ReflectorLogic: Connection established") !== false || strpos($line, "ReflectorLogic: Connected nodes") !== false) {
+            $status = 'ONLINE';
+        }
+        if (strpos($line, "ReflectorLogic: Disconnected") !== false || strpos($line, "ReflectorLogic: Authentication failed") !== false) {
+            $status = 'OFFLINE';
+            $selectedTg = '0';
+            $activeCallsign = '---';
+        }
+        if (preg_match('/ReflectorLogic: Selecting TG #(\d+)/', $line, $m)) {
+            $status = 'ONLINE';
+            $selectedTg = $m[1];
+            $activeCallsign = '---';
+        }
+        if (preg_match('/Talker start on TG #(\d+): ([A-Z0-9-\/]+)/', $line, $m)) {
+            $status = 'ONLINE';
+            $talkerTg = $m[1];
+            $activeCallsign = $m[2];
+        }
+        if (strpos($line, "Talker stop on TG") !== false) {
+            $activeCallsign = '---';
+        }
+    }
+
+    if ($status == 'OFFLINE') {
+        $response['status'] = 'OFFLINE';
+        $response['tg'] = '0';
+        $response['callsign'] = '---';
+    } else {
         $response['status'] = 'ONLINE';
-    }
-
-    if (preg_match_all('/ReflectorLogic: Selecting TG #(\d+)/', $logContent, $matchesSelect)) {
-        $lastIdx = count($matchesSelect[0]) - 1;
-        $response['tg'] = $matchesSelect[1][$lastIdx];
-    }
-
-    if (preg_match_all('/Talker start on TG #(\d+): ([A-Z0-9-\/]+)/', $logContent, $matchesTalk)) {
-        $lastIdx = count($matchesTalk[0]) - 1;
-        $talkerTg = $matchesTalk[1][$lastIdx];
-        $talkerStartPos = strrpos($logContent, $matchesTalk[0][$lastIdx]);
-        $talkerStopPos = strrpos($logContent, "Talker stop on TG");
-
-        if ($talkerStartPos > $talkerStopPos) {
+        if ($activeCallsign !== '---') {
             $response['tg'] = $talkerTg;
-            $response['callsign'] = $matchesTalk[2][$lastIdx];
+            $response['callsign'] = $activeCallsign;
         } else {
+            $response['tg'] = $selectedTg;
             $response['callsign'] = '---';
         }
     }
-    
+
     if (isset($tgNames[$response['tg']])) {
         $response['tg_name'] = cleanText($tgNames[$response['tg']]);
     } else {
