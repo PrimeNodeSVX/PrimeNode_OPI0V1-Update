@@ -490,20 +490,24 @@
 
 <body>
 <div id="changelog-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
-    <div id="changelog-modal" data-version="1.3a" style="background: #1e1e1e; border: 2px solid #4CAF50; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
-        <h2 style="margin-top:0; color:#4CAF50; border-bottom: 1px solid #333; padding-bottom: 10px;">🚀 PrimeNode V1.3 - Co nowego?</h2>
+    <div id="changelog-modal" data-version="1.4.0" style="background: #1e1e1e; border: 2px solid #4CAF50; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
+        <h2 style="margin-top:0; color:#4CAF50; border-bottom: 1px solid #333; padding-bottom: 10px;">🚀 PrimeNode V1.4 - Co nowego?</h2>
         
         <div style="text-align: left; font-size: 14px; color: #ccc; line-height: 1.6; max-height: 50vh; overflow-y: auto; padding-right: 10px;">
             <ul style="padding-left: 20px;">
-                <li>🌟 <b>Płynne animacje:</b> Smartfonowe, płynne przełączanie zakładek.</li>
-                <li>🗺️ <b>Stabilna Mapa (GridMapper):</b> Pełnoekranowa mapa z blokadą uciekania w "szarą pustkę".</li>
-                <li>📡 <b>Wizualizacja Nadawania (TX):</b> Kafelki węzłów i znaczniki na mapie dynamicznie pulsują na czerwono, gdy ktoś nadaje!</li>
-                <li>📱 <b>Inteligentne Ikonki:</b> Automatyczne rozpoznawanie typu węzła (Radio 📻, Aplikacja mobilna 📱, PC 💻).</li>
-                <li>ℹ️ <b>Dane Radiowe:</b> Informacje o częstotliwości (QRG) i CTCSS dodane do wyskakujących wizytówek.</li>
-                <li>⚡ <b>Szybkie Przełączanie (Quick-Dial):</b> Kliknij nadający węzeł w zakładce, aby jednym przyciskiem przejść na jego rozmowę (TG)!</li>
-                <li>🎛️ <b>Smart Config:</b> Nowe, interaktywne okienko wyboru grup w Konfiguracji. Wybieraj startowe i monitorowane TG wygodnie z własnej listy DTMF zamiast wpisywać je ręcznie!</li>
-                <li>🐛 <b>Stabilność API:</b> Zoptymalizowano czas odświeżania i poprawiono odczyt danych z różnych sieci.</li>
+                <li>🐛 <b>Optymalizacja i poprawki:</b> Wyeliminowano drobne błędy i udoskonalono kod, zwiększając stabilność całego systemu.</li>
+                <li>📊 <b>Licznik Węzłów:</b> W zakładce z logami dodano wygodny licznik pokazujący sumaryczną ilość aktualnie podłączonych stacji.</li>
+                <li>🏷️ <b>Nazwa Reflektora:</b> Główny panel obok statusu "PODŁĄCZONY" wyświetla teraz przyjazną nazwę Twojej sieci zdefiniowaną w konfiguracji.</li>
+                <li>🔊 <b>Nowe komunikaty TG:</b> Baza wzbogaciła się o nowe, uniwersalne pliki audio do recytowania grup rozmownych (TG).</li>
+                <li>🎙️ <b>System zapowiedzi sieci (Audio Roaming):</b> Wdrożono inteligentny mechanizm odtwarzający nazwę sieci podczas przełączania (z panelu WWW oraz przez komendy DTMF).</li>
             </ul>
+            
+            <div style="background: #2a2a2a; border-left: 3px solid #FF9800; padding: 12px; margin-top: 15px; font-size: 12px; border-radius: 4px; color: #eee;">
+                <b>ℹ️ Jak dodać własne zapowiedzi sieci?</b><br><br>
+                Zgraj swój plik dźwiękowy przez WinSCP do folderu:<br>
+                <code style="color:#4CAF50; display:block; margin: 5px 0;">/usr/local/share/svxlink/sounds/ref_sounds</code>
+                Wymagany format pliku to: <b>.wav</b> (Parametry: <b>16kHz, 16-bit, Mono, PCM</b>). Po wgraniu pliku, wystarczy przypisać go do danej sieci w zakładce <i>Konfiguracja</i>!
+            </div>
         </div>
         
         <button class="btn btn-green" style="margin-top: 20px; width: 100%; font-size: 16px; padding: 12px;" onclick="closeChangelog()">Super, rozumiem!</button>
@@ -598,7 +602,7 @@
 </div>
 <div class="main-footer">
     SvxLink v1.9.99.36@master Copyright (C) 2003-<?php echo date("Y"); ?> Tobias Blomberg / <span class="callsign-blue">SM0SVX</span><br>
-    PrimeNode System • By SQ7UTP <span style="color: #aaa;">| Version: <strong style="color: #4CAF50;">V1.3</strong></span><br>
+    PrimeNode System • By SQ7UTP <span style="color: #aaa;">| Version: <strong style="color: #4CAF50;">V1.4</strong></span><br>
     Copyright © 2025-<?php echo date("Y"); ?>
 </div>
 <script> 
