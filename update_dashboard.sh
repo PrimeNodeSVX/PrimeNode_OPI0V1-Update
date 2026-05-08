@@ -94,9 +94,37 @@ if [ ! -f "$WWW_DIR/radio_config.json" ] && [ -f "$GIT_DIR/radio_config.json" ];
 fi
 
 if compgen -G "$GIT_DIR/*.py" > /dev/null; then
+    echo ">> Instalacja skryptów Python (w tym switch_network.py)..."
     cp $GIT_DIR/*.py /usr/local/bin/
     chmod +x /usr/local/bin/*.py
 fi
+
+
+echo ">> Konfiguracja dynamicznych zapowiedzi audio..."
+REF_DIR="$SOUNDS_DIR/ref_sounds"
+CORE_DIR="$SOUNDS_DIR/PL/Core"
+
+mkdir -p "$REF_DIR"
+mkdir -p "$CORE_DIR"
+
+if [ -d "$GIT_DIR/ref_sounds" ]; then
+    cp -R "$GIT_DIR/ref_sounds/"* "$REF_DIR/" 2>/dev/null
+fi
+
+if [ -f "$GIT_DIR/PL/Core/online_PN.wav" ]; then
+    cp "$GIT_DIR/PL/Core/online_PN.wav" "$CORE_DIR/online_PN.wav"
+elif [ -f "$GIT_DIR/online_PN.wav" ]; then
+    cp "$GIT_DIR/online_PN.wav" "$CORE_DIR/online_PN.wav"
+fi
+
+chmod 777 "$REF_DIR"
+find "$REF_DIR" -type f -exec chmod 666 {} \; 2>/dev/null
+[ -f "$CORE_DIR/online_PN.wav" ] && chmod 666 "$CORE_DIR/online_PN.wav"
+
+
+echo ">> Synchronizacja konfiguracji radia (Python)..."
+python3 /usr/local/bin/update_svx_full.py
+
 
 for script in $GIT_DIR/*.sh; do
     filename=$(basename "$script")
