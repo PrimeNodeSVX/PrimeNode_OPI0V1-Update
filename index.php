@@ -601,7 +601,24 @@
     PrimeNode System • By SQ7UTP <span style="color: #aaa;">| Version: <strong style="color: #4CAF50;">V1.3</strong></span><br>
     Copyright © 2025-<?php echo date("Y"); ?>
 </div>
-<script> const GLOBAL_CALLSIGN = "<?php echo $vals['Callsign']; ?>"; </script>
+<script> 
+const GLOBAL_CALLSIGN = "<?php echo $vals['Callsign']; ?>"; 
+const GLOBAL_HOST = "<?php echo $vals['Host']; ?>";
+const GLOBAL_NET_NAME = "<?php
+    $net_f = '/etc/svxlink/networks.json';
+    $net_name = '';
+    if (file_exists($net_f)) {
+        $ndata = json_decode(@file_get_contents($net_f), true);
+        $act = $ndata['active'] ?? 0;
+        if ($act > 0 && !empty($ndata['list'])) {
+            foreach ($ndata['list'] as $nn) {
+                if ($nn['id'] == $act) { $net_name = $nn['name']; break; }
+            }
+        }
+    }
+    echo addslashes($net_name);
+?>";
+</script>
 <script src="script.js?v=<?php echo time(); ?>"></script>
 <script>
 (function() {
