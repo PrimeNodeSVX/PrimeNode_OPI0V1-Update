@@ -33,13 +33,12 @@ def get_serial_port():
             pass
     return port
 
-def program_radio(rx_freq, tx_freq, ctcss, squelch):
+def program_radio(rx_freq, tx_freq, ctcss, squelch, bw="1", vol="8", prede="0", hpf="0", lpf="0"):
     try:
         rx_formatted = "{:.4f}".format(float(rx_freq))
         tx_formatted = "{:.4f}".format(float(tx_freq))
 
         if not ctcss or ctcss == "None": ctcss = "0000"
-        
         radio_code = CTCSS_MAP.get(ctcss, "0000")
         
         serial_port = get_serial_port()
@@ -47,30 +46,54 @@ def program_radio(rx_freq, tx_freq, ctcss, squelch):
         ser = serial.Serial(serial_port, 9600, timeout=1)
         ser.flushInput()
         ser.flushOutput()
+        cmd_group = f"AT+DMOSETGROUP={bw},{tx_formatted},{rx_formatted},{radio_code},{squelch},{radio_code}\r\n"
+        cmd_vol = f"AT+DMOSETVOLUME={vol}\r\n"
+        cmd_filter = f"AT+SETFILTER={prede},{hpf},{lpf}\r\n"
 
-        cmd = f"AT+DMOSETGROUP=0,{tx_formatted},{rx_formatted},{radio_code},{squelch},{radio_code}\r\n"
+        print(f"Port: {serial_port}")
         
-        print(f"Port: {serial_port} | Wysylanie: {cmd.strip()}")
-
-        ser.write(cmd.encode())
+        print(f"Wysylanie: {cmd_group.strip()}")
+        ser.write(cmd_group.encode())
         time.sleep(0.5)
-        
-        response = ser.read_all().decode(errors='ignore').strip()
+        resp1 = ser.read_all().decode(errors='ignore').strip()
+
+        print(f"Wysylanie: {cmd_vol.strip()}")
+        ser.write(cmd_vol.encode())
+        time.sleep(0.5)
+        resp2 = ser.read_all().decode(errors='ignore').strip()
+
+        print(f"Wysylanie: {cmd_filter.strip()}")
+        ser.write(cmd_filter.encode())
+        time.sleep(0.5)
+        resp3 = ser.read_all().decode(errors='ignore').strip()
+
         ser.close()
 
-        if "0" in response:
-            print(f"SUKCES: Radio zaprogramowane! (CTCSS Index: {radio_code})")
+        if "0" in resp1:
+            print(f"SUKCES: Zaprogramowane! (CTCSS: {radio_code}, Vol: {vol}, Filtry: {prede}/{hpf}/{lpf})")
             return True
         else:
-            print(f"BLAD: Radio zwrocilo: {response}")
+            print(f"BLAD: Radio zwrocilo: {resp1}")
             return False
 
     except Exception as e:
-        print(f"BLAD KRYTYCZNY: {e}")
+        print(f"BLAD KRYTYCZNY UART: {e}")
         return False
 
 if __name__ == "__main__":
     if len(sys.argv) < 5:
-        print("Uzycie: setup_radio.py RX TX CTCSS SQ")
+        print("Uzycie: setup_radio.py RX TX CTCSS SQ [BW] [VOL] [PREDE] [HPF] [LPF]")
         sys.exit(1)
-    program_radio(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+        
+    rx = sys.argv[1]
+    tx = sys.argv[2]
+    cx = sys.argv[3]
+    sq = sys.argv[4]
+    
+    bw = sys.argv[5] if len(sys.argv) > 5 else "1"
+    vol = sys.argv[6] if len(sys.argv) > 6 else "8"
+    prede = sys.argv[7] if len(sys.argv) > 7 else "0"
+    hpf = sys.argv[8] if len(sys.argv) > 8 else "0"
+    lpf = sys.argv[9] if len(sys.argv) > 9 else "0"
+    
+    program_radio(rx, tx, cx, sq, bw, vol, prede, hpf, lpf)

@@ -117,9 +117,9 @@ elif [ -f "$GIT_DIR/online_PN.wav" ]; then
     cp "$GIT_DIR/online_PN.wav" "$CORE_DIR/online_PN.wav"
 fi
 
-chmod 777 "$REF_DIR"
-find "$REF_DIR" -type f -exec chmod 666 {} \; 2>/dev/null
-[ -f "$CORE_DIR/online_PN.wav" ] && chmod 666 "$CORE_DIR/online_PN.wav"
+chmod -R 777 "$REF_DIR"
+    find "$REF_DIR" -type f -exec chmod 777 {} \; 2>/dev/null
+    [ -f "$CORE_DIR/online_PN.wav" ] && chmod 777 "$CORE_DIR/online_PN.wav"
 
 
 echo ">> Synchronizacja konfiguracji radia (Python)..."

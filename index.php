@@ -307,7 +307,14 @@
             "qth_name" => $radio['qth_name'] ?? '',
             "qth_city" => $radio['qth_city'] ?? '',
             "qth_loc" => $radio['qth_loc'] ?? '',
-            "node_api_url" => $_POST['node_api_url'] ?? ($radio['node_api_url'] ?? '')
+            "node_api_url" => $_POST['node_api_url'] ?? ($radio['node_api_url'] ?? ''),
+            "sa_bw" => $_POST['sa_bw'] ?? '1',
+            "sa_vol" => $_POST['sa_vol'] ?? '8',
+            "sa_prede" => $_POST['sa_prede'] ?? '0',
+            "sa_hpf" => $_POST['sa_hpf'] ?? '0',
+            "sa_lpf" => $_POST['sa_lpf'] ?? '0',
+            "svx_deemph" => $_POST['svx_deemph'] ?? '0',
+            "svx_preemph" => $_POST['svx_preemph'] ?? '0'
         ];
         file_put_contents($jsonFile, json_encode($newRadio));
         $radio = $newRadio;
@@ -318,7 +325,7 @@
         shell_exec('sudo /usr/bin/python3 /usr/local/bin/update_svx_full.py 2>&1');
 
         shell_exec('sudo /usr/bin/systemctl stop svxlink'); sleep(1);
-        $cmd = "sudo /usr/bin/python3 /usr/local/bin/setup_radio.py " . escapeshellarg($radio['rx']) . " " . escapeshellarg($radio['tx']) . " " . escapeshellarg($radio['ctcss']) . " " . escapeshellarg($radio['sq']) . " 2>&1";
+        $cmd = "sudo /usr/bin/python3 /usr/local/bin/setup_radio.py " . escapeshellarg($radio['rx']) . " " . escapeshellarg($radio['tx']) . " " . escapeshellarg($radio['ctcss']) . " " . escapeshellarg($radio['sq']) . " " . escapeshellarg($radio['sa_bw']) . " " . escapeshellarg($radio['sa_vol']) . " " . escapeshellarg($radio['sa_prede']) . " " . escapeshellarg($radio['sa_hpf']) . " " . escapeshellarg($radio['sa_lpf']) . " 2>&1";
         $out = shell_exec($cmd);
         shell_exec('sudo /usr/bin/systemctl start svxlink');
 

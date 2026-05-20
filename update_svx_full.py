@@ -141,9 +141,16 @@ def main():
     qth_name = get_val('qth_name', 'qth_name', 'Sysop')
     qth_city = get_val('qth_city', 'qth_city', 'Location')
     qth_loc  = get_val('qth_loc',  'qth_loc',  'Locator')
-    serial_port = data.get('SerialPort') or radio_data.get('serial_port')
-    gpio_ptt = data.get('GpioPtt') or radio_data.get('gpio_ptt')
-    gpio_sql = data.get('GpioSql') or radio_data.get('gpio_sql')
+    serial_port = data.get('SerialPort') or radio_data.get('serial_port', '/dev/ttyS2')
+    gpio_ptt = data.get('GpioPtt') or radio_data.get('gpio_ptt', '7')
+    gpio_sql = data.get('GpioSql') or radio_data.get('gpio_sql', '10')
+    sa_bw = str(data.get("sa_bw", radio_data.get("sa_bw", "1")))
+    sa_vol = str(data.get("sa_vol", radio_data.get("sa_vol", "8")))
+    sa_prede = str(data.get("sa_prede", radio_data.get("sa_prede", "0")))
+    sa_hpf = str(data.get("sa_hpf", radio_data.get("sa_hpf", "0")))
+    sa_lpf = str(data.get("sa_lpf", radio_data.get("sa_lpf", "0")))
+    svx_deemph = str(data.get("svx_deemph", radio_data.get("svx_deemph", "0")))
+    svx_preemph = str(data.get("svx_preemph", radio_data.get("svx_preemph", "0")))
 
     modules_str = data.get('Modules')
     if modules_str is not None:
@@ -220,9 +227,13 @@ def main():
         "Rx1": { 
             "DTMF_SERIAL": serial_port, 
             "SQL_GPIOD_LINE": gpio_sql,
-            "PREAMP": "6"
+            "PREAMP": "6",
+            "DEEMPHASIS": svx_deemph
         },
-        "Tx1": { "PTT_GPIOD_LINE": gpio_ptt }
+        "Tx1": { 
+            "PTT_GPIOD_LINE": gpio_ptt,
+            "PREEMPHASIS": svx_preemph
+        }
     }
     
     for section, keys in mapping.items():
@@ -237,9 +248,21 @@ def main():
     if gpio_ptt: radio_data['gpio_ptt'] = gpio_ptt
     if gpio_sql: radio_data['gpio_sql'] = gpio_sql
     
+    radio_data['sa_bw'] = sa_bw
+    radio_data['sa_vol'] = sa_vol
+    radio_data['sa_prede'] = sa_prede
+    radio_data['sa_hpf'] = sa_hpf
+    radio_data['sa_lpf'] = sa_lpf
+    radio_data['svx_deemph'] = svx_deemph
+    radio_data['svx_preemph'] = svx_preemph
+
     node_api_url = data.get('node_api_url')
     if node_api_url is not None:
         radio_data['node_api_url'] = node_api_url
+
+    shari_sql = data.get('sq') or radio_data.get('sq', '4')
+    cmd = f"sudo /usr/bin/python3 /usr/local/bin/setup_radio.py {rx_freq} {tx_freq} {ctcss} {shari_sql} {sa_bw} {sa_vol} {sa_prede} {sa_hpf} {sa_lpf}"
+    os.system(cmd)
 
     with open(RADIO_JSON, 'w') as f:
         json.dump(radio_data, f, indent=4)
