@@ -61,7 +61,7 @@ if [ -d "$GIT_DIR/PL" ]; then
         rm -rf "$SOUNDS_DIR/pl_PL"
     fi
     mkdir -p "$SOUNDS_DIR"
-    rsync -av --delete "$GIT_DIR/PL/" "$SOUNDS_DIR/PL/"
+    rsync -av --delete --exclude 'Core/start.wav' --exclude 'Core/ptt.wav' "$GIT_DIR/PL/" "$SOUNDS_DIR/PL/"
     chmod -R 777 "$SOUNDS_DIR/PL"
     
     if [ -f "$SVX_CONF" ]; then
@@ -117,9 +117,40 @@ elif [ -f "$GIT_DIR/online_PN.wav" ]; then
     cp "$GIT_DIR/online_PN.wav" "$CORE_DIR/online_PN.wav"
 fi
 
+echo ">> Aktualizacja plików dźwiękowych PrimeNode..."
+
+if [ -f "$GIT_DIR/start.wav" ]; then
+    cp "$GIT_DIR/start.wav" "$CORE_DIR/start.wav"
+    chmod 777 "$CORE_DIR/start.wav"
+elif [ -f "$GIT_DIR/PL/Core/start.wav" ]; then
+    cp "$GIT_DIR/PL/Core/start.wav" "$CORE_DIR/start.wav"
+    chmod 777 "$CORE_DIR/start.wav"
+fi
+
+if [ -f "$GIT_DIR/ptt.wav" ]; then
+    cp "$GIT_DIR/ptt.wav" "$CORE_DIR/ptt.wav"
+    chmod 777 "$CORE_DIR/ptt.wav"
+elif [ -f "$GIT_DIR/PL/Core/ptt.wav" ]; then
+    cp "$GIT_DIR/PL/Core/ptt.wav" "$CORE_DIR/ptt.wav"
+    chmod 777 "$CORE_DIR/ptt.wav"
+fi
+
+echo ">> Aktualizacja plików logiki TCL..."
+TCL_DIR="/usr/local/share/svxlink/events.d"
+
+if [ -f "$GIT_DIR/Logic.tcl" ]; then
+    cp "$GIT_DIR/Logic.tcl" "$TCL_DIR/Logic.tcl"
+    chmod 644 "$TCL_DIR/Logic.tcl"
+fi
+
+if [ -f "$GIT_DIR/ReflectorLogic.tcl" ]; then
+    cp "$GIT_DIR/ReflectorLogic.tcl" "$TCL_DIR/ReflectorLogic.tcl"
+    chmod 644 "$TCL_DIR/ReflectorLogic.tcl"
+fi
+
 chmod -R 777 "$REF_DIR"
-    find "$REF_DIR" -type f -exec chmod 777 {} \; 2>/dev/null
-    [ -f "$CORE_DIR/online_PN.wav" ] && chmod 777 "$CORE_DIR/online_PN.wav"
+find "$REF_DIR" -type f -exec chmod 777 {} \; 2>/dev/null
+[ -f "$CORE_DIR/online_PN.wav" ] && chmod 777 "$CORE_DIR/online_PN.wav"
 
 
 echo ">> Synchronizacja konfiguracji radia (Python)..."
