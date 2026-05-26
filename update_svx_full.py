@@ -99,6 +99,26 @@ def update_key_in_lines(lines, section, key, value):
 
     return new_lines
 
+def format_coords(coord_str, is_lat):
+    if not coord_str: return ""
+    try:
+        clean_str = str(coord_str).replace(',', '.')
+        val = float(clean_str)
+        
+        degrees = int(abs(val))
+        minutes_full = (abs(val) - degrees) * 60
+        minutes = int(minutes_full)
+        seconds = int((minutes_full - minutes) * 60)
+        
+        if is_lat:
+            dir = "N" if val >= 0 else "S"
+            return f"{degrees:02d}.{minutes:02d}.{seconds:02d}{dir}"
+        else:
+            dir = "E" if val >= 0 else "W"
+            return f"{degrees:03d}.{minutes:02d}.{seconds:02d}{dir}"
+    except ValueError:
+        return coord_str
+
 def main():
     if not os.path.exists(LOG_FILE_RAM):
         with open(LOG_FILE_RAM, 'w') as f: pass
@@ -141,6 +161,26 @@ def main():
     qth_name = get_val('qth_name', 'qth_name', 'Sysop')
     qth_city = get_val('qth_city', 'qth_city', 'Location')
     qth_loc  = get_val('qth_loc',  'qth_loc',  'Locator')
+    aprs_enable = str(data.get('AprsEnable', radio_data.get('aprs_enabled', '0')))
+    aprs_server = "lodz.aprs2.net:14580"
+    aprs_passcode = str(data.get('AprsPasscode', radio_data.get('aprs_passcode', '')))
+    aprs_interval = str(data.get('AprsInterval', radio_data.get('aprs_interval', '30')))
+    aprs_comment = str(data.get('AprsComment', radio_data.get('aprs_comment', 'PrimeNode OPI0')))
+    aprs_lat_raw = str(data.get('AprsLat', radio_data.get('aprs_lat', '')))
+    aprs_lon_raw = str(data.get('AprsLon', radio_data.get('aprs_lon', '')))
+    aprs_icon = str(data.get('AprsIcon', radio_data.get('aprs_icon', '/-')))
+    aprs_power = str(data.get('AprsPower', radio_data.get('aprs_power', '5')))
+    aprs_gain = str(data.get('AprsGain', radio_data.get('aprs_gain', '2')))
+    aprs_height = str(data.get('AprsHeight', radio_data.get('aprs_height', '10')))
+    aprs_ssid = str(data.get('AprsSsid', radio_data.get('aprs_ssid', '')))
+    main_callsign = data.get('Callsign') or radio_data.get('callsign') or backup_info.get('Callsign', '')
+    lat_fixed = format_coords(aprs_lat_raw, True) if aprs_lat_raw else ""
+    lon_fixed = format_coords(aprs_lon_raw, False) if aprs_lon_raw else ""
+    aprs_callsign = f"{main_callsign}-{aprs_ssid}" if aprs_ssid and main_callsign else main_callsign
+
+    if aprs_enable == '1':
+        if not lat_fixed or not lon_fixed or not aprs_passcode.strip():
+            aprs_enable = '0'
     serial_port = data.get('SerialPort') or radio_data.get('serial_port', '/dev/ttyS2')
     gpio_ptt = data.get('GpioPtt') or radio_data.get('gpio_ptt', '7')
     gpio_sql = data.get('GpioSql') or radio_data.get('gpio_sql', '10')
@@ -160,9 +200,9 @@ def main():
             modules_list = [m for m in modules_list if 'EchoLink' not in m]
             data['Modules'] = ",".join(modules_list)
 
-    rx_freq = radio_data.get("rx", "")
-    tx_freq = radio_data.get("tx", "")
-    ctcss = radio_data.get("ctcss", "0")
+    rx_freq = str(radio_data.get("rx", "")).strip() or "432.800"
+    tx_freq = str(radio_data.get("tx", "")).strip() or "432.800"
+    ctcss = str(radio_data.get("ctcss", "")).strip() or "0"
     if ctcss == "0000":
         ctcss = "0"
     elif len(ctcss) == 4 and ctcss.isdigit():
@@ -189,15 +229,40 @@ def main():
     if qth_name: loc_parts.append(f"(Op: {qth_name})")
     location_str = ", ".join(loc_parts)
 
-    main_callsign = data.get('Callsign')
-    announce_call = data.get('AnnounceCall', '1')
+    main_callsign = data.get('Callsign') or radio_data.get('callsign') or backup_info.get('Callsign', '')
+    
+    announce_call = data.get('AnnounceCall')
+    if announce_call is None:
+        announce_call = radio_data.get('announce_call')
+    if announce_call is None:
+        announce_call = '1'
+        
+    announce_call = str(announce_call)
     reflector_callsign = main_callsign
-    simplex_callsign = main_callsign if announce_call=="1" else ""
+    simplex_callsign = main_callsign if announce_call == "1" else ""
     
     ident_int = "60"
     if not main_callsign:
         ident_int = "0"
         simplex_callsign = ""
+
+    clean_lines = []
+    in_global = False
+    for line in lines:
+        if line.strip() == "[GLOBAL]":
+            in_global = True
+            clean_lines.append(line)
+        elif line.strip().startswith("[") and line.strip().endswith("]"):
+            in_global = False
+            clean_lines.append(line)
+        else:
+            if in_global and line.strip().startswith("LOCATION_INFO="):
+                continue
+            clean_lines.append(line)
+    lines = clean_lines
+
+    if aprs_enable == '1':
+        lines = update_key_in_lines(lines, "GLOBAL", "LOCATION_INFO", "LocationInfo")
 
     mapping = {
         "ReflectorLogic": {
@@ -235,6 +300,26 @@ def main():
             "PREEMPHASIS": svx_preemph
         }
     }
+
+    if aprs_enable == '1':
+        mapping["LocationInfo"] = {
+            "APRS_SERVER_LIST": aprs_server,
+            "STATUS_SERVER_LIST": aprs_server,
+            "LON_POSITION": lon_fixed,
+            "LAT_POSITION": lat_fixed,
+            "CALLSIGN": aprs_callsign,
+            "PASSCODE": aprs_passcode,
+            "PATH": "WIDE1-1",
+            "BEACON_INTERVAL": aprs_interval,
+            "COMMENT": f'"{aprs_comment}"',
+            "SYMBOL": f'"{aprs_icon}"',
+            "FREQUENCY": tx_freq,
+            "TONE": ctcss,
+            "TX_POWER": aprs_power,
+            "ANTENNA_GAIN": aprs_gain,
+            "ANTENNA_HEIGHT": f"{aprs_height}m",
+            "ANTENNA_DIR": "-1"
+        }
     
     for section, keys in mapping.items():
         for cfg_key, json_val in keys.items():
@@ -255,7 +340,25 @@ def main():
     radio_data['sa_lpf'] = sa_lpf
     radio_data['svx_deemph'] = svx_deemph
     radio_data['svx_preemph'] = svx_preemph
-
+    radio_data['AprsEnable'] = aprs_enable
+    radio_data['AprsServer'] = aprs_server
+    radio_data['AprsPasscode'] = aprs_passcode
+    radio_data['AprsInterval'] = aprs_interval
+    radio_data['AprsComment'] = aprs_comment
+    radio_data['AprsLat'] = aprs_lat_raw
+    radio_data['AprsLon'] = aprs_lon_raw
+    radio_data['AprsIcon'] = aprs_icon
+    radio_data['aprs_power'] = aprs_power
+    radio_data['aprs_gain'] = aprs_gain
+    radio_data['aprs_height'] = aprs_height
+    radio_data['aprs_ssid'] = aprs_ssid
+    radio_data['callsign'] = main_callsign
+    radio_data['announce_call'] = announce_call
+    radio_data['rx'] = rx_freq
+    radio_data['tx'] = tx_freq
+    radio_data['ctcss'] = ctcss
+    radio_data['sq'] = str(data.get('sq') or radio_data.get('sq', '4'))
+    radio_data['desc'] = str(data.get('radio_desc') or radio_data.get('desc', ''))
     node_api_url = data.get('node_api_url')
     if node_api_url is not None:
         radio_data['node_api_url'] = node_api_url

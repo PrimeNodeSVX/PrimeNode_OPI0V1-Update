@@ -44,15 +44,17 @@ $CTCSS_MAP = [
     "2541" => "254.1 Hz"
 ];
 
-function formatCtcssCode($code, $map) {
-    if (isset($map[$code])) {
-        return $map[$code];
+if (!function_exists('normalizeCtcss')) {
+    function normalizeCtcss($ctcss) {
+        if ($ctcss === null || $ctcss === '' || $ctcss == '0' || $ctcss == '0000') return '0000';
+        $str = (string)$ctcss;
+        if (strlen($str) === 4 && is_numeric($str) && strpos($str, '.') === false) return $str;
+        $floatVal = (float)$ctcss;
+        if ($floatVal > 0) {
+            return str_pad(round($floatVal * 10), 4, "0", STR_PAD_LEFT);
+        }
+        return '0000';
     }
-
-    if (is_numeric($code) && $code > 0) {
-        return number_format($code / 10, 1) . ' Hz';
-    }
-    return $code;
 }
 ?>
 <style>
@@ -104,19 +106,19 @@ function formatCtcssCode($code, $map) {
     <div class="dash-tile">
         <div class="dash-icon">📡</div>
         <div class="dash-label"><?php echo $TD[$lang]['freq']; ?></div>
-        <div class="dash-value"><?php echo $radio['rx']; ?> MHz</div>
+        <div class="dash-value"><?php echo htmlspecialchars($radio['rx'] ?? '432.800'); ?> MHz</div>
     </div>
     
     <div class="dash-tile">
         <div class="dash-icon">🌍</div>
         <div class="dash-label"><?php echo $TD[$lang]['host']; ?></div>
-        <div class="dash-value"><?php echo $vals['Host']; ?></div>
+        <div class="dash-value"><?php echo htmlspecialchars($vals['Host'] ?? '---'); ?></div>
     </div>
 
     <div class="dash-tile">
         <div class="dash-icon">🆔</div>
         <div class="dash-label"><?php echo $TD[$lang]['call']; ?></div>
-        <div class="dash-value"><?php echo $vals['Callsign']; ?></div>
+        <div class="dash-value"><?php echo htmlspecialchars($vals['Callsign'] ?? '---'); ?></div>
     </div>
 </div>
 
@@ -124,18 +126,19 @@ function formatCtcssCode($code, $map) {
     <div style="background: #222; padding: 8px 15px; border-radius: 20px; border: 1px solid #444; display:flex; align-items:center; gap:8px;">
         <span style="font-size:16px;">📻</span>
         <span style="font-size:13px; color:#aaa;"><?php echo $TD[$lang]['hw']; ?></span>
-        <b style="color:#fff; font-size:14px;"><?php echo isset($radio['desc']) ? $radio['desc'] : 'SA818 Module'; ?></b>
+        <b style="color:#fff; font-size:14px;"><?php echo isset($radio['desc']) && !empty($radio['desc']) ? htmlspecialchars($radio['desc']) : 'SA818 Module'; ?></b>
     </div>
 
-    <?php if(isset($radio['ctcss']) && $radio['ctcss'] != '0000'): ?>
     <div style="background: #222; padding: 8px 15px; border-radius: 20px; border: 1px solid #444; display:flex; align-items:center; gap:8px;">
         <span style="font-size:16px;">🔒</span>
         <span style="font-size:13px; color:#aaa;"><?php echo $TD[$lang]['ctcss']; ?></span>
         <b style="color:#FF9800; font-size:14px;">
-            <?php echo formatCtcssCode($radio['ctcss'], $CTCSS_MAP); ?>
+            <?php 
+                $norm = normalizeCtcss($radio['ctcss'] ?? '0000');
+                echo $CTCSS_MAP[$norm] ?? $TD[$lang]['none_csq']; 
+            ?>
         </b>
     </div>
-    <?php endif; ?>
 </div>
 
 <div id="live-monitor" class="live-box">

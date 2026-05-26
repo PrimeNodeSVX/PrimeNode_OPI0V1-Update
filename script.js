@@ -19,7 +19,7 @@ const TRANS = {
         standby: "STAN: CZUWANIE (Standby)",
         no_nodes: "Brak aktywnych węzłów",
         no_tg: "Brak (Czuwanie)",
-	tg_mode_single: "Wybór pojedynczy",
+        tg_mode_single: "Wybór pojedynczy",
         tg_mode_multi: "Wybór wielokrotny",
         tg_empty_sel: "Brak wyznaczonych TG...",
         tg_no_data: "Brak danych z zakładki DTMF.",
@@ -42,7 +42,7 @@ const TRANS = {
         standby: "STATUS: STANDBY",
         no_nodes: "No active nodes",
         no_tg: "None (Standby)",
-	tg_mode_single: "Single selection",
+        tg_mode_single: "Single selection",
         tg_mode_multi: "Multiple selection",
         tg_empty_sel: "No TGs selected...",
         tg_no_data: "No data from DTMF tab.",
@@ -251,10 +251,29 @@ function loadLogsAndStatus() {
         let selRegex = /ReflectorLogic: Selecting TG #(\d+)/g;
         let match;
         let foundNewChange = false;
+        let lastTgSelectPos = -1;
+        
         while ((match = selRegex.exec(data)) !== null) {
             savedTG = match[1];
+            lastTgSelectPos = match.index;
             foundNewChange = true;
         }
+
+        let lastDisconnectPos = Math.max(
+            data.lastIndexOf("ReflectorLogic: Disconnected"),
+            data.lastIndexOf("ReflectorLogic: Connection closed"),
+            data.lastIndexOf("SvxLink v1.9")
+        );
+
+        if (lastDisconnectPos > lastTgSelectPos && lastDisconnectPos !== -1) {
+            savedTG = "---";
+            foundNewChange = true;
+        }
+        if (data.length < 50) {
+            savedTG = "---";
+            foundNewChange = true;
+        }
+
         if (foundNewChange) {
             localStorage.setItem('currentTG', savedTG);
         }
@@ -303,39 +322,61 @@ function loadLogsAndStatus() {
         } else if (lastOff > -1) { 
             $("#el-live-status").text(T.el_disconnected).removeClass("el-connected").addClass("el-disconnected"); 
         }
+        
         let isTalking = false;
         let currentCallsign = "---";
         let currentTG = "";
         let statusText = T.standby;
         let lastStartPos = -1; let lastStopPos = -1;
-        let talkerRegex = /Talker start on TG #(\d+): ([A-Z0-9-\/]+)/g;
+        let talkerRegex = /Talker start on TG #(\d+):\s*([A-Z0-9-\/]+)/g;
         while ((match = talkerRegex.exec(data)) !== null) { 
-            lastStartPos = match.index; 
-            currentTG = match[1]; 
-            currentCallsign = match[2]; 
+            let tg = match[1];
+            if (savedTG === "---" || savedTG === "0" || savedTG === tg) {
+                lastStartPos = match.index; 
+                currentTG = tg; 
+                currentCallsign = match[2]; 
+            }
         }
-        let stopRegex = /Talker stop on TG/g; 
+        
+        let stopRegex = /Talker stop on TG(?: #(\d+))?/g; 
         while ((match = stopRegex.exec(data)) !== null) { 
-            lastStopPos = match.index; 
+            let tg = match[1];
+            if (!tg || savedTG === "---" || savedTG === "0" || savedTG === tg) {
+                lastStopPos = match.index; 
+            }
         }
-        if (lastStartPos > lastStopPos && lastStartPos !== -1) {
+
+        let lastNetReset = Math.max(
+            data.lastIndexOf("ReflectorLogic: Disconnected"),
+            data.lastIndexOf("ReflectorLogic: Connection closed"),
+            data.lastIndexOf("ReflectorLogic: Selecting TG")
+        );
+
+        if (lastStartPos > lastStopPos && lastStartPos > lastNetReset && lastStartPos !== -1) {
             isTalking = true;
             statusText = T.tx; 
         }
+
         let lastTxOn = data.lastIndexOf("Tx1: Turning the transmitter ON");
         let lastTxOff = data.lastIndexOf("Tx1: Turning the transmitter OFF");
+        
         if (lastTxOn > lastTxOff && lastTxOn !== -1) {
             if(!isTalking) {
                 isTalking = true;
-                statusText = T.tx; 
+                statusText = T.tx;
+                currentCallsign = typeof GLOBAL_CALLSIGN !== 'undefined' ? GLOBAL_CALLSIGN : "SYSTEM";
+                currentTG = (savedTG === "0" || savedTG === "---") ? "" : savedTG;
             }
         }
+        
         let lastSqOpen = data.lastIndexOf("Rx1: The squelch is OPEN");
         let lastSqClose = data.lastIndexOf("Rx1: The squelch is CLOSED");
+        
         if (lastSqOpen > lastSqClose && lastSqOpen !== -1) {
             isTalking = true;
             statusText = T.rx_local;
             currentCallsign = "LOKALNIE"; 
+            currentTG = (savedTG === "0" || savedTG === "---") ? "" : savedTG;
         }
         $(".live-box").removeClass("talking rx-active tx-active");
         
@@ -624,7 +665,7 @@ function openGridMapper() {
                 if (isTx && activeTg) {
                     popupContent += "<br><span style='display:inline-block; margin-top:8px; background:#F44336; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px; animation: tx-pulse-bg 1.5s infinite;'>🎙️ Nadaje na TG " + activeTg + "</span>";
                 }
-		 popupContent += "</div>";
+                 popupContent += "</div>";
                 var isTx = (n.isTalker === true || n.isTalker === "1" || n.isTalker === 1) ? " map-tx" : "";
                 var swIcon = getSwIcon(n.sw);
 
@@ -733,8 +774,12 @@ function openTgSelector(targetInputId, mode) {
     
     renderTgChips();
     renderTgLists();
-    
-    document.getElementById('tg-modal-overlay').style.display = 'flex';
+
+    let overlay = document.getElementById('tg-modal-overlay');
+    if (overlay.parentNode !== document.body) {
+        document.body.appendChild(overlay);
+    }
+    overlay.style.display = 'flex';
 }
 
 function closeTgSelector() {

@@ -72,13 +72,22 @@ $H = [
         's6_map' => '<strong>🗺️ Grid Mapper:</strong>',
         's6_map_d' => 'Mapa aktywnych stacji w zakładce <strong>Nodes</strong>.',
 
-        // --- NOWA SEKCJA V1.3 ---
         's7_title' => '8. Mega Nowości (Wersja V1.3)',
         's7_tx' => '<strong>🔴 Wizualizacja Nadawania (TX):</strong> Kiedy ktoś z sieci nadaje, jego kafelek w zakładce Nodes i znacznik na mapie dynamicznie pulsują na czerwono.',
         's7_icons' => '<strong>📱 Inteligentne Ikony:</strong> Rozpoznawanie sprzętu operatora na liście węzłów: Radio (📻), Aplikacja mobilna (📱), Komputer PC (💻).',
         's7_quick' => '<strong>⚡ Szybkie Dołączanie (Quick-Dial):</strong> Widzisz, że ktoś ciekawy nadaje? Kliknij w jego pulsujący na czerwono kafelek w zakładce Nodes, aby jednym przyciskiem przełączyć radio na jego grupę TG!',
         's7_radio' => '<strong>📻 Dane Radiowe:</strong> Najechanie myszką na węzeł (lub kliknięcie kropki na mapie) zdradza jego częstotliwość QRG i ton CTCSS.',
         's7_cfg' => '<strong>🎛️ Smart Config:</strong> Koniec z ręcznym wpisywaniem numerów TG! Kliknij pole <em>Startowe TG</em> lub <em>Monitorowane TG</em> w konfiguracji, by otworzyć dotykowy panel wyboru, który sam zaciąga dane z Twoich własnych list DTMF.',
+
+        's8_title' => '9. APRS (Beacon)',
+        's8_text' => 'System automatycznie wysyła sygnał o Twojej pozycji, mocy (W) i zysku anteny (dBd) do sieci APRS. Konfigurację znajdziesz w zakładce <strong>Konfiguracja</strong>.',
+        's8_warn' => '<strong>Ważne:</strong> Ustaw wysokość anteny na minimum 4 metry, aby system poprawnie obliczył i wysłał parametry na mapę aprs.fi (wynika to z technicznej, logarytmicznej specyfiki protokołu APRS).',
+        
+        's9_title' => '10. 🎛️ Filtry Audio (SvxLink vs SA818)',
+        's9_text' => 'Zaawansowane opcje audio znajdziesz w zakładce <strong>Radio</strong>. PrimeNode pozwala zarządzać dwoma osobnymi rodzajami filtrów:',
+        's9_svx' => '<strong>Programowe (SvxLink):</strong> Pre-emphasis i De-emphasis wyrównują pasmo dźwięku po stronie oprogramowania (zanim trafi do sieci).',
+        's9_sa' => '<strong>Sprzętowe (SA818):</strong> Wbudowane w moduł filtry HPF (High Pass) i LPF (Low Pass) fizycznie odcinają skrajne zakłócenia, co jest świetne na buczenie sieciowe (50Hz). Tu możesz również ustawić dewiację Bandwidth (WIDE dla 25kHz, NARROW dla 12.5kHz).',
+        's9_tip' => '<em>Dobra praktyka: Jeśli włączasz filtry sprzętowe SA818, wyłącz te programowe w SvxLinku (i odwrotnie). Unikniesz w ten sposób podwójnego przetwarzania dźwięku.</em>',
 
         'qa_title' => 'Szybka Pomoc (Q&A)',
         'qa_q1' => '❓ Nie mogę połączyć się z EchoLinkiem (Status: Disconnected).',
@@ -160,13 +169,22 @@ $H = [
         's6_map' => '<strong>🗺️ Grid Mapper:</strong>',
         's6_map_d' => 'Map of active stations in <strong>Nodes</strong> tab.',
 
-        // --- NEW SECTION V1.3 ---
         's7_title' => '8. Mega Features (Version V1.3)',
         's7_tx' => '<strong>🔴 TX Visualization:</strong> When a user transmits, their tile in the Nodes tab and map marker dynamically pulse red.',
         's7_icons' => '<strong>📱 Smart Icons:</strong> Node hardware recognition: Radio (📻), Mobile App (📱), PC (💻).',
         's7_quick' => '<strong>⚡ Quick-Dial:</strong> See someone interesting talking? Click their pulsing tile in the Nodes tab to instantly jump to their TG with one click!',
         's7_radio' => '<strong>📻 Radio Data:</strong> Hovering over a node (or clicking a dot on the map) reveals its QRG frequency and CTCSS tone.',
         's7_cfg' => '<strong>🎛️ Smart Config:</strong> No more typing TG numbers manually! Click the <em>Default TG</em> or <em>Monitor TGs</em> fields in the config to open a touch-friendly selector pulled directly from your custom DTMF groups.',
+
+        's8_title' => '9. 🌍 APRS (Beacon)',
+        's8_text' => 'The system automatically sends your position, power (W), and antenna gain (dBd) to the APRS network. You can find the settings in the <strong>Config</strong> tab.',
+        's8_warn' => '<strong>Important:</strong> Set the antenna height to at least 4 meters for the system to correctly calculate parameters on aprs.fi (this is due to the logarithmic nature of the APRS protocol).',
+        
+        's9_title' => '10. 🎛️ Audio Filters (SvxLink vs SA818)',
+        's9_text' => 'Advanced audio options are located in the <strong>Radio</strong> tab. PrimeNode allows you to manage two separate types of filters:',
+        's9_svx' => '<strong>Software (SvxLink):</strong> Pre-emphasis and De-emphasis equalize the audio band on the software side.',
+        's9_sa' => '<strong>Hardware (SA818):</strong> Built-in HPF (High Pass) and LPF (Low Pass) physically cut off extreme frequencies, which is great for removing 50Hz hum. Here you can also adjust the Bandwidth deviation (WIDE/NARROW).',
+        's9_tip' => '<em>Pro tip: If you enable SA818 hardware filters, turn off the software ones in SvxLink (and vice versa) to avoid double-processing.</em>',
 
         'qa_title' => 'Quick Help (Q&A)',
         'qa_q1' => '❓ EchoLink not connecting.',
@@ -319,6 +337,26 @@ $H = [
             <li style="margin-bottom: 12px;"><?php echo $H[$lang]['s7_radio']; ?></li>
             <li style="margin-bottom: 12px;"><?php echo $H[$lang]['s7_cfg']; ?></li>
         </ul>
+    </div>
+</div>
+
+<div class="help-section" style="border-left: 3px solid #2196F3; background: rgba(33, 150, 243, 0.05); padding: 15px;">
+    <div class="help-title" style="color: #2196F3;"><span class="help-icon">🌍</span> <?php echo $H[$lang]['s8_title']; ?></div>
+    <div class="help-text">
+        <p><?php echo $H[$lang]['s8_text']; ?></p>
+        <p style="color: #FF9800;"><?php echo $H[$lang]['s8_warn']; ?></p>
+    </div>
+</div>
+
+<div class="help-section" style="border-left: 3px solid #9C27B0; background: rgba(156, 39, 176, 0.05); padding: 15px;">
+    <div class="help-title" style="color: #9C27B0;"><span class="help-icon">🎛️</span> <?php echo $H[$lang]['s9_title']; ?></div>
+    <div class="help-text">
+        <p><?php echo $H[$lang]['s9_text']; ?></p>
+        <ul>
+            <li style="margin-bottom: 8px;"><?php echo $H[$lang]['s9_svx']; ?></li>
+            <li style="margin-bottom: 8px;"><?php echo $H[$lang]['s9_sa']; ?></li>
+        </ul>
+        <p style="color: #aaa;"><?php echo $H[$lang]['s9_tip']; ?></p>
     </div>
 </div>
 <div class="help-section" style="border:none;">

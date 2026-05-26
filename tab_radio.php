@@ -16,10 +16,13 @@ $TR = [
         'lbl_sql' => 'GPIO SQL (RX)',
         'hlp_sql' => 'Pin BCM COS/SQL',
         'btn_save' => '💾 Zaprogramuj Radio i Zapisz GPIO',
-        'info_title' => '⚠️ Ważne Informacje SA818',
+        'info_title' => '⚠️ Ważne Informacje Systemowe',
         'info_freq' => '📶 <b>Częstotliwość:</b><br>Moduł pracuje w trybie Simplex. Wpisana częstotliwość jest ustawiana automatycznie zarówno dla Nadawania (TX), jak i Odbioru (RX).',
         'info_ctcss' => '🔒 <b>Co to jest CTCSS?</b><br>To system "Prywatnego Kanału". Działa jak elektroniczny klucz. Jeśli go ustawisz, Twój hotspot nie będzie odbierał przypadkowych zakłóceń z eteru, a jedynie Twoje radio (które musi mieć ustawiony ten sam ton).',
-        'info_note' => '⚡ <b>Uwaga:</b><br>Squelch zalecamy ustawić na poziom <b>2-4</b>. Poziom 1 może być zbyt czuły w pobliżu elektroniki komputera.',
+        'info_svx_filters' => '🎛️ <b>Filtry SvxLink (Programowe):</b><br><b>Deemphasis (RX):</b> Wyrównuje pasmo odbieranego sygnału. <b>Preemphasis (TX):</b> Podbija wyższe tony przed nadaniem.<br><i style="color:#888;">Zalecenie: Używaj ich zamiennie z filtrami SA818 (albo tu, albo tam).</i>',
+        'info_sa_bw' => '📻 <b>Dewiacja (Bandwidth):</b><br><b>WIDE (1)</b> = 25 kHz.<br><b>NARROW (0)</b> = 12.5 kHz.',
+        'info_sa_filters' => '🔊 <b>Filtry SA818 (Sprzętowe):</b><br>Wbudowane w moduł radiowy. <b>High/Low Pass Filter</b> świetnie odcinają skrajne zakłócenia (np. buczenie z zasilania 50Hz).',
+        'info_note' => '⚡ <b>Uwaga o SQL:</b><br>Squelch zalecamy ustawić na poziom <b>2-4</b>. Poziom 1 może być zbyt czuły w pobliżu elektroniki komputera.',
         'csq' => 'Brak (CSQ)',
         
         'audio_filters_title' => '🎛️ Filtry Audio (SvxLink)',
@@ -55,10 +58,13 @@ $TR = [
         'lbl_sql' => 'GPIO SQL (RX)',
         'hlp_sql' => 'BCM COS/SQL Pin',
         'btn_save' => '💾 Program Radio & Save GPIO',
-        'info_title' => '⚠️ Important SA818 Info',
+        'info_title' => '⚠️ Important System Info',
         'info_freq' => '📶 <b>Frequency:</b><br>Module works in Simplex mode. Frequency is set automatically for both Transmit (TX) and Receive (RX).',
         'info_ctcss' => '🔒 <b>What is CTCSS?</b><br>It is a "Private Channel" system acting like a key. If set, hotspot ignores random noise, listening only to your radio (which must share the tone).',
-        'info_note' => '⚡ <b>Note:</b><br>We recommend Squelch level <b>2-4</b>. Level 1 might be too sensitive near computer electronics.',
+        'info_svx_filters' => '🎛️ <b>SvxLink Filters (Software):</b><br><b>Deemphasis (RX):</b> Flattens the received acoustic band. <b>Preemphasis (TX):</b> Boosts higher tones before transmitting.<br><i style="color:#888;">Tip: If enabled here, disable them in SA818.</i>',
+        'info_sa_bw' => '📻 <b>Bandwidth:</b><br><b>WIDE (1)</b> = 25 kHz.<br><b>NARROW (0)</b> = 12.5 kHz.',
+        'info_sa_filters' => '🔊 <b>SA818 Filters (Hardware):</b><br>Built-in module audio filters. <b>High/Low Pass Filters</b> are great for cutting off extreme noise (e.g., 50Hz power hum).',
+        'info_note' => '⚡ <b>SQL Note:</b><br>We recommend Squelch level <b>2-4</b>. Level 1 might be too sensitive near computer electronics.',
         'csq' => 'None (CSQ)',
         
         'audio_filters_title' => '🎛️ Audio Filters (SvxLink)',
@@ -81,15 +87,32 @@ $TR = [
 ];
 
 $CTCSS_MAP = [
-    "0000" => $TR[$lang]['csq'], "0670" => "67.0 Hz", "0719" => "71.9 Hz", "0744" => "74.4 Hz", "0770" => "77.0 Hz",
-    "0797" => "79.7 Hz", "0825" => "82.5 Hz", "0854" => "85.4 Hz", "0885" => "88.5 Hz", "0915" => "91.5 Hz",
-    "0948" => "94.8 Hz", "0974" => "97.4 Hz", "1000" => "100.0 Hz", "1035" => "103.5 Hz", "1072" => "107.2 Hz",
-    "1109" => "110.9 Hz", "1148" => "114.8 Hz", "1188" => "118.8 Hz", "1230" => "123.0 Hz", "1273" => "127.3 Hz",
-    "1318" => "131.8 Hz", "1365" => "136.5 Hz", "1413" => "141.3 Hz", "1462" => "146.2 Hz", "1514" => "151.4 Hz",
-    "1567" => "156.7 Hz", "1622" => "162.2 Hz", "1679" => "167.9 Hz", "1738" => "173.8 Hz", "1799" => "179.9 Hz",
-    "1862" => "186.2 Hz", "1928" => "192.8 Hz", "2035" => "203.5 Hz", "2107" => "210.7 Hz", "2181" => "218.1 Hz",
-    "2257" => "225.7 Hz", "2336" => "233.6 Hz", "2418" => "241.8 Hz", "2503" => "250.3 Hz"
+    "0000" => $TR[$lang]['csq'], "0670" => "67.0 Hz", "0693" => "69.3 Hz", "0719" => "71.9 Hz", "0744" => "74.4 Hz", 
+    "0770" => "77.0 Hz", "0797" => "79.7 Hz", "0825" => "82.5 Hz", "0854" => "85.4 Hz", "0885" => "88.5 Hz", 
+    "0915" => "91.5 Hz", "0948" => "94.8 Hz", "0974" => "97.4 Hz", "1000" => "100.0 Hz", "1035" => "103.5 Hz", 
+    "1072" => "107.2 Hz", "1109" => "110.9 Hz", "1148" => "114.8 Hz", "1188" => "118.8 Hz", "1230" => "123.0 Hz", 
+    "1273" => "127.3 Hz", "1318" => "131.8 Hz", "1365" => "136.5 Hz", "1413" => "141.3 Hz", "1462" => "146.2 Hz", 
+    "1514" => "151.4 Hz", "1567" => "156.7 Hz", "1598" => "159.8 Hz", "1622" => "162.2 Hz", "1655" => "165.5 Hz", 
+    "1679" => "167.9 Hz", "1713" => "171.3 Hz", "1738" => "173.8 Hz", "1773" => "177.3 Hz", "1799" => "179.9 Hz", 
+    "1835" => "183.5 Hz", "1862" => "186.2 Hz", "1899" => "189.9 Hz", "1928" => "192.8 Hz", "1966" => "196.6 Hz", 
+    "1995" => "199.5 Hz", "2035" => "203.5 Hz", "2065" => "206.5 Hz", "2107" => "210.7 Hz", "2181" => "218.1 Hz",
+    "2257" => "225.7 Hz", "2291" => "229.1 Hz", "2336" => "233.6 Hz", "2418" => "241.8 Hz", "2503" => "250.3 Hz", 
+    "2541" => "254.1 Hz"
 ];
+
+if (!function_exists('normalizeCtcss')) {
+    function normalizeCtcss($ctcss) {
+        if ($ctcss === null || $ctcss === '' || $ctcss == '0' || $ctcss == '0000') return '0000';
+        $str = (string)$ctcss;
+        if (strlen($str) === 4 && is_numeric($str) && strpos($str, '.') === false) return $str;
+        $floatVal = (float)$ctcss;
+        if ($floatVal > 0) {
+            return str_pad(round($floatVal * 10), 4, "0", STR_PAD_LEFT);
+        }
+        return '0000';
+    }
+}
+$current_ctcss = normalizeCtcss($radio['ctcss'] ?? '0000');
 ?>
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -105,12 +128,12 @@ $CTCSS_MAP = [
             
             <div class="form-group">
                 <label><?php echo $TR[$lang]['lbl_desc']; ?></label>
-                <input type="text" name="radio_desc" value="<?php echo isset($radio['desc']) ? htmlspecialchars($radio['desc']) : ''; ?>" placeholder="<?php echo $TR[$lang]['ph_desc']; ?>">
+                <input type="text" name="radio_desc" value="<?php echo isset($radio['desc']) && !empty($radio['desc']) ? htmlspecialchars($radio['desc']) : ''; ?>" placeholder="<?php echo $TR[$lang]['ph_desc']; ?>">
             </div>
 
             <div class="form-group">
                 <label><?php echo $TR[$lang]['lbl_freq']; ?></label>
-                <input type="text" name="single_freq" value="<?php echo htmlspecialchars($radio['rx']); ?>" style="font-size: 18px; font-weight: bold; color: #2196F3;">
+                <input type="text" name="single_freq" value="<?php echo htmlspecialchars($radio['rx'] ?? '432.800'); ?>" style="font-size: 18px; font-weight: bold; color: #2196F3;">
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -119,7 +142,7 @@ $CTCSS_MAP = [
                     <select name="ctcss">
                         <?php
                             foreach($CTCSS_MAP as $code => $label) {
-                                $sel = ($radio['ctcss'] == $code) ? 'selected' : '';
+                                $sel = ($current_ctcss == $code) ? 'selected' : '';
                                 echo "<option value='$code' $sel>$label</option>";
                             }
                         ?>
@@ -129,7 +152,7 @@ $CTCSS_MAP = [
                     <label><?php echo $TR[$lang]['lbl_sq']; ?></label>
                     <select name="sq">
                         <?php foreach([1,2,3,4,5,6,7,8] as $s) {
-                            $sel = ($radio['sq'] == $s) ? 'selected' : '';
+                            $sel = (($radio['sq'] ?? '4') == $s) ? 'selected' : '';
                             echo "<option value='$s' $sel>$s</option>";
                         } ?>
                     </select>
@@ -243,7 +266,16 @@ $CTCSS_MAP = [
                     <li style="margin-bottom: 12px;">
                         <?php echo $TR[$lang]['info_ctcss']; ?>
                     </li>
-                    <li>
+                    <li style="margin-bottom: 12px; border-top: 1px dashed #555; padding-top: 12px;">
+                        <?php echo $TR[$lang]['info_svx_filters']; ?>
+                    </li>
+                    <li style="margin-bottom: 12px;">
+                        <?php echo $TR[$lang]['info_sa_bw']; ?>
+                    </li>
+                    <li style="margin-bottom: 12px;">
+                        <?php echo $TR[$lang]['info_sa_filters']; ?>
+                    </li>
+                    <li style="border-top: 1px dashed #555; padding-top: 12px; color: #FF9800;">
                         <?php echo $TR[$lang]['info_note']; ?>
                     </li>
                 </ul>

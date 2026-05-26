@@ -22,6 +22,26 @@
     }
 
     $networks = json_decode(file_get_contents($net_file), true);
+    $radio_config_file = '/var/www/html/radio_config.json';
+    if (file_exists($radio_config_file)) {
+        $radio_data_internal = json_decode(file_get_contents($radio_config_file), true);
+        if (isset($_POST['save_svx_full'])) {
+            $radio_data_internal['aprs_enabled'] = $_POST['AprsEnable'] ?? '0';
+            $radio_data_internal['aprs_passcode'] = $_POST['AprsPasscode'] ?? '';
+            $radio_data_internal['aprs_ssid'] = $_POST['AprsSsid'] ?? '';
+            $radio_data_internal['aprs_icon'] = $_POST['AprsIcon'] ?? '/-';
+            $radio_data_internal['aprs_lat'] = $_POST['AprsLat'] ?? '';
+            $radio_data_internal['aprs_lon'] = $_POST['AprsLon'] ?? '';
+            $radio_data_internal['aprs_power'] = $_POST['AprsPower'] ?? '0';
+            $radio_data_internal['aprs_height'] = $_POST['AprsHeight'] ?? '0';
+            $radio_data_internal['aprs_gain'] = $_POST['AprsGain'] ?? '0';
+            $radio_data_internal['aprs_dir'] = $_POST['AprsDir'] ?? '0';
+            $radio_data_internal['aprs_interval'] = $_POST['AprsInterval'] ?? '30';
+            $radio_data_internal['aprs_comment'] = $_POST['AprsComment'] ?? 'PrimeNode OPI0';
+            file_put_contents($radio_config_file, json_encode($radio_data_internal, JSON_PRETTY_PRINT));
+        }
+        $radio = array_merge($radio ?? [], $radio_data_internal);
+    }
     $edit_mode = false;
     $edit_data = ['id'=>'','name'=>'','host'=>'','port'=>'5300','pass'=>'','api'=>'','tgs'=>'','callsign'=>'','deftg'=>''];
     $active_callsign = isset($vals['Callsign']) ? $vals['Callsign'] : ''; 
@@ -235,7 +255,29 @@
             'tg_ph_manual' => 'Wpisz nr TG...',
             'btn_add_tg' => 'DODAJ',
             'btn_confirm' => '✅ ZATWIERDŹ',
-            'btn_cancel' => '❌ ANULUJ'
+            'btn_cancel' => '❌ ANULUJ',
+            'sect_aprs' => '🌍 Ustawienia APRS (Beacon)',
+            'lbl_aprs_en' => 'Włącz Moduł APRS',
+            'lbl_aprs_pass' => 'Passcode (APRS-IS)',
+            'lbl_aprs_ssid' => 'SSID (Sufiks)',
+            'opt_aprs_none' => 'Brak (Główny znak)',
+            'lbl_aprs_icon' => 'Ikona (Tabela/Znak)',
+            'lbl_aprs_int' => 'Interwał (min)',
+            'lbl_aprs_lat' => 'Szerokość (Lat)',
+            'lbl_aprs_lon' => 'Długość (Lon)',
+            'lbl_aprs_power' => 'Moc (W)',
+            'lbl_aprs_gain' => 'Zysk Ant. (dBd)',
+            'lbl_aprs_height' => 'Wys. A.p.t. (m)',
+            'lbl_aprs_dir' => 'Kierunek (°)',
+            'lbl_aprs_comment' => 'Komentarz Systemowy',
+            'aprs_icon_echo' => '🌐 [ E 0 ] Węzeł EchoLink',
+            'aprs_icon_node' => '🎯 [ / n ] Węzeł / Node',
+            'aprs_icon_digi' => '🌟 [ / # ] Cyfrowe Digi',
+            'aprs_icon_rep' => '📡 [ / r ] Przemiennik',
+            'aprs_icon_home' => '🏠 [ / - ] Dom (QTH)',
+            'aprs_icon_car' => '🚗 [ / > ] Samochód',
+            'aprs_icon_van' => '🚙 [ \ v ] Van',
+            'aprs_icon_walk' => '🚶 [ / [ ] Człowiek (Portable)'
         ],
         'en' => [
             'header' => 'SvxLink Configuration',
@@ -258,7 +300,6 @@
             'ph_deftg' => 'Default TG',
             'lbl_audio_sel' => 'Voice ID',
             'opt_default' => 'Default',
-
             'sect_el' => 'EchoLink',
             'lbl_el_call' => 'EchoLink Callsign',
             'lbl_el_pass' => 'EchoLink Password',
@@ -296,7 +337,29 @@
             'tg_ph_manual' => 'Enter TG no...',
             'btn_add_tg' => 'ADD',
             'btn_confirm' => '✅ CONFIRM',
-            'btn_cancel' => '❌ CANCEL'
+            'btn_cancel' => '❌ CANCEL',
+            'sect_aprs' => '🌍 APRS Settings (Beacon)',
+            'lbl_aprs_en' => 'Enable APRS Module',
+            'lbl_aprs_pass' => 'Passcode (APRS-IS)',
+            'lbl_aprs_ssid' => 'SSID (Suffix)',
+            'opt_aprs_none' => 'None (Main callsign)',
+            'lbl_aprs_icon' => 'Icon (Table/Symbol)',
+            'lbl_aprs_int' => 'Interval (min)',
+            'lbl_aprs_lat' => 'Latitude (Lat)',
+            'lbl_aprs_lon' => 'Longitude (Lon)',
+            'lbl_aprs_power' => 'Power (W)',
+            'lbl_aprs_gain' => 'Ant. Gain (dBd)',
+            'lbl_aprs_height' => 'Height ASL (m)',
+            'lbl_aprs_dir' => 'Direction (°)',
+            'lbl_aprs_comment' => 'System Comment',
+            'aprs_icon_echo' => '🌐 [ E 0 ] EchoLink Node',
+            'aprs_icon_node' => '🎯 [ / n ] Node',
+            'aprs_icon_digi' => '🌟 [ / # ] Digital Digi',
+            'aprs_icon_rep' => '📡 [ / r ] Repeater',
+            'aprs_icon_home' => '🏠 [ / - ] Home (QTH)',
+            'aprs_icon_car' => '🚗 [ / > ] Car',
+            'aprs_icon_van' => '🚙 [ \ v ] Van',
+            'aprs_icon_walk' => '🚶 [ / [ ] Human (Portable)'
         ]
     ];
 ?>
@@ -407,9 +470,9 @@
                 <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_sysop']; ?></label><input type="text" name="EL_Sysop" value="<?php echo $vals_el['Sysop']; ?>"></div>
                 <div class="form-group"><label><?php echo $TC[$lang]['lbl_el_desc']; ?></label><input type="text" name="EL_Desc" value="<?php echo $vals_el['Desc']; ?>"></div>
             </div>
-            <div class="form-group" style="margin-top:15px;"><label><?php echo $TC[$lang]['lbl_el_proxy']; ?></label><input type="text" name="EL_ProxyHost" value="<?php echo $vals_el['Proxy']; ?>" placeholder="<?php echo $TC[$lang]['ph_el_proxy']; ?>"><small style="color:#888; font-size:10px;"><?php echo $TC[$lang]['help_proxy']; ?></small></div>
+            <div class="form-group" style="margin-top:15px;"><label><?php echo $TC[$lang]['lbl_el_proxy']; ?></label><input type="text" name="EL_ProxyHost" value="<?php echo $vals_el['Proxy']; ?>" placeholder="<?php echo $TC[$lang]['ph_el_proxy']; ?>"><small style="color:#888; font-size:10px;"><?php echo $TC[$lang]['help_proxy'] ?? ''; ?></small></div>
             <div style="margin-top:5px;">
-                <button type="submit" name="auto_proxy" class="btn btn-green" style="margin:0; padding:8px; font-size:12px;" onclick="return confirm('<?php echo $TC[$lang]['conf_proxy']; ?>')"><?php echo $TC[$lang]['btn_proxy']; ?></button>
+                <button type="submit" name="auto_proxy" class="btn btn-green" style="margin:0; padding:8px; font-size:12px;" onclick="return confirm('Czy na pewno chcesz szukać Proxy?')"><?php echo $TC[$lang]['btn_proxy']; ?></button>
             </div>
         </div>
 
@@ -418,9 +481,72 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                 <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_name']; ?></label><input type="text" name="qth_name" value="<?php echo isset($radio['qth_name']) ? $radio['qth_name'] : ''; ?>"></div>
                 <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_city']; ?></label><input type="text" name="qth_city" value="<?php echo isset($radio['qth_city']) ? $radio['qth_city'] : ''; ?>"></div>
-                <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_loc']; ?></label><input type="text" name="qth_loc" value="<?php echo isset($radio['qth_loc']) ? $radio['qth_loc'] : ''; ?>" placeholder="<?php echo $TC[$lang]['ph_loc']; ?>"></div>
+                <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_loc']; ?></label><input type="text" name="qth_loc" value="<?php echo isset($radio['qth_loc']) ? $radio['qth_loc'] : ''; ?>" placeholder="np. JO91QI"></div>
             </div>
-            <small style="color:#888; font-size:10px; display:block; margin-top:5px;"><?php echo $TC[$lang]['help_loc']; ?></small>
+            <small style="color:#888; font-size:10px; display:block; margin-top:5px;"></small>
+        </div>
+
+        <div class="panel-box box-full">
+            <h4 class="panel-title" style="color: #2196F3; border-color: #2196F3;"><?php echo $TC[$lang]['sect_aprs']; ?></h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group" style="margin:0;">
+                    <label><?php echo $TC[$lang]['lbl_aprs_en']; ?></label>
+                    <select name="AprsEnable">
+                        <option value="1" <?php if(($radio['aprs_enabled'] ?? '0') == '1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option>
+                        <option value="0" <?php if(($radio['aprs_enabled'] ?? '0') == '0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label><?php echo $TC[$lang]['lbl_aprs_pass']; ?></label>
+                    <input type="password" name="AprsPasscode" value="<?php echo $radio['aprs_passcode'] ?? ''; ?>">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group" style="margin:0;">
+                    <label><?php echo $TC[$lang]['lbl_aprs_ssid']; ?></label>
+                    <select name="AprsSsid">
+                        <option value="" <?php if(($radio['aprs_ssid'] ?? '') == '') echo 'selected'; ?>><?php echo $TC[$lang]['opt_aprs_none']; ?></option>
+                        <?php for($i=1; $i<=15; $i++): ?>
+                            <option value="<?php echo $i; ?>" <?php if(($radio['aprs_ssid'] ?? '') == (string)$i) echo 'selected'; ?>>-<?php echo $i; ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label><?php echo $TC[$lang]['lbl_aprs_icon']; ?></label>
+                    <select name="AprsIcon">
+                        <option value="E0" <?php if(($radio['aprs_icon'] ?? 'E0') == 'E0') echo 'selected'; ?>><?php echo $TC[$lang]['aprs_icon_echo']; ?></option>
+                        <option value="/n" <?php if(($radio['aprs_icon'] ?? '') == '/n') echo 'selected'; ?>><?php echo $TC[$lang]['aprs_icon_node']; ?></option>
+                        <option value="/#" <?php if(($radio['aprs_icon'] ?? '') == '/#') echo 'selected'; ?>><?php echo $TC[$lang]['aprs_icon_digi']; ?></option>
+                        <option value="/r" <?php if(($radio['aprs_icon'] ?? '') == '/r') echo 'selected'; ?>><?php echo $TC[$lang]['aprs_icon_rep']; ?></option>
+                        <option value="/-" <?php if(($radio['aprs_icon'] ?? '') == '/-') echo 'selected'; ?>><?php echo $TC[$lang]['aprs_icon_home']; ?></option>
+                        <option value="/>" <?php if(($radio['aprs_icon'] ?? '') == '/>') echo 'selected'; ?>><?php echo $TC[$lang]['aprs_icon_car']; ?></option>
+                        <option value="1v" <?php if(($radio['aprs_icon'] ?? '') == '1v') echo 'selected'; ?>><?php echo $TC[$lang]['aprs_icon_van']; ?></option>
+                        <option value="/[" <?php if(($radio['aprs_icon'] ?? '') == '/[') echo 'selected'; ?>><?php echo $TC[$lang]['aprs_icon_walk']; ?></option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_aprs_lat']; ?></label><input type="text" name="AprsLat" value="<?php echo $radio['aprs_lat'] ?? ''; ?>" placeholder="51.3456"></div>
+                <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_aprs_lon']; ?></label><input type="text" name="AprsLon" value="<?php echo $radio['aprs_lon'] ?? ''; ?>" placeholder="19.3456"></div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_aprs_power']; ?></label><input type="number" name="AprsPower" value="<?php echo $radio['aprs_power'] ?? '0'; ?>"></div>
+                <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_aprs_gain']; ?></label><input type="number" name="AprsGain" value="<?php echo $radio['aprs_gain'] ?? '0'; ?>"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_aprs_height']; ?></label><input type="number" name="AprsHeight" value="<?php echo $radio['aprs_height'] ?? '0'; ?>"></div>
+                <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_aprs_dir']; ?></label><input type="number" name="AprsDir" value="<?php echo $radio['aprs_dir'] ?? '0'; ?>"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_aprs_int']; ?></label><input type="number" name="AprsInterval" value="<?php echo $radio['aprs_interval'] ?? '30'; ?>" min="10"></div>
+                <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_aprs_comment']; ?></label><input type="text" name="AprsComment" value="<?php echo $radio['aprs_comment'] ?? 'PrimeNode OPI0'; ?>"></div>
+            </div>
         </div>
 
         <div class="panel-box box-full">
@@ -437,7 +563,7 @@
             
             <div class="form-group" style="margin-bottom: 20px;">
                 <label style="text-align:center; margin-bottom:10px;"><?php echo $TC[$lang]['lbl_modules']; ?></label>
-                <input type="hidden" name="Modules" id="input-modules" value="<?php echo $vals['Modules']; ?>">
+                <input type="hidden" name="Modules" id="input-modules" value="<?php echo $vals['Modules'] ?? ''; ?>">
                 
                 <div class="mod-grid">
                     <div class="mod-btn" id="btn-ModuleHelp" onclick="toggleModule('ModuleHelp')" style="max-width:120px;"><?php echo $TC[$lang]['btn_help']; ?></div>
@@ -456,14 +582,14 @@
                     </select>
                 </div>
 
-                <div class="form-group"><label><?php echo $TC[$lang]['lbl_tg_time']; ?></label><input type="number" name="TgTimeout" value="<?php echo $vals['TgTimeout']; ?>" required min="0"></div>
-                <div class="form-group"><label><?php echo $TC[$lang]['lbl_tmp_time']; ?></label><input type="number" name="TmpTimeout" value="<?php echo $vals['TmpTimeout']; ?>" required min="0"></div>
+                <div class="form-group"><label><?php echo $TC[$lang]['lbl_tg_time']; ?></label><input type="number" name="TgTimeout" value="<?php echo $vals['TgTimeout'] ?? ''; ?>" required min="0"></div>
+                <div class="form-group"><label><?php echo $TC[$lang]['lbl_tmp_time']; ?></label><input type="number" name="TmpTimeout" value="<?php echo $vals['TmpTimeout'] ?? ''; ?>" required min="0"></div>
                 
-                <div class="form-group"><label><?php echo $TC[$lang]['lbl_beep']; ?></label><select name="Beep3Tone"><option value="1" <?php if($vals['Beep3Tone']=='1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option><option value="0" <?php if($vals['Beep3Tone']=='0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option></select></div>
-                <div class="form-group"><label><?php echo $TC[$lang]['lbl_ann_tg']; ?></label><select name="AnnounceTG"><option value="1" <?php if($vals['AnnounceTG']=='1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option><option value="0" <?php if($vals['AnnounceTG']=='0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option></select></div>
-                <div class="form-group"><label><?php echo $TC[$lang]['lbl_info']; ?></label><select name="RefStatusInfo"><option value="1" <?php if($vals['RefStatusInfo']=='1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option><option value="0" <?php if($vals['RefStatusInfo']=='0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option></select></div>
-                <div class="form-group"><label><?php echo $TC[$lang]['lbl_roger']; ?></label><select name="RogerBeep"><option value="1" <?php if($vals['RogerBeep']=='1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option><option value="0" <?php if($vals['RogerBeep']=='0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option></select></div>
-                <div class="form-group"><label><?php echo $TC[$lang]['lbl_voice_id']; ?></label><select name="AnnounceCall"><option value="1" <?php if($vals['AnnounceCall']=='1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option><option value="0" <?php if($vals['AnnounceCall']=='0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option></select></div>
+                <div class="form-group"><label><?php echo $TC[$lang]['lbl_beep']; ?></label><select name="Beep3Tone"><option value="1" <?php if(isset($vals['Beep3Tone']) && $vals['Beep3Tone']=='1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option><option value="0" <?php if(isset($vals['Beep3Tone']) && $vals['Beep3Tone']=='0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option></select></div>
+                <div class="form-group"><label><?php echo $TC[$lang]['lbl_ann_tg']; ?></label><select name="AnnounceTG"><option value="1" <?php if(isset($vals['AnnounceTG']) && $vals['AnnounceTG']=='1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option><option value="0" <?php if(isset($vals['AnnounceTG']) && $vals['AnnounceTG']=='0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option></select></div>
+                <div class="form-group"><label><?php echo $TC[$lang]['lbl_info']; ?></label><select name="RefStatusInfo"><option value="1" <?php if(isset($vals['RefStatusInfo']) && $vals['RefStatusInfo']=='1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option><option value="0" <?php if(isset($vals['RefStatusInfo']) && $vals['RefStatusInfo']=='0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option></select></div>
+                <div class="form-group"><label><?php echo $TC[$lang]['lbl_roger']; ?></label><select name="RogerBeep"><option value="1" <?php if(isset($vals['RogerBeep']) && $vals['RogerBeep']=='1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option><option value="0" <?php if(isset($vals['RogerBeep']) && $vals['RogerBeep']=='0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option></select></div>
+                <div class="form-group"><label><?php echo $TC[$lang]['lbl_voice_id']; ?></label><select name="AnnounceCall"><option value="1" <?php if(isset($vals['AnnounceCall']) && $vals['AnnounceCall']=='1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option><option value="0" <?php if(isset($vals['AnnounceCall']) && $vals['AnnounceCall']=='0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option></select></div>
             </div>
         </div>
     </div>
@@ -477,6 +603,119 @@ if (file_exists($custom_dtmf_path)) {
     $tg_list_data = json_decode(file_get_contents($custom_dtmf_path), true);
 }
 ?>
+
+<style>
+
+#tg-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+#tg-modal {
+    background: #1e1e1e;
+    border: 2px solid #2196F3;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 550px;
+    width: 90%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.9);
+    color: #eee;
+}
+
+.tg-sel-box {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    background: #111; 
+    border: 1px inset #444; 
+    border-radius: 8px;
+    padding: 12px; 
+    min-height: 48px; 
+    margin-bottom: 15px;
+}
+
+.tg-chip {
+    background: #4CAF50; 
+    color: #fff;
+    padding: 6px 12px; 
+    border-radius: 20px;
+    font-size: 13px; 
+    font-weight: bold;
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.tg-chip-del {
+    cursor: pointer; 
+    background: rgba(0,0,0,0.2);
+    border-radius: 50%; 
+    width: 20px; height: 20px;
+    display: flex; justify-content: center; align-items: center;
+    transition: 0.2s;
+}
+.tg-chip-del:hover { 
+    background: #F44336; 
+}
+
+.tg-manual-add {
+    display: flex; gap: 10px; margin-bottom: 15px;
+}
+
+.tg-cat-title {
+    color: #FF9800; 
+    font-size: 15px; 
+    font-weight: bold;
+    margin: 15px 0 10px 0; 
+    border-bottom: 1px dashed #555; 
+    padding-bottom: 5px;
+}
+
+.tg-grid {
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
+    gap: 10px;
+}
+
+.tg-tile {
+    background: #2a2a2a; 
+    border: 1px solid #444; 
+    border-radius: 8px;
+    padding: 12px 5px; 
+    text-align: center; 
+    cursor: pointer; 
+    transition: 0.2s;
+}
+.tg-tile:hover {
+    background: #333; 
+    border-color: #2196F3; 
+    transform: translateY(-2px);
+}
+
+.tg-tile-num {
+    font-size: 18px; 
+    font-weight: bold; 
+    color: #2196F3; 
+    margin-bottom: 5px;
+}
+
+.tg-tile-name {
+    font-size: 11px; 
+    color: #aaa; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    padding: 0 5px;
+}
+</style>
 
 <div id="tg-modal-overlay">
     <div id="tg-modal">

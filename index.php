@@ -37,17 +37,17 @@
             'btn_back' => 'Wróć',
             'wifi_deleted' => 'Usunięto sieć.',
             'ip_missing' => 'Brak IP',
-            'cpu_temp' => 'CPU Temp',
-            'ram_used' => 'RAM Used',
-            'disk_used' => 'Disk Used',
-            'network' => 'Network',
-            'hardware' => 'Hardware',
+            'cpu_temp' => 'Temp. CPU',
+            'ram_used' => 'Zużycie RAM',
+            'disk_used' => 'Zużycie Dysku',
+            'network' => 'Sieć',
+            'hardware' => 'Sprzęt',
             'logics' => 'Logiki',
             'modules' => 'Moduły',
-            'tg_default' => 'TG Default',
-            'tg_active' => 'TG Active',
-            'reflector' => 'Reflector',
-            'uptime' => 'Uptime',
+            'tg_default' => 'Domyślne TG',
+            'tg_active' => 'Aktywne TG',
+            'reflector' => 'Reflektor',
+            'uptime' => 'Czas Pracy',
             'tab_dashboard' => 'Dashboard',
             'tab_nodes' => 'Nodes',
             'tab_dtmf' => 'DTMF',
@@ -87,8 +87,8 @@
             'hardware' => 'Hardware',
             'logics' => 'Logics',
             'modules' => 'Modules',
-            'tg_default' => 'TG Default',
-            'tg_active' => 'TG Active',
+            'tg_default' => 'Default TG',
+            'tg_active' => 'Active TG',
             'reflector' => 'Reflector',
             'uptime' => 'Uptime',
             'tab_dashboard' => 'Dashboard',
@@ -290,34 +290,28 @@
     }
 
     if (isset($_POST['save_radio'])) {
-        $freq = $_POST['single_freq'];
-        
-        $new_serial = $_POST['SerialPort'] ?? '/dev/ttyS2';
-        $new_ptt = $_POST['GpioPtt'] ?? '7';
-        $new_sql = $_POST['GpioSql'] ?? '10';
+        $freq = !empty($_POST['single_freq']) ? trim($_POST['single_freq']) : '432.800';
+        $new_serial = !empty($_POST['SerialPort']) ? trim($_POST['SerialPort']) : '/dev/ttyS2';
+        $new_ptt = !empty($_POST['GpioPtt']) ? trim($_POST['GpioPtt']) : '7';
+        $new_sql = !empty($_POST['GpioSql']) ? trim($_POST['GpioSql']) : '10';
+        $radio['rx'] = $freq;
+        $radio['tx'] = $freq;
+        $radio['ctcss'] = !empty($_POST['ctcss']) ? $_POST['ctcss'] : '0000';
+        $radio['sq'] = !empty($_POST['sq']) ? $_POST['sq'] : '4';
+        $radio['desc'] = $_POST['radio_desc'] ?? '';
+        $radio['serial_port'] = $new_serial;
+        $radio['gpio_ptt'] = $new_ptt;
+        $radio['gpio_sql'] = $new_sql;
+        $radio['node_api_url'] = $_POST['node_api_url'] ?? ($radio['node_api_url'] ?? '');
+        $radio['sa_bw'] = $_POST['sa_bw'] ?? '1';
+        $radio['sa_vol'] = $_POST['sa_vol'] ?? '8';
+        $radio['sa_prede'] = $_POST['sa_prede'] ?? '0';
+        $radio['sa_hpf'] = $_POST['sa_hpf'] ?? '0';
+        $radio['sa_lpf'] = $_POST['sa_lpf'] ?? '0';
+        $radio['svx_deemph'] = $_POST['svx_deemph'] ?? '0';
+        $radio['svx_preemph'] = $_POST['svx_preemph'] ?? '0';
 
-        $newRadio = [
-            "rx" => $freq, "tx" => $freq, 
-            "ctcss" => $_POST['ctcss'], 
-            "sq" => $_POST['sq'], 
-            "desc" => $_POST['radio_desc'],
-            "serial_port" => $new_serial,
-            "gpio_ptt" => $new_ptt,
-            "gpio_sql" => $new_sql,
-            "qth_name" => $radio['qth_name'] ?? '',
-            "qth_city" => $radio['qth_city'] ?? '',
-            "qth_loc" => $radio['qth_loc'] ?? '',
-            "node_api_url" => $_POST['node_api_url'] ?? ($radio['node_api_url'] ?? ''),
-            "sa_bw" => $_POST['sa_bw'] ?? '1',
-            "sa_vol" => $_POST['sa_vol'] ?? '8',
-            "sa_prede" => $_POST['sa_prede'] ?? '0',
-            "sa_hpf" => $_POST['sa_hpf'] ?? '0',
-            "sa_lpf" => $_POST['sa_lpf'] ?? '0',
-            "svx_deemph" => $_POST['svx_deemph'] ?? '0',
-            "svx_preemph" => $_POST['svx_preemph'] ?? '0'
-        ];
-        file_put_contents($jsonFile, json_encode($newRadio));
-        $radio = $newRadio;
+        file_put_contents($jsonFile, json_encode($radio, JSON_PRETTY_PRINT));
 
         $hwUpdate = ["SerialPort"=>$new_serial, "GpioPtt"=>$new_ptt, "GpioSql"=>$new_sql];
         file_put_contents('/tmp/svx_new_settings.json', json_encode($hwUpdate));
@@ -493,6 +487,48 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
+
+    <style>
+        .custom-tg-tooltip-wrap {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            border-bottom: 1px dotted #888;
+        }
+        .custom-tg-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            top: 150%; 
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e1e1e;
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            padding: 12px;
+            z-index: 9999;
+            min-width: 250px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            transition: all 0.2s ease-in-out;
+            pointer-events: none;
+        }
+        .custom-tg-tooltip::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -7px;
+            border-width: 7px;
+            border-style: solid;
+            border-color: transparent transparent #4CAF50 transparent;
+        }
+        .custom-tg-tooltip-wrap:hover .custom-tg-tooltip {
+            visibility: visible;
+            opacity: 1;
+            top: 130%;
+        }
+    </style>
 </head>
 
 <body>
@@ -556,31 +592,46 @@
         </div>
     </header>
     <div class="telemetry-row">
-        <div class="t-box"><div class="t-label">CPU Temp</div><div class="t-val" id="t-temp">...</div><div class="progress-bg"><div class="progress-fill" id="t-temp-bar" style="width: 0%;"></div></div></div>
-        <div class="t-box"><div class="t-label">RAM Used</div><div class="t-val" id="t-ram">...</div><div class="progress-bg"><div class="progress-fill" id="t-ram-bar" style="width: 0%;"></div></div></div>
-        <div class="t-box"><div class="t-label">Disk Used</div><div class="t-val" id="t-disk">...</div><div class="progress-bg"><div class="progress-fill" id="t-disk-bar" style="width: 0%;"></div></div></div>
-        <div class="t-box"><div class="t-label">Network</div><div class="t-val" id="t-net-type">...</div><div style="font-size:9px; color:#aaa;" id="t-ip">...</div></div>
-        <div class="t-box"><div class="t-label">Hardware</div><div class="t-val" id="t-hw" style="font-size:10px; margin-top:5px;">...</div></div>
+        <div class="t-box"><div class="t-label"><?php echo $TR[$lang]['cpu_temp']; ?></div><div class="t-val" id="t-temp">...</div><div class="progress-bg"><div class="progress-fill" id="t-temp-bar" style="width: 0%;"></div></div></div>
+        <div class="t-box"><div class="t-label"><?php echo $TR[$lang]['ram_used']; ?></div><div class="t-val" id="t-ram">...</div><div class="progress-bg"><div class="progress-fill" id="t-ram-bar" style="width: 0%;"></div></div></div>
+        <div class="t-box"><div class="t-label"><?php echo $TR[$lang]['disk_used']; ?></div><div class="t-val" id="t-disk">...</div><div class="progress-bg"><div class="progress-fill" id="t-disk-bar" style="width: 0%;"></div></div></div>
+        <div class="t-box"><div class="t-label"><?php echo $TR[$lang]['network']; ?></div><div class="t-val" id="t-net-type">...</div><div style="font-size:9px; color:#aaa;" id="t-ip">...</div></div>
+        <div class="t-box"><div class="t-label"><?php echo $TR[$lang]['hardware']; ?></div><div class="t-val" id="t-hw" style="font-size:10px; margin-top:5px;">...</div></div>
     </div>
     <div class="info-panel">
         <div class="info-box"><div class="info-label"><?php echo $TR[$lang]['logics']; ?></div><div class="info-value" style="font-size:11px;"><?php echo str_replace(',', ', ', $glob['LOGICS'] ?? '-'); ?></div></div>
         <div class="info-box"><div class="info-label"><?php echo $TR[$lang]['modules']; ?></div><div class="info-value" style="font-size:11px;"><?php echo $vals['Modules']; ?></div></div>
         <div class="info-box">
-            <div class="info-label">TG Default</div>
+            <div class="info-label"><?php echo $TR[$lang]['tg_default']; ?></div>
             <div class="info-value hl">
                 <?php 
-
-                    if (!empty($vals['MonitorTGs'])) {
-                        echo str_replace(',', ', ', $vals['MonitorTGs']);
+                    $tgs = !empty($vals['MonitorTGs']) ? explode(',', $vals['MonitorTGs']) : [];
+                    if (count($tgs) > 0) {
+                        $tgs = array_map('trim', $tgs);
+                        $full_str = implode(', ', $tgs);
+                        
+                        if (count($tgs) > 3) {
+                            $disp_str = implode(', ', array_slice($tgs, 0, 3)) . '...';
+                        } else {
+                            $disp_str = $full_str;
+                        }
+                        echo '
+                        <div class="custom-tg-tooltip-wrap">
+                            ' . htmlspecialchars($disp_str) . '
+                            <div class="custom-tg-tooltip">
+                                <div style="color:#aaa; font-size:10px; margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">Monitorowane Grupy:</div>
+                                <div style="color:#4CAF50; font-size:14px; font-weight:bold; line-height:1.5; word-wrap:break-word;">' . htmlspecialchars($full_str) . '</div>
+                            </div>
+                        </div>';
                     } else {
                         echo "---";
                     }
                 ?>
             </div>
         </div>
-        <div class="info-box"><div class="info-label">TG Active</div><div class="info-value hl" id="tg-active">---</div></div>
-        <div class="info-box"><div class="info-label">Reflector</div><div class="info-value" id="ref-status">---</div></div>
-        <div class="info-box"><div class="info-label">Uptime</div><div class="info-value" style="font-size:11px;"><?php echo shell_exec("uptime -p"); ?></div></div>
+        <div class="info-box"><div class="info-label"><?php echo $TR[$lang]['tg_active']; ?></div><div class="info-value hl" id="tg-active">---</div></div>
+        <div class="info-box"><div class="info-label"><?php echo $TR[$lang]['reflector']; ?></div><div class="info-value" id="ref-status">---</div></div>
+        <div class="info-box"><div class="info-label"><?php echo $TR[$lang]['uptime']; ?></div><div class="info-value" style="font-size:11px;"><?php echo shell_exec("uptime -p"); ?></div></div>
     </div>
     <div class="tabs">
         <button id="btn-Dashboard" class="tab-btn active" onclick="openTab(event, 'Dashboard')"><?php echo $TR[$lang]['tab_dashboard']; ?></button>
