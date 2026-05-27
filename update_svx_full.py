@@ -173,7 +173,7 @@ def main():
     aprs_gain = str(data.get('AprsGain', radio_data.get('aprs_gain', '2')))
     aprs_height = str(data.get('AprsHeight', radio_data.get('aprs_height', '10')))
     aprs_ssid = str(data.get('AprsSsid', radio_data.get('aprs_ssid', '')))
-    main_callsign = data.get('Callsign') or radio_data.get('callsign') or backup_info.get('Callsign', '')
+    main_callsign = data.get('Callsign') if data.get('Callsign') is not None else (radio_data.get('callsign') or backup_info.get('Callsign', ''))
     lat_fixed = format_coords(aprs_lat_raw, True) if aprs_lat_raw else ""
     lon_fixed = format_coords(aprs_lon_raw, False) if aprs_lon_raw else ""
     aprs_callsign = f"{main_callsign}-{aprs_ssid}" if aprs_ssid and main_callsign else main_callsign
@@ -229,7 +229,7 @@ def main():
     if qth_name: loc_parts.append(f"(Op: {qth_name})")
     location_str = ", ".join(loc_parts)
 
-    main_callsign = data.get('Callsign') or radio_data.get('callsign') or backup_info.get('Callsign', '')
+    main_callsign = data.get('Callsign') if data.get('Callsign') is not None else (radio_data.get('callsign') or backup_info.get('Callsign', ''))
     
     announce_call = data.get('AnnounceCall')
     if announce_call is None:
