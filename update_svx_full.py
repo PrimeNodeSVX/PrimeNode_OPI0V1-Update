@@ -229,7 +229,7 @@ def main():
     if qth_name: loc_parts.append(f"(Op: {qth_name})")
     location_str = ", ".join(loc_parts)
 
-    main_callsign = data.get('Callsign') if data.get('Callsign') is not None else (radio_data.get('callsign') or backup_info.get('Callsign', ''))
+    main_callsign = data.get('Callsign') or radio_data.get('callsign') or backup_info.get('Callsign', '')
     
     announce_call = data.get('AnnounceCall')
     if announce_call is None:
@@ -238,13 +238,17 @@ def main():
         announce_call = '1'
         
     announce_call = str(announce_call)
+
     reflector_callsign = main_callsign
-    simplex_callsign = main_callsign if announce_call == "1" else ""
-    
-    ident_int = "60"
-    if not main_callsign:
+
+    is_disconnected = ('Host' in data and data.get('Host') == '')
+
+    if is_disconnected:
         ident_int = "0"
         simplex_callsign = ""
+    else:
+        ident_int = "60"
+        simplex_callsign = main_callsign if announce_call == "1" else ""
 
     clean_lines = []
     in_global = False
