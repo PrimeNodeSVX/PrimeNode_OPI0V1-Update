@@ -194,6 +194,18 @@ fi
 
 chmod +x /etc/rc.local
 
+if [ ! -f "/etc/cron.d/echolink_update" ]; then
+    cat << 'EOF' > /etc/cron.d/echolink_update
+0 * * * * root /usr/bin/python3 /usr/local/bin/fetch_echolink.py >/dev/null 2>&1
+EOF
+    chmod 644 /etc/cron.d/echolink_update
+    systemctl restart cron
+fi
+
+if [ -x "/usr/local/bin/fetch_echolink.py" ]; then
+    /usr/bin/python3 /usr/local/bin/fetch_echolink.py >/dev/null 2>&1
+fi
+
 echo ">> Restartowanie usług..."
 ps -ef | grep "tail" | grep "/var/log/svxlink" | grep -v grep | awk '{print $2}' | xargs -r kill -9
 pkill -9 -f "svx_event_logger.sh"

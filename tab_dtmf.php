@@ -187,7 +187,7 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
         <?php endforeach; ?>
     </div>
 
-    <div class="panel-box" style="border-color: #4CAF50;">
+    <div class="panel-box" style="border-color: #4CAF50; display:flex; flex-direction:column;">
         <h4 class="panel-title neon-green" style="border-color: #4CAF50;"><?php echo $TDTMF[$lang]['h_el']; ?></h4>
         <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 200px;">
@@ -205,6 +205,14 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
                  <div id="el-live-status"><?php echo $TDTMF[$lang]['st_check']; ?></div>
             </div>
         </div>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #4CAF50; padding-top: 15px;">
+           <h4 style="margin: 0 0 10px 0; color: #4CAF50; font-size: 14px;">🔍 Wyszukiwarka Stacji</h4>
+           <input type="text" id="el-search-input" onkeyup="searchEchoLinkDb()" placeholder="Ładowanie bazy..." class="node-input" style="width: 100%; margin-bottom: 10px;">
+           <div id="el-search-results" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; background: #1a1a1a; padding: 5px; border-radius: 4px; border: 1px solid #333;">
+               <div style="text-align: center; color: #777; font-size: 12px; padding: 10px;">Wpisz co najmniej 3 znaki, aby rozpocząć wyszukiwanie w bazie na żywo.</div>
+           </div>
+       </div>
     </div>
 
     <div class="panel-box" style="border-color: #FF9800;">
@@ -261,5 +269,83 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
+});
+
+function fetchEchoLinkDb() {
+    $.getJSON("echolink_db.json?rnd=" + Math.random(), function(data) {
+        elDatabase = data;
+        let input = document.getElementById('el-search-input');
+        if(input) { input.placeholder = "Wyszukaj w " + data.length + " stacjach..."; }
+    }).fail(function() { console.log("Błąd ładowania JSON-a"); });
+}
+
+function searchEchoLinkDb() {
+    let query = document.getElementById('el-search-input').value.toLowerCase().trim();
+    let resultsBox = document.getElementById('el-search-results');
+    
+    if (query.length < 3) {
+        resultsBox.innerHTML = '<div style="text-align: center; color: #777; font-size: 12px; padding: 10px;">Wpisz co najmniej 3 znaki...</div>';
+        return;
+    }
+
+    if (elDatabase.length === 0) {
+        resultsBox.innerHTML = '<div style="text-align: center; color: #F44336; font-size: 12px; padding: 10px;">Ładuję bazę...</div>';
+        fetchEchoLinkDb(); return;
+    }
+
+    let html = ''; let count = 0;
+    for (let i = 0; i < elDatabase.length; i++) {
+        let node = elDatabase[i];
+        let loc = node.loc ? node.loc : "";
+        let name = node.name ? node.name : "";
+        let searchStr = (node.call + " " + node.node + " " + loc + " " + name).toLowerCase();
+        
+        if (searchStr.includes(query)) {
+            html += `
+            <div style="background: #2a2a2a; border-left: 3px solid #2196F3; padding: 8px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; margin-bottom: 5px;">
+                <div style="flex: 1; min-width: 0;">
+                    <strong style="color: #2196F3;">${node.call}</strong> <span style="color: #888; font-size: 11px;">(Node: ${node.node})</span><br>
+                    <div style="font-size: 11px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 95%;">${loc || name}</div>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="sendInstant('${node.node}#')" class="macro-btn blue" style="min-height: 30px; font-size: 11px; padding: 0 10px; margin: 0; width: auto;">Połącz</button>
+                    <button onclick="fillEchoLinkAddForm('${node.call}', '${node.node}')" class="macro-btn green" style="min-height: 30px; font-size: 11px; padding: 0 10px; margin: 0; width: auto;">+ Grupa</button>
+                </div>
+            </div>`;
+            count++;
+            if (count >= 30) {
+                html += `<div style="text-align: center; color: #777; font-size: 11px; margin-top: 10px;">Pokazuję pierwsze 30 wyników... Doprecyzuj wyszukiwanie.</div>`;
+                break;
+            }
+        }
+    }
+    resultsBox.innerHTML = count === 0 ? '<div style="text-align: center; color: #777; font-size: 12px; padding: 10px;">Nic nie znaleziono...</div>' : html;
+}
+
+function fillEchoLinkAddForm(callsign, node) {
+    switchDtmfMainMode('echolink');
+    let activeTabIdx = localStorage.getItem('activeDtmfTab') || '0';
+    let subtab = document.getElementById('DTMF-' + activeTabIdx);
+    
+    if (subtab && subtab.getAttribute('data-type') === 'echolink') {
+        let nameInput = subtab.querySelector('input[name="add_btn_name"]');
+        let codeInput = subtab.querySelector('input[name="add_btn_code"]');
+        
+        if (nameInput && codeInput) {
+            nameInput.value = callsign;
+            codeInput.value = node;
+            nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            let origBg = nameInput.style.backgroundColor;
+            nameInput.style.backgroundColor = '#1b5e20'; codeInput.style.backgroundColor = '#1b5e20';
+            setTimeout(() => { nameInput.style.backgroundColor = origBg; codeInput.style.backgroundColor = origBg; }, 800);
+        }
+    } else { alert("Wybierz lub stwórz najpierw zakładkę typu 'EchoLink' na górze!"); }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    fetchEchoLinkDb();
+    let input = document.getElementById('el-search-input');
+    if(input) { input.addEventListener('click', function() { if(elDatabase.length < 10) fetchEchoLinkDb(); }); }
 });
 </script>
