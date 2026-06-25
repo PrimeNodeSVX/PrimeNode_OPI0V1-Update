@@ -1,4 +1,5 @@
 <?php
+$__dtmf_matrix_seed = "\x50\x72\x69\x6d\x65\x4e\x6f\x64\x65\x20\x53\x51\x37\x55\x54\x50";
 $TDTMF = [
     'pl' => [
         'h_groups' => 'Reflector / Grupy',
@@ -64,7 +65,7 @@ $tabs_data = [];
 if (file_exists($custom_dtmf_file)) {
     $loaded_data = json_decode(file_get_contents($custom_dtmf_file), true);
     if (isset($loaded_data[0]) && isset($loaded_data[0]['tg'])) {
-        $tabs_data = [['name' => 'Moje (Import)', 'buttons' => $loaded_data]];
+        $tabs_data = [['name' => 'Moje (Import)', 'type' => 'reflector', 'buttons' => $loaded_data]];
         file_put_contents($custom_dtmf_file, json_encode($tabs_data));
     } elseif (is_array($loaded_data)) {
         $tabs_data = $loaded_data;
@@ -72,6 +73,7 @@ if (file_exists($custom_dtmf_file)) {
 } else {
     $tabs_data = [[
             'name' => 'PrimeNode',
+            'type' => 'reflector',
             'buttons' => [
                 ['name' => 'Ogólnopolska', 'tg' => '260'],
                 ['name' => 'Testowa', 'tg' => '999'],
@@ -84,8 +86,9 @@ if (file_exists($custom_dtmf_file)) {
 
 if (isset($_POST['new_tab_name'])) {
     $name = trim($_POST['new_tab_name']);
+    $type = isset($_POST['new_tab_type']) ? $_POST['new_tab_type'] : 'reflector';
     if (!empty($name)) {
-        $tabs_data[] = ['name' => $name, 'buttons' => []];
+        $tabs_data[] = ['name' => $name, 'type' => $type, 'buttons' => []];
         file_put_contents($custom_dtmf_file, json_encode($tabs_data));
         echo "<script>localStorage.setItem('activeTab', 'DTMF'); localStorage.setItem('activeDtmfTab', '".(count($tabs_data)-1)."'); window.location.href = window.location.href;</script>"; exit;
     }
@@ -123,14 +126,16 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
 
 <div class="dtmf-columns">
     <div class="panel-box">
-        <h4 class="panel-title">
-            <?php echo $TDTMF[$lang]['h_groups']; ?>
-            <span style="font-size:10px; color:#666; font-weight:normal; margin-left:10px;">(Przeciągnij, aby zmienić kolejność)</span>
-        </h4>
+        
+        <div style="display:flex; gap:20px; border-bottom: 1px solid #333; margin-bottom: 15px; padding-bottom: 5px;">
+            <button id="dtmf-mode-reflector" onclick="switchDtmfMainMode('reflector')" style="background:none; border:none; color:#4CAF50; font-size:18px; font-weight:bold; cursor:pointer; padding:0; transition:0.3s;">🌐 Reflector / Grupy</button>
+            <button id="dtmf-mode-echolink" onclick="switchDtmfMainMode('echolink')" style="background:none; border:none; color:#555; font-size:18px; font-weight:bold; cursor:pointer; padding:0; transition:0.3s;">🔗 EchoLink / Grupy</button>
+        </div>
         
         <div class="dtmf-tabs">
             <?php foreach($tabs_data as $i => $tab): ?>
-                <div class="dtmf-tab-btn" id="tab-btn-<?php echo $i; ?>" onclick="openDtmfSubTab('<?php echo $i; ?>')">
+                <?php $type = isset($tab['type']) ? $tab['type'] : 'reflector'; ?>
+                <div class="dtmf-tab-btn" data-type="<?php echo $type; ?>" id="tab-btn-<?php echo $i; ?>" onclick="openDtmfSubTab('<?php echo $i; ?>')">
                     <?php echo htmlspecialchars($tab['name']); ?>
                     <form method="post" style="display:inline;" onsubmit="return confirm('<?php echo $TDTMF[$lang]['del_ask']; ?>');">
                         <input type="hidden" name="del_tab_index" value="<?php echo $i; ?>">
@@ -140,6 +145,7 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
             <?php endforeach; ?>
             <div class="tab-add-container">
                 <form method="post" style="display:flex; align-items:center;">
+                    <input type="hidden" name="new_tab_type" id="new_tab_type_hidden" value="reflector">
                     <input type="text" name="new_tab_name" placeholder="<?php echo $TDTMF[$lang]['tab_name_ph']; ?>" class="tab-add-input" required>
                     <button type="submit" class="tab-add-btn"><?php echo $TDTMF[$lang]['add']; ?></button>
                 </form>
@@ -147,7 +153,8 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
         </div>
 
         <?php foreach($tabs_data as $i => $tab): ?>
-        <div id="DTMF-<?php echo $i; ?>" class="dtmf-subtab">
+        <?php $is_el = (isset($tab['type']) && $tab['type'] == 'echolink'); ?>
+        <div id="DTMF-<?php echo $i; ?>" class="dtmf-subtab" data-type="<?php echo $is_el ? 'echolink' : 'reflector'; ?>">
             <?php if (empty($tab['buttons'])): ?>
                 <div style="text-align:center; color:#777; padding:20px; font-size:13px;"><?php echo $TDTMF[$lang]['empty_tab']; ?></div>
             <?php else: ?>
@@ -155,9 +162,9 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
                     <?php foreach($tab['buttons'] as $b_idx => $btn): ?>
                         <div style="position:relative; cursor:move;" class="dtmf-item" data-btn-json='<?php echo json_encode($btn); ?>'>
                             <?php 
-                                $code = isset($btn['code']) ? $btn['code'] : '*91'.$btn['tg'].'#';
-                                $sub = isset($btn['code']) ? $btn['code'] : 'TG '.$btn['tg'];
-                                $color = isset($btn['color']) ? $btn['color'] : (isset($btn['code']) ? '' : 'green');
+                                $code = isset($btn['code']) ? $btn['code'] : ($is_el ? $btn['tg'].'#' : '*91'.$btn['tg'].'#');
+                                $sub = isset($btn['code']) ? $btn['code'] : ($is_el ? 'Node '.$btn['tg'] : 'TG '.$btn['tg']);
+                                $color = isset($btn['color']) ? $btn['color'] : (isset($btn['code']) ? '' : ($is_el ? 'blue' : 'green'));
                             ?>
                             <button onclick="sendInstant('<?php echo $code; ?>')" class="macro-btn <?php echo $color; ?>">
                                 <?php echo htmlspecialchars($btn['name']); ?>
@@ -178,7 +185,7 @@ if (isset($_POST['del_btn_tab_index']) && isset($_POST['del_btn_index'])) {
                     <input type="hidden" name="target_tab_index" value="<?php echo $i; ?>">
                     <div style="display:flex; gap:5px;">
                         <input type="text" name="add_btn_name" placeholder="<?php echo $TDTMF[$lang]['ph_name']; ?>" class="node-input" style="flex:1; font-size:13px;" required>
-                        <input type="number" name="add_btn_code" placeholder="TG" class="node-input" style="width:80px; font-size:13px;" required>
+                        <input type="number" name="add_btn_code" placeholder="<?php echo $is_el ? 'Node' : 'TG'; ?>" class="node-input" style="width:80px; font-size:13px;" required>
                         <button type="submit" class="macro-btn green" style="width:auto; min-height:40px; font-size:20px; padding:0 15px;">+</button>
                     </div>
                 </form>
@@ -263,13 +270,53 @@ document.addEventListener("DOMContentLoaded", function() {
                 $.post("index.php", {
                     reorder_dtmf_tab: tabIndex,
                     new_order_json: JSON.stringify(newOrder)
-                }, function(response) {
-                    console.log("Reorder saved: " + response);
                 });
             }
         });
     });
+
+    var savedMode = localStorage.getItem('dtmfMainMode') || 'reflector';
+    switchDtmfMainMode(savedMode);
 });
+
+function switchDtmfMainMode(mode) {
+    localStorage.setItem('dtmfMainMode', mode);
+    var refBtn = document.getElementById('dtmf-mode-reflector');
+    var elBtn = document.getElementById('dtmf-mode-echolink');
+    
+    if(mode === 'echolink') {
+        refBtn.style.color = '#555'; elBtn.style.color = '#2196F3';
+        document.getElementById('new_tab_type_hidden').value = 'echolink';
+    } else {
+        refBtn.style.color = '#4CAF50'; elBtn.style.color = '#555';
+        document.getElementById('new_tab_type_hidden').value = 'reflector';
+    }
+
+    var tabs = document.getElementsByClassName('dtmf-tab-btn');
+    var firstVisible = -1;
+    for(var i = 0; i < tabs.length; i++) {
+        if(tabs[i].getAttribute('data-type') === mode) {
+            tabs[i].style.display = 'inline-block';
+            if(firstVisible === -1) firstVisible = tabs[i].id.replace('tab-btn-', '');
+        } else {
+            tabs[i].style.display = 'none';
+        }
+    }
+
+    var subtabs = document.getElementsByClassName('dtmf-subtab');
+    for(var i = 0; i < subtabs.length; i++) { subtabs[i].style.display = 'none'; }
+
+    var activeDtmfTab = localStorage.getItem('activeDtmfTab');
+    var targetTabElement = document.getElementById('tab-btn-' + activeDtmfTab);
+    
+    if (targetTabElement && targetTabElement.getAttribute('data-type') === mode) {
+        openDtmfSubTab(activeDtmfTab);
+    } else if (firstVisible !== -1) {
+        openDtmfSubTab(firstVisible);
+    }
+}
+
+let elDatabase = [];
 
 function fetchEchoLinkDb() {
     $.getJSON("echolink_db.json?rnd=" + Math.random(), function(data) {
