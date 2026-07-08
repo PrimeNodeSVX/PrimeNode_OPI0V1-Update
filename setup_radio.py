@@ -33,20 +33,25 @@ def get_serial_port():
             pass
     return port
 
-def program_radio(rx_freq, tx_freq, ctcss, squelch, bw="1", vol="8", prede="0", hpf="0", lpf="0"):
+def program_radio(rx_freq, tx_freq, ctcss_tx, ctcss_rx, squelch, bw="1", vol="8", prede="0", hpf="0", lpf="0"):
     try:
         rx_formatted = "{:.4f}".format(float(rx_freq))
         tx_formatted = "{:.4f}".format(float(tx_freq))
 
-        if not ctcss or ctcss == "None": ctcss = "0000"
-        radio_code = CTCSS_MAP.get(ctcss, "0000")
+        if not ctcss_tx or ctcss_tx == "None": ctcss_tx = "0000"
+        if not ctcss_rx or ctcss_rx == "None": ctcss_rx = "0000"
+        
+        radio_code_tx = CTCSS_MAP.get(ctcss_tx, "0000")
+        radio_code_rx = CTCSS_MAP.get(ctcss_rx, "0000")
         
         serial_port = get_serial_port()
 
         ser = serial.Serial(serial_port, 9600, timeout=1)
         ser.flushInput()
         ser.flushOutput()
-        cmd_group = f"AT+DMOSETGROUP={bw},{tx_formatted},{rx_formatted},{radio_code},{squelch},{radio_code}\r\n"
+        
+        # Format komendy to: Bandwidth, TX Freq, RX Freq, TX_CTCSS, SQ, RX_CTCSS
+        cmd_group = f"AT+DMOSETGROUP={bw},{tx_formatted},{rx_formatted},{radio_code_tx},{squelch},{radio_code_rx}\r\n"
         cmd_vol = f"AT+DMOSETVOLUME={vol}\r\n"
         cmd_filter = f"AT+SETFILTER={prede},{hpf},{lpf}\r\n"
 
@@ -70,7 +75,7 @@ def program_radio(rx_freq, tx_freq, ctcss, squelch, bw="1", vol="8", prede="0", 
         ser.close()
 
         if "0" in resp1:
-            print(f"SUKCES: Zaprogramowane! (CTCSS: {radio_code}, Vol: {vol}, Filtry: {prede}/{hpf}/{lpf})")
+            print(f"SUKCES: Zaprogramowane! (TX CTCSS: {radio_code_tx}, RX CTCSS: {radio_code_rx}, Vol: {vol}, Filtry: {prede}/{hpf}/{lpf})")
             return True
         else:
             print(f"BLAD: Radio zwrocilo: {resp1}")
@@ -81,19 +86,20 @@ def program_radio(rx_freq, tx_freq, ctcss, squelch, bw="1", vol="8", prede="0", 
         return False
 
 if __name__ == "__main__":
-    if len(sys.argv) < 5:
-        print("Uzycie: setup_radio.py RX TX CTCSS SQ [BW] [VOL] [PREDE] [HPF] [LPF]")
+    if len(sys.argv) < 6:
+        print("Uzycie: setup_radio.py RX TX CTCSS_TX CTCSS_RX SQ [BW] [VOL] [PREDE] [HPF] [LPF]")
         sys.exit(1)
         
     rx = sys.argv[1]
     tx = sys.argv[2]
-    cx = sys.argv[3]
-    sq = sys.argv[4]
+    cx_tx = sys.argv[3]
+    cx_rx = sys.argv[4]
+    sq = sys.argv[5]
     
-    bw = sys.argv[5] if len(sys.argv) > 5 else "1"
-    vol = sys.argv[6] if len(sys.argv) > 6 else "8"
-    prede = sys.argv[7] if len(sys.argv) > 7 else "0"
-    hpf = sys.argv[8] if len(sys.argv) > 8 else "0"
-    lpf = sys.argv[9] if len(sys.argv) > 9 else "0"
+    bw = sys.argv[6] if len(sys.argv) > 6 else "1"
+    vol = sys.argv[7] if len(sys.argv) > 7 else "8"
+    prede = sys.argv[8] if len(sys.argv) > 8 else "0"
+    hpf = sys.argv[9] if len(sys.argv) > 9 else "0"
+    lpf = sys.argv[10] if len(sys.argv) > 10 else "0"
     
-    program_radio(rx, tx, cx, sq, bw, vol, prede, hpf, lpf)
+    program_radio(rx, tx, cx_tx, cx_rx, sq, bw, vol, prede, hpf, lpf)

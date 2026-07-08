@@ -202,17 +202,20 @@ def main():
 
     rx_freq = str(radio_data.get("rx", "")).strip() or "432.800"
     tx_freq = str(radio_data.get("tx", "")).strip() or "432.800"
-    ctcss = str(radio_data.get("ctcss", "")).strip() or "0"
-    if ctcss == "0000":
-        ctcss = "0"
-    elif len(ctcss) == 4 and ctcss.isdigit():
-        ctcss = str(float(ctcss) / 10.0)
+    
+    ctcss_tx = str(radio_data.get("ctcss_tx", radio_data.get("ctcss", "0000"))).strip()
+    ctcss_rx = str(radio_data.get("ctcss_rx", radio_data.get("ctcss", "0000"))).strip()
+    ctcss_display = ctcss_rx
+    if ctcss_display == "0000":
+        ctcss_display = "0"
+    elif len(ctcss_display) == 4 and ctcss_display.isdigit():
+        ctcss_display = str(float(ctcss_display) / 10.0)
     is_echolink = "1" if (data.get('Modules') and "EchoLink" in data['Modules']) else "0"
     current_default_tg = data.get('DefaultTG') or backup_info.get('DefaultTG', '0')
 
     node_info_data = {
         "Location": qth_city, "Locator": qth_loc, "Sysop": qth_name,
-        "LAT": "0.0", "LONG": "0.0", "TXFREQ": tx_freq, "RXFREQ": rx_freq, "CTCSS": ctcss,
+        "LAT": "0.0", "LONG": "0.0", "TXFREQ": tx_freq, "RXFREQ": rx_freq, "CTCSS": ctcss_display,
         "DefaultTG": current_default_tg, "Mode": "FM", "Type": "1", 
         "Echolink": is_echolink, "Website": "https://github.com/ArduUTP", "LinkedTo": "PrimeNode"
     }
@@ -321,7 +324,7 @@ def main():
             "COMMENT": f'"{aprs_comment}"',
             "SYMBOL": f'"{aprs_icon}"',
             "FREQUENCY": tx_freq,
-            "TONE": ctcss,
+            "TONE": ctcss_tx,
             "TX_POWER": aprs_power,
             "ANTENNA_GAIN": aprs_gain,
             "ANTENNA_HEIGHT": f"{aprs_height}m",
@@ -363,7 +366,8 @@ def main():
     radio_data['announce_call'] = announce_call
     radio_data['rx'] = rx_freq
     radio_data['tx'] = tx_freq
-    radio_data['ctcss'] = ctcss
+    radio_data['ctcss_tx'] = ctcss_tx
+    radio_data['ctcss_rx'] = ctcss_rx
     radio_data['sq'] = str(data.get('sq') or radio_data.get('sq', '4'))
     radio_data['desc'] = str(data.get('radio_desc') or radio_data.get('desc', ''))
     node_api_url = data.get('node_api_url')
@@ -371,7 +375,7 @@ def main():
         radio_data['node_api_url'] = node_api_url
 
     shari_sql = data.get('sq') or radio_data.get('sq', '4')
-    cmd = f"sudo /usr/bin/python3 /usr/local/bin/setup_radio.py {rx_freq} {tx_freq} {ctcss} {shari_sql} {sa_bw} {sa_vol} {sa_prede} {sa_hpf} {sa_lpf}"
+    cmd = f"sudo /usr/bin/python3 /usr/local/bin/setup_radio.py {rx_freq} {tx_freq} {ctcss_tx} {ctcss_rx} {shari_sql} {sa_bw} {sa_vol} {sa_prede} {sa_hpf} {sa_lpf}"
     os.system(cmd)
 
     with open(RADIO_JSON, 'w') as f:

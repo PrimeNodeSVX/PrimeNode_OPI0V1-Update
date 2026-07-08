@@ -31,17 +31,17 @@ $TD = [
 ];
 
 $CTCSS_MAP = [
-    "0000" => $TD[$lang]['none_csq'], "0670" => "67.0 Hz", "0693" => "69.3 Hz", "0719" => "71.9 Hz", "0744" => "74.4 Hz", 
-    "0770" => "77.0 Hz", "0797" => "79.7 Hz", "0825" => "82.5 Hz", "0854" => "85.4 Hz", "0885" => "88.5 Hz", 
-    "0915" => "91.5 Hz", "0948" => "94.8 Hz", "0974" => "97.4 Hz", "1000" => "100.0 Hz", "1035" => "103.5 Hz", 
-    "1072" => "107.2 Hz", "1109" => "110.9 Hz", "1148" => "114.8 Hz", "1188" => "118.8 Hz", "1230" => "123.0 Hz", 
-    "1273" => "127.3 Hz", "1318" => "131.8 Hz", "1365" => "136.5 Hz", "1413" => "141.3 Hz", "1462" => "146.2 Hz", 
-    "1514" => "151.4 Hz", "1567" => "156.7 Hz", "1598" => "159.8 Hz", "1622" => "162.2 Hz", "1655" => "165.5 Hz", 
-    "1679" => "167.9 Hz", "1713" => "171.3 Hz", "1738" => "173.8 Hz", "1773" => "177.3 Hz", "1799" => "179.9 Hz", 
-    "1835" => "183.5 Hz", "1862" => "186.2 Hz", "1899" => "189.9 Hz", "1928" => "192.8 Hz", "1966" => "196.6 Hz", 
-    "1995" => "199.5 Hz", "2035" => "203.5 Hz", "2065" => "206.5 Hz", "2107" => "210.7 Hz", "2181" => "218.1 Hz",
-    "2257" => "225.7 Hz", "2291" => "229.1 Hz", "2336" => "233.6 Hz", "2418" => "241.8 Hz", "2503" => "250.3 Hz", 
-    "2541" => "254.1 Hz"
+    "0000" => $TD[$lang]['none_csq'], 
+    "0670" => "67.0 Hz", "0719" => "71.9 Hz", "0744" => "74.4 Hz", "0770" => "77.0 Hz", 
+    "0797" => "79.7 Hz", "0825" => "82.5 Hz", "0854" => "85.4 Hz", "0885" => "88.5 Hz", 
+    "0915" => "91.5 Hz", "0948" => "94.8 Hz", "0974" => "97.4 Hz", "1000" => "100.0 Hz", 
+    "1035" => "103.5 Hz", "1072" => "107.2 Hz", "1109" => "110.9 Hz", "1148" => "114.8 Hz", 
+    "1188" => "118.8 Hz", "1230" => "123.0 Hz", "1273" => "127.3 Hz", "1318" => "131.8 Hz", 
+    "1365" => "136.5 Hz", "1413" => "141.3 Hz", "1462" => "146.2 Hz", "1514" => "151.4 Hz", 
+    "1567" => "156.7 Hz", "1622" => "162.2 Hz", "1679" => "167.9 Hz", "1738" => "173.8 Hz", 
+    "1799" => "179.9 Hz", "1862" => "186.2 Hz", "1928" => "192.8 Hz", "2035" => "203.5 Hz", 
+    "2107" => "210.7 Hz", "2181" => "218.1 Hz", "2257" => "225.7 Hz", "2336" => "233.6 Hz", 
+    "2418" => "241.8 Hz", "2503" => "250.3 Hz"
 ];
 
 if (!function_exists('normalizeCtcss')) {
@@ -106,7 +106,10 @@ if (!function_exists('normalizeCtcss')) {
     <div class="dash-tile">
         <div class="dash-icon">📡</div>
         <div class="dash-label"><?php echo $TD[$lang]['freq']; ?></div>
-        <div class="dash-value"><?php echo htmlspecialchars($radio['rx'] ?? '432.800'); ?> MHz</div>
+        <div class="dash-value" style="font-size: 13px; line-height: 1.4;">
+            <span style="color:#4CAF50;">RX: <?php echo htmlspecialchars($radio['rx'] ?? '432.800'); ?></span><br>
+            <span style="color:#FF9800;">TX: <?php echo htmlspecialchars($radio['tx'] ?? '432.800'); ?></span>
+        </div>
     </div>
     
     <div class="dash-tile">
@@ -132,12 +135,10 @@ if (!function_exists('normalizeCtcss')) {
     <div style="background: #222; padding: 8px 15px; border-radius: 20px; border: 1px solid #444; display:flex; align-items:center; gap:8px;">
         <span style="font-size:16px;">🔒</span>
         <span style="font-size:13px; color:#aaa;"><?php echo $TD[$lang]['ctcss']; ?></span>
-        <b style="color:#FF9800; font-size:14px;">
-            <?php 
-                $norm = normalizeCtcss($radio['ctcss'] ?? '0000');
-                echo $CTCSS_MAP[$norm] ?? $TD[$lang]['none_csq']; 
-            ?>
-        </b>
+        <div style="font-size:13px; line-height:1.2; text-align:left;">
+            <b style="color:#4CAF50;">RX: <?php echo $CTCSS_MAP[normalizeCtcss($radio['ctcss_rx'] ?? $radio['ctcss'] ?? '0000')] ?? $TD[$lang]['none_csq']; ?></b><br>
+            <b style="color:#FF9800;">TX: <?php echo $CTCSS_MAP[normalizeCtcss($radio['ctcss_tx'] ?? $radio['ctcss'] ?? '0000')] ?? $TD[$lang]['none_csq']; ?></b>
+        </div>
     </div>
 </div>
 

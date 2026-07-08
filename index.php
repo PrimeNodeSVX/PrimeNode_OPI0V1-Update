@@ -313,13 +313,15 @@
     }
 
     if (isset($_POST['save_radio'])) {
-        $freq = !empty($_POST['single_freq']) ? trim($_POST['single_freq']) : '432.800';
+        $freq_rx = !empty($_POST['freq_rx']) ? trim($_POST['freq_rx']) : '432.800';
+        $freq_tx = !empty($_POST['freq_tx']) ? trim($_POST['freq_tx']) : '432.800';
         $new_serial = !empty($_POST['SerialPort']) ? trim($_POST['SerialPort']) : '/dev/ttyS2';
         $new_ptt = !empty($_POST['GpioPtt']) ? trim($_POST['GpioPtt']) : '7';
         $new_sql = !empty($_POST['GpioSql']) ? trim($_POST['GpioSql']) : '10';
-        $radio['rx'] = $freq;
-        $radio['tx'] = $freq;
-        $radio['ctcss'] = !empty($_POST['ctcss']) ? $_POST['ctcss'] : '0000';
+        $radio['rx'] = $freq_rx;
+        $radio['tx'] = $freq_tx;
+        $radio['ctcss_rx'] = !empty($_POST['ctcss_rx']) ? $_POST['ctcss_rx'] : '0000';
+        $radio['ctcss_tx'] = !empty($_POST['ctcss_tx']) ? $_POST['ctcss_tx'] : '0000';
         $radio['sq'] = !empty($_POST['sq']) ? $_POST['sq'] : '4';
         $radio['desc'] = $_POST['radio_desc'] ?? '';
         $radio['serial_port'] = $new_serial;
@@ -342,7 +344,7 @@
         shell_exec('sudo /usr/bin/python3 /usr/local/bin/update_svx_full.py 2>&1');
 
         shell_exec('sudo /usr/bin/systemctl stop svxlink'); sleep(1);
-        $cmd = "sudo /usr/bin/python3 /usr/local/bin/setup_radio.py " . escapeshellarg($radio['rx']) . " " . escapeshellarg($radio['tx']) . " " . escapeshellarg($radio['ctcss']) . " " . escapeshellarg($radio['sq']) . " " . escapeshellarg($radio['sa_bw']) . " " . escapeshellarg($radio['sa_vol']) . " " . escapeshellarg($radio['sa_prede']) . " " . escapeshellarg($radio['sa_hpf']) . " " . escapeshellarg($radio['sa_lpf']) . " 2>&1";
+        $cmd = "sudo /usr/bin/python3 /usr/local/bin/setup_radio.py " . escapeshellarg($radio['rx']) . " " . escapeshellarg($radio['tx']) . " " . escapeshellarg($radio['ctcss_tx']) . " " . escapeshellarg($radio['ctcss_rx']) . " " . escapeshellarg($radio['sq']) . " " . escapeshellarg($radio['sa_bw']) . " " . escapeshellarg($radio['sa_vol']) . " " . escapeshellarg($radio['sa_prede']) . " " . escapeshellarg($radio['sa_hpf']) . " " . escapeshellarg($radio['sa_lpf']) . " 2>&1";
         $out = shell_exec($cmd);
         shell_exec('sudo /usr/bin/systemctl start svxlink');
 
@@ -556,25 +558,23 @@
 
 <body>
 <div id="changelog-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
-    <div id="changelog-modal" data-version="1.5.0" style="background: #1e1e1e; border: 2px solid #2196F3; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
-        <h2 style="margin-top:0; color:#2196F3; border-bottom: 1px solid #333; padding-bottom: 10px;">🚀 PrimeNode V1.5 - Co nowego?</h2>
+    <div id="changelog-modal" data-version="1.6.0" style="background: #1e1e1e; border: 2px solid #2196F3; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
+        <h2 style="margin-top:0; color:#2196F3; border-bottom: 1px solid #333; padding-bottom: 10px;">🚀 PrimeNode V1.6 - Co nowego?</h2>
         
         <div style="text-align: left; font-size: 14px; color: #ccc; line-height: 1.6; max-height: 50vh; overflow-y: auto; padding-right: 10px;">
             <ul style="padding-left: 20px;">
-                <li>🌍 <b>System Beacon APRS:</b> Wdrożono pełną obsługę APRS. System automatycznie wysyła pozycję, moc (W) oraz zysk anteny (dBd) do sieci APRS-IS.</li>
-                <li>🔊 <b>Nowe dźwięki systemowe:</b> Rozszerzono bazę komunikatów audio dla lepszej komunikacji z operatorem.</li>
-                <li>🐛 <b>Naprawa błędów:</b> Wyeliminowano zgłoszone problemy z "wisiarem" statusu aktywnej grupy TG po restarcie oraz ustabilizowano obsługę filtrów audio.</li>
+                <li>📻 <b>Pełny Split (RX / TX):</b> Wdrożono możliwość ustawienia niezależnych częstotliwości dla nadawania i odbioru modułu radiowego.</li>
+                <li>🔒 <b>Niezależne Tony CTCSS:</b> Od teraz możesz ustawić osobne subtony dla RX i TX. Tablica tonów została w 100% ujednolicona ze sprzętowym standardem modułu SA818 (38 tonów), co rozwiązuje dotychczasowe problemy z "głuchym" odbiorem.</li>
+                <li>🔍 <b>Wyszukiwarka EchoLink:</b> W zakładce DTMF wprowadzono nową, inteligentną wyszukiwarkę stacji z bazy EchoLink. Dodatkowo, przyciskiem "+ Grupa" możesz błyskawicznie przypisywać ulubione węzły do dedykowanych zakładek szybkiego wybieania!</li>
+                <li>🐛 <b>Optymalizacja:</b> Załatano drobne błędy w komunikacji z nakładkami sprzętowymi oraz ulepszono odświeżanie statusów na głównym ekranie Dashboardu.</li>
             </ul>
             
-            <div style="background: #2a2a2a; border-left: 3px solid #2196F3; padding: 12px; margin-top: 15px; font-size: 12px; border-radius: 4px; color: #eee;">
-                <b>ℹ️ Ważna informacja o APRS:</b><br><br>
-                Aby system poprawnie obliczył parametry i wyświetlił Twoją stację na mapie <i>aprs.fi</i>, w zakładce <b>Konfiguracja</b> upewnij się, że pole <b>Wysokość anteny</b> ma wartość minimum 4 metry. Jest to niezbędne ze względu na logarytmiczną specyfikę protokołu APRS używaną do obliczeń zysku i propagacji.
-            </div>
-
-            <div style="background: #2a2a2a; border-left: 3px solid #4CAF50; padding: 12px; margin-top: 15px; font-size: 12px; border-radius: 4px; color: #eee;">
-                <b>ℹ️ Jak dodać własne zapowiedzi sieci?</b><br><br>
-                Zgraj swój plik dźwiękowy (<b>.wav</b>, 16kHz, 16-bit, Mono, PCM) do folderu:<br>
-                <code style="color:#4CAF50; display:block; margin: 5px 0;">/usr/local/share/svxlink/sounds/ref_sounds</code>
+            <div style="background: #2a2a2a; border-left: 3px solid #FF9800; padding: 12px; margin-top: 15px; font-size: 12px; border-radius: 4px; color: #eee;">
+                <b>💬 Wsparcie i Zgłaszanie Błędów</b><br><br>
+                System ciągle ewoluuje i zależy nam na jego stabilności. Jeśli napotkałeś problem w działaniu, zauważyłeś błąd lub masz propozycję nowych funkcji (feature request), koniecznie daj nam znać!<br><br>
+                📧 E-mail: <b style="color:#FF9800;">sq7utp@gmail.com</b><br>
+                🎧 Discord: <b style="color:#FF9800;">SierraEcho</b><br>
+                🌐 Forum: <b style="color:#FF9800;">Sierra Echo</b>
             </div>
         </div>
         
@@ -685,7 +685,7 @@
 </div>
 <div class="main-footer">
     SvxLink v1.9.99.36@master Copyright (C) 2003-<?php echo date("Y"); ?> Tobias Blomberg / <span class="callsign-blue">SM0SVX</span><br>
-    PrimeNode System • By SQ7UTP <span style="color: #aaa;">| Version: <strong style="color: #4CAF50;">V1.5</strong></span><br>
+    PrimeNode System • By SQ7UTP <span style="color: #aaa;">| Version: <strong style="color: #4CAF50;">V1.6</strong></span><br>
     Copyright © 2025-<?php echo date("Y"); ?>
 </div>
 <script> 
