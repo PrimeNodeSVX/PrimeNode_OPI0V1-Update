@@ -188,6 +188,23 @@
         $stats['el_enabled'] = (strpos($mods, 'ModuleEchoLink') !== false || strpos($mods, 'EchoLink') !== false);
         $stats['el_error'] = file_exists('/var/www/html/el_error.flag');
         $stats['el_online'] = file_exists('/var/www/html/el_online.flag');
+        
+        $el_qso_lines = shell_exec('grep "EchoLink QSO state changed to" /dev/shm/svxlink.log 2>/dev/null');
+        $active_el_nodes = [];
+        if ($el_qso_lines) {
+            $lines = explode("\n", trim($el_qso_lines));
+            foreach ($lines as $line) {
+                if (preg_match('/:\s+([A-Z0-9\-a-z_]+):\s+EchoLink QSO state changed to (CONNECTED|DISCONNECTED)/i', $line, $m)) {
+                    $node = strtoupper($m[1]);
+                    if (strtoupper($m[2]) === 'CONNECTED') {
+                        $active_el_nodes[$node] = true;
+                    } else {
+                        unset($active_el_nodes[$node]);
+                    }
+                }
+            }
+        }
+        $stats['el_nodes'] = array_keys($active_el_nodes);
         echo json_encode($stats);
         exit;
     }
@@ -356,9 +373,9 @@
         echo "<div class='alert alert-success'>".$TR[$lang]['radio_gpio_saved']." $out</div>";
     }
     if (isset($_POST['restart_srv'])) { shell_exec('sudo /usr/bin/systemctl restart svxlink > /dev/null 2>&1 &'); echo "<div class='alert alert-success'>".$TR[$lang]['restart_svc']."</div>"; }
+    if (isset($_POST['stop_srv'])) { shell_exec('sudo /usr/bin/systemctl stop svxlink > /dev/null 2>&1 &'); echo "<div class='alert alert-warning'>Zatrzymano usługę SvxLink!</div>"; }
     if (isset($_POST['reboot_device'])) { shell_exec('sudo /usr/sbin/reboot > /dev/null 2>&1 &'); echo "<div class='alert alert-warning'>".$TR[$lang]['rebooting']."</div>"; }
     if (isset($_POST['shutdown_device'])) { shell_exec('sudo /usr/sbin/shutdown -h now > /dev/null 2>&1 &'); echo "<div class='alert alert-error'>".$TR[$lang]['shutting_down']."</div>"; }
-    if (isset($_POST['auto_proxy'])) { $out = shell_exec("sudo /usr/local/bin/proxy_hunter.py 2>&1"); echo "<div class='alert alert-warning'><strong>♻️ Auto-Proxy:</strong><br><small>$out</small></div><meta http-equiv='refresh' content='3'>"; }
     
     if (isset($_POST['git_update'])) {
         set_time_limit(300); 

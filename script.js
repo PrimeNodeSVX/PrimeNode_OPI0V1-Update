@@ -227,18 +227,28 @@ function updateStats() {
         if (!stats.el_enabled) {
             elDot.css("background-color", "#777").css("box-shadow", "none");
             elText.text(T.el_off).css("color", "#777").css("font-weight", "bold");
+            $("#el-live-status").text(T.el_off).removeClass("el-connected").addClass("el-disconnected");
         } 
         else if (stats.el_error) {
             elDot.css("background-color", "#F44336").css("box-shadow", "0 0 8px #F44336").addClass("blink");
             elText.text(T.el_err).css("color", "#F44336").css("font-weight", "bold");
+            $("#el-live-status").text(T.el_err).removeClass("el-connected").addClass("el-disconnected");
         } 
         else if (stats.el_online) {
             elDot.css("background-color", "#4CAF50").css("box-shadow", "0 0 8px #4CAF50").addClass("blink");
-            elText.text(T.el_on).css("color", "#4CAF50").css("font-weight", "bold");
+            let textToShow = T.el_on;
+            let elLiveText = T.el_connected;
+            if (stats.el_nodes && stats.el_nodes.length > 0) {
+                textToShow += " (" + stats.el_nodes.join(", ") + ")";
+                elLiveText += " (" + stats.el_nodes.join(", ") + ")";
+            }
+            elText.text(textToShow).css("color", "#4CAF50").css("font-weight", "bold");
+            $("#el-live-status").text(elLiveText).removeClass("el-disconnected").addClass("el-connected");
         }
         else {
             elDot.css("background-color", "#FF9800").css("box-shadow", "0 0 8px #FF9800").addClass("blink");
             elText.text(T.el_conn).css("color", "#FF9800").css("font-weight", "bold");
+            $("#el-live-status").text(T.el_conn).removeClass("el-connected").addClass("el-disconnected");
         }
     });
 }
@@ -323,6 +333,28 @@ function loadLogsAndStatus() {
             $("#el-live-status").text(T.el_disconnected).removeClass("el-connected").addClass("el-disconnected"); 
         }
         
+        let elQsoRegex = /([A-Z0-9\-a-z_]+): EchoLink QSO state changed to (CONNECTED|DISCONNECTED|CONNECTING)/g;
+        let matchEl;
+        let recentNode = "";
+        let recentState = "";
+        while ((matchEl = elQsoRegex.exec(data)) !== null) {
+            recentNode = matchEl[1];
+            recentState = matchEl[2];
+        }
+        
+        if (recentState !== "") {
+            if (recentState === "CONNECTING") {
+                $("#el-live-status").text(T.el_conn + " " + recentNode).removeClass("el-connected").addClass("el-disconnected");
+                $("#el-status-text").text(T.el_conn + " (" + recentNode + ")");
+            } else if (recentState === "CONNECTED") {
+                $("#el-live-status").text(T.el_connected + " (" + recentNode + ")").removeClass("el-disconnected").addClass("el-connected");
+                $("#el-status-text").text(T.el_on + " (" + recentNode + ")");
+            } else if (recentState === "DISCONNECTED") {
+                $("#el-live-status").text(T.el_connected).removeClass("el-disconnected").addClass("el-connected");
+                $("#el-status-text").text(T.el_on);
+            }
+        }
+
         let isTalking = false;
         let currentCallsign = "---";
         let currentTG = "";
@@ -607,25 +639,29 @@ function openGridMapper() {
     overlay.style.display = 'flex'; 
     
     var style = localStorage.getItem('mapStyle') || 'dark';
-    var tileUrl = '';
+    var tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var tileOptions = {
         maxZoom: 19,
         minZoom: 2,
         noWrap: true,
+        subdomains: 'abc',
         attribution: '&copy; OpenStreetMap contributors'
     };
+
+    if (!document.getElementById('map-filter-styles')) {
+        let styleTag = document.createElement('style');
+        styleTag.id = 'map-filter-styles';
+        styleTag.innerHTML = `
+            .map-dark-mode { filter: invert(100%) hue-rotate(180deg) saturate(20%) brightness(70%) contrast(90%); }
+            .map-light-mode { filter: grayscale(100%) opacity(0.7) brightness(120%); }
+        `;
+        document.head.appendChild(styleTag);
+    }
     
     if(style === 'light') {
-        tileUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-        tileOptions.subdomains = 'abcd';
-        tileOptions.attribution += ' &copy; CARTO';
-    } else if(style === 'osm') {
-        tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        tileOptions.subdomains = 'abc';
-    } else {
-        tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-        tileOptions.subdomains = 'abcd';
-        tileOptions.attribution += ' &copy; CARTO';
+        tileOptions.className = 'map-light-mode';
+    } else if(style === 'dark') {
+        tileOptions.className = 'map-dark-mode';
     }
     
     if (mapInstance) {
@@ -839,6 +875,24 @@ function renderTgChips() {
 function renderTgLists() {
     let container = document.getElementById('tg-lists-container');
     container.innerHTML = '';
+    
+    container.style.maxHeight = "280px";
+    container.style.overflowY = "auto";
+    container.style.overflowX = "hidden";
+    container.style.paddingRight = "8px";
+    
+    if (!document.getElementById('tg-scroll-style')) {
+        let style = document.createElement('style');
+        style.id = 'tg-scroll-style';
+        style.innerHTML = `
+            #tg-lists-container::-webkit-scrollbar { width: 6px; }
+            #tg-lists-container::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 4px; }
+            #tg-lists-container::-webkit-scrollbar-thumb { background: #4CAF50; border-radius: 4px; }
+            #tg-lists-container::-webkit-scrollbar-thumb:hover { background: #45a049; }
+        `;
+        document.head.appendChild(style);
+    }
+
     if (typeof tgDataGroups === 'undefined' || !tgDataGroups || tgDataGroups.length === 0) {
         container.innerHTML = '<div style="text-align:center; color:#777; padding:20px;">' + T.tg_no_data + '</div>';
         return;
