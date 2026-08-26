@@ -196,6 +196,18 @@ for script in $GIT_DIR/*.sh; do
     fi
 done
 
+echo ">> Aktualizacja skryptu send_dtmf.sh (poprawka PTY)..."
+cat << 'EOF' > /usr/local/bin/send_dtmf.sh
+#!/bin/bash
+DTMF=$1
+if [ -z "$DTMF" ]; then echo "Brak kodu"; exit 1; fi
+
+echo "$DTMF" > /dev/shm/dtmf_ctrl
+
+echo "Wyslano: $DTMF"
+EOF
+chmod +x /usr/local/bin/send_dtmf.sh
+
 echo ">> Sprawdzanie poprawnosci logowania do RAM..."
 sed -i 's|LOG_SOURCE="/var/log/svxlink"|LOG_SOURCE="/dev/shm/svxlink.log"|g' /usr/local/bin/svx_event_logger.sh
 

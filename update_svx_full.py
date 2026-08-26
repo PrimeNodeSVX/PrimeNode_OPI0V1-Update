@@ -134,8 +134,8 @@ def main():
 
     lines = load_lines(CONFIG_FILE)
     lines = sanitize_lines(lines) 
+    lines = [l for l in lines if not l.strip().startswith("DTMF_CTRL_PTY=")]
     lines = update_key_in_lines(lines, "GLOBAL", "LOGFILE", LOG_FILE_RAM)
-
     radio_data = {}
     if os.path.exists(RADIO_JSON):
         try:
@@ -293,8 +293,8 @@ def main():
             "SHORT_IDENT_INTERVAL": ident_int,
             "LONG_IDENT_INTERVAL": ident_int,
             "DEFAULT_LANG": data.get('AudioLang'),
-            "DTMF_CTRL_PTY": "/dev/shm/dtmf_ctrl",
-            "MACROS": "Macros"
+            "MACROS": "Macros",
+            "DTMF_CTRL_PTY": "/dev/shm/dtmf_ctrl"
         },
         "EchoLink": {
             "CALLSIGN": data.get('EL_Callsign'), "PASSWORD": data.get('EL_Password'),
@@ -414,24 +414,21 @@ def main():
                                 chosen_audio = net.get('audio')
                             break
         except Exception as e:
-            print(f"DEBUG: Błąd odczytu networks.json: {e}")
+            pass
 
     try:
         source_path = os.path.join(REF_SOUNDS_DIR, chosen_audio) if chosen_audio else ""
         
         if chosen_audio and os.path.exists(source_path):
             shutil.copy2(source_path, TARGET_FILE)
-            print(f"DEBUG: Podmieniono na audio sieci: {chosen_audio}")
         else:
             if os.path.exists(DEFAULT_FILE):
                 shutil.copy2(DEFAULT_FILE, TARGET_FILE)
-                print("DEBUG: Użyto audio domyślnego (online_PN.wav)")
         
         if os.path.exists(TARGET_FILE):
             os.chmod(TARGET_FILE, 0o666)
     except Exception as e:
-        print(f"DEBUG: Błąd kopiowania audio: {e}")
-
+        pass
 
     macros_lines = []
     if os.path.exists(DTMF_JSON):
