@@ -196,15 +196,17 @@ for script in $GIT_DIR/*.sh; do
     fi
 done
 
-echo ">> Aktualizacja skryptu send_dtmf.sh (poprawka PTY)..."
+echo ">> Instalacja odpornego na bledy send_dtmf.sh..."
 cat << 'EOF' > /usr/local/bin/send_dtmf.sh
 #!/bin/bash
 DTMF=$1
-if [ -z "$DTMF" ]; then echo "Brak kodu"; exit 1; fi
+if [ -z "$DTMF" ]; then exit 1; fi
+if [ ! -L "/dev/shm/dtmf_ctrl" ]; then
+    echo "Blad: Brak aktywnego portu PTY. SvxLink nie jest gotowy."
+    exit 1
+fi
 
 echo "$DTMF" > /dev/shm/dtmf_ctrl
-
-echo "Wyslano: $DTMF"
 EOF
 chmod +x /usr/local/bin/send_dtmf.sh
 
