@@ -202,12 +202,12 @@ cat << 'EOF' > /usr/local/bin/send_dtmf.sh
 DTMF=$1
 if [ -z "$DTMF" ]; then exit 1; fi
 
-if [ ! -w "/dev/shm/dtmf_ctrl" ]; then
+if [ ! -w "/var/lib/svxlink/dtmf_svx" ]; then
     echo "Blad: Brak aktywnego portu PTY. SvxLink nie jest gotowy."
     exit 1
 fi
 
-echo "$DTMF" > /dev/shm/dtmf_ctrl
+echo "$DTMF" > /var/lib/svxlink/dtmf_svx
 EOF
 chmod +x /usr/local/bin/send_dtmf.sh
 

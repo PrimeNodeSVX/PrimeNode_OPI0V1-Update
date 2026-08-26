@@ -294,7 +294,7 @@ def main():
             "LONG_IDENT_INTERVAL": ident_int,
             "DEFAULT_LANG": data.get('AudioLang'),
             "MACROS": "Macros",
-            "DTMF_CTRL_PTY": "/dev/shm/dtmf_ctrl"
+            "DTMF_CTRL_PTY": "/var/lib/svxlink/dtmf_svx"
         },
         "EchoLink": {
             "CALLSIGN": data.get('EL_Callsign'), "PASSWORD": data.get('EL_Password'),
@@ -303,10 +303,10 @@ def main():
             "TIMEOUT": data.get('EL_ModTimeout'), "LINK_IDLE_TIMEOUT": data.get('EL_IdleTimeout')
         },
         "Rx1": { 
-            "DTMF_SERIAL": serial_port, 
             "SQL_GPIOD_LINE": gpio_sql,
             "PREAMP": "6",
-            "DEEMPHASIS": svx_deemph
+            "DEEMPHASIS": svx_deemph,
+            "DTMF_SERIAL": serial_port
         },
         "Tx1": { 
             "PTT_GPIOD_LINE": gpio_ptt,
