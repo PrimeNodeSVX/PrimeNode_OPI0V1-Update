@@ -500,10 +500,8 @@ proc dtmf_digit_received {digit duration} {
 # This function can be used to implement your own custom commands or to disable
 # DTMF commands that you do not want users to execute.
 proc dtmf_cmd_received {cmd} {
-  # Przechwytujemy oryginalna komende do zmiennej pomocniczej
   set clean_cmd $cmd
-  
-  # Jesli komenda zaczyna sie od gwiazdki (wymuszenie z panelu lub radia), odcinamy ja na potrzeby testu
+
   if {[string index $cmd 0] == "*"} {
     set clean_cmd [string range $cmd 1 end]
   }
@@ -520,7 +518,7 @@ proc dtmf_cmd_received {cmd} {
   # --- AUTO-PROXY HUNTER (998) ---
   if {$clean_cmd == "998"} {
       puts ">>> Uruchamianie Proxy Hunter (kod 998) <<<"
-      # catch {playMsg "Core" "szukam_proxy"}
+      catch {playMsg "Core" "szukam_proxy"}
       catch {exec sudo /usr/bin/python3 /usr/local/bin/proxy_hunter.py > /dev/null 2>&1 &}
       return 1
   }
@@ -543,7 +541,6 @@ proc dtmf_cmd_received {cmd} {
     return 1
   }
 
-  # Przepuszczamy oryginalna komende dalej do silnika SvxLink (np. kody grup TG)
   return 0
 }
 
