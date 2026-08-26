@@ -162,6 +162,8 @@ def main():
     qth_name = get_val('qth_name', 'qth_name', 'Sysop')
     qth_city = get_val('qth_city', 'qth_city', 'Location')
     qth_loc  = get_val('qth_loc',  'qth_loc',  'Locator')
+    pub_qth = str(data.get('PubQth', radio_data.get('pub_qth', '1')))
+    pub_qrg = str(data.get('PubQrg', radio_data.get('pub_qrg', '1')))
     aprs_enable = str(data.get('AprsEnable', radio_data.get('aprs_enabled', '0')))
     aprs_server = "lodz.aprs2.net:14580"
     aprs_passcode = str(data.get('AprsPasscode', radio_data.get('aprs_passcode', '')))
@@ -215,11 +217,17 @@ def main():
     current_default_tg = data.get('DefaultTG') or backup_info.get('DefaultTG', '0')
 
     node_info_data = {
-        "Location": qth_city, "Locator": qth_loc, "Sysop": qth_name,
-        "LAT": "0.0", "LONG": "0.0", "TXFREQ": tx_freq, "RXFREQ": rx_freq, "CTCSS": ctcss_display,
+        "Location": qth_city if pub_qth == '1' else "", 
+        "Locator": qth_loc if pub_qth == '1' else "", 
+        "Sysop": qth_name if pub_qth == '1' else "",
+        "LAT": "0.0", "LONG": "0.0", 
+        "TXFREQ": tx_freq if pub_qrg == '1' else "", 
+        "RXFREQ": rx_freq if pub_qrg == '1' else "", 
+        "CTCSS": ctcss_display if pub_qrg == '1' else "",
         "DefaultTG": current_default_tg, "Mode": "FM", "Type": "1", 
         "Echolink": is_echolink, "Website": "https://github.com/ArduUTP", "LinkedTo": "PrimeNode"
     }
+
     try:
         with open(NODE_INFO_FILE, 'w') as nf:
             json.dump(node_info_data, nf, indent=4)
@@ -228,9 +236,10 @@ def main():
         pass
 
     loc_parts = []
-    if qth_city: loc_parts.append(qth_city)
-    if qth_loc: loc_parts.append(qth_loc)
-    if qth_name: loc_parts.append(f"(Op: {qth_name})")
+    if pub_qth == '1':
+        if qth_city: loc_parts.append(qth_city)
+        if qth_loc: loc_parts.append(qth_loc)
+        if qth_name: loc_parts.append(f"(Op: {qth_name})")
     location_str = ", ".join(loc_parts)
 
     is_disconnected = ('Host' in data and data.get('Host') == '')
@@ -353,6 +362,8 @@ def main():
     radio_data['sa_lpf'] = sa_lpf
     radio_data['svx_deemph'] = svx_deemph
     radio_data['svx_preemph'] = svx_preemph
+    radio_data['pub_qth'] = pub_qth
+    radio_data['pub_qrg'] = pub_qrg
     radio_data['AprsEnable'] = aprs_enable
     radio_data['AprsServer'] = aprs_server
     radio_data['AprsPasscode'] = aprs_passcode

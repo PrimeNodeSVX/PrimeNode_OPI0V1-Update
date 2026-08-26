@@ -483,7 +483,23 @@
                 <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_city']; ?></label><input type="text" name="qth_city" value="<?php echo isset($radio['qth_city']) ? $radio['qth_city'] : ''; ?>"></div>
                 <div class="form-group" style="margin:0;"><label><?php echo $TC[$lang]['lbl_loc']; ?></label><input type="text" name="qth_loc" value="<?php echo isset($radio['qth_loc']) ? $radio['qth_loc'] : ''; ?>" placeholder="np. JO91QI"></div>
             </div>
-            <small style="color:#888; font-size:10px; display:block; margin-top:5px;"></small>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; border-top: 1px dashed #4CAF50; padding-top: 15px;">
+                <div class="form-group" style="margin:0;">
+                    <label>📍 Pokaż Imię i QTH na mapie Node?</label>
+                    <select name="PubQth">
+                        <option value="1" <?php if(!isset($radio['pub_qth']) || $radio['pub_qth'] == '1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option>
+                        <option value="0" <?php if(isset($radio['pub_qth']) && $radio['pub_qth'] == '0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label>📻 Pokaż Częstotliwość i CTCSS na mapie?</label>
+                    <select name="PubQrg">
+                        <option value="1" <?php if(!isset($radio['pub_qrg']) || $radio['pub_qrg'] == '1') echo 'selected'; ?>><?php echo $TC[$lang]['opt_yes']; ?></option>
+                        <option value="0" <?php if(isset($radio['pub_qrg']) && $radio['pub_qrg'] == '0') echo 'selected'; ?>><?php echo $TC[$lang]['opt_no']; ?></option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div class="panel-box box-full">
