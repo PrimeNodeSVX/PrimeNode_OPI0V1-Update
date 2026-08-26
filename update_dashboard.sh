@@ -152,21 +152,36 @@ chmod -R 777 "$REF_DIR"
 find "$REF_DIR" -type f -exec chmod 777 {} \; 2>/dev/null
 [ -f "$CORE_DIR/online_PN.wav" ] && chmod 777 "$CORE_DIR/online_PN.wav"
 
-echo ">> Wdrażanie komendy DTMF 998 (Auto-Proxy EchoLink)..."
+echo ">> Wdrażanie systemowych komend DTMF (997, 998)..."
 LOGIC_TCL="/usr/local/share/svxlink/events.d/Logic.tcl"
 if [ -f "$LOGIC_TCL" ]; then
-    perl -0777 -pi -e 's/\s*if \{\$cmd == "998"\} \{.*?\n\s*return 1\n\s*\}//gs' "$LOGIC_TCL"
 
-    cat << 'EOF' > /tmp/dtmf_998.tcl
-  if {$cmd == "998"} {
-      puts ">>> Uruchamianie Proxy Hunter (kod 998) <<<"
-      catch {playMsg "Core" "szukam_proxy"}
-      catch {exec sudo /usr/bin/python3 /usr/local/bin/proxy_hunter.py > /dev/null 2>&1 &}
-      return 1
-  }
+    sed -i '/# --- PRIME NODE CUSTOM DTMF START ---/,/# --- PRIME NODE CUSTOM DTMF END ---/d' "$LOGIC_TCL"
+    
+    cat << 'EOF' >> "$LOGIC_TCL"
+
+namespace eval Logic {
+    if {[info commands original_dtmf_cmd_received] == ""} {
+        rename dtmf_cmd_received original_dtmf_cmd_received
+    }
+    proc dtmf_cmd_received {cmd} {
+        if {$cmd == "997"} {
+            puts ">>> Zamykanie systemu (kod 997) <<<"
+            catch {playFile "/usr/local/share/svxlink/sounds/PL/Core/poweroff.wav"}
+            playSilence 500
+            catch {exec sudo bash -c "sleep 5 && shutdown -h now" > /dev/null 2>&1 &}
+            return 1
+        }
+        if {$cmd == "998"} {
+            puts ">>> Uruchamianie Proxy Hunter (kod 998) <<<"
+            catch {playMsg "Core" "szukam_proxy"}
+            catch {exec sudo /usr/bin/python3 /usr/local/bin/proxy_hunter.py > /dev/null 2>&1 &}
+            return 1
+        }
+        return [original_dtmf_cmd_received $cmd]
+    }
+}
 EOF
-    sed -i '/proc dtmf_cmd_received {cmd} {/r /tmp/dtmf_998.tcl' "$LOGIC_TCL"
-    rm -f /tmp/dtmf_998.tcl
 fi
 
 echo ">> Synchronizacja konfiguracji radia (Python)..."
