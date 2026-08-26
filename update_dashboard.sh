@@ -201,7 +201,8 @@ cat << 'EOF' > /usr/local/bin/send_dtmf.sh
 #!/bin/bash
 DTMF=$1
 if [ -z "$DTMF" ]; then exit 1; fi
-if [ ! -L "/dev/shm/dtmf_ctrl" ]; then
+
+if [ ! -w "/dev/shm/dtmf_ctrl" ]; then
     echo "Blad: Brak aktywnego portu PTY. SvxLink nie jest gotowy."
     exit 1
 fi
