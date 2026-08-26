@@ -500,6 +500,23 @@ proc dtmf_digit_received {digit duration} {
 # This function can be used to implement your own custom commands or to disable
 # DTMF commands that you do not want users to execute.
 proc dtmf_cmd_received {cmd} {
+  # --- BEZPIECZNE ZAMYKANIE SYSTEMU (997) ---
+  if {$cmd == "997"} {
+      puts ">>> Zamykanie systemu (kod 997) <<<"
+      catch {playFile "/usr/local/share/svxlink/sounds/PL/Core/poweroff.wav"}
+      playSilence 500
+      catch {exec sudo bash -c "sleep 5 && shutdown -h now" > /dev/null 2>&1 &}
+      return 1
+  }
+
+  # --- AUTO-PROXY HUNTER (998) ---
+  if {$cmd == "998"} {
+      puts ">>> Uruchamianie Proxy Hunter (kod 998) <<<"
+      catch {playMsg "Core" "szukam_proxy"}
+      catch {exec sudo /usr/bin/python3 /usr/local/bin/proxy_hunter.py > /dev/null 2>&1 &}
+      return 1
+  }
+
   # --- START ROAMING PRIMENODE ---
   #puts "Logic.tcl DEBUG: Odebrano komende: $cmd"
 
