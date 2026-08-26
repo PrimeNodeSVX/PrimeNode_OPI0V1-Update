@@ -500,8 +500,16 @@ proc dtmf_digit_received {digit duration} {
 # This function can be used to implement your own custom commands or to disable
 # DTMF commands that you do not want users to execute.
 proc dtmf_cmd_received {cmd} {
+  # Przechwytujemy oryginalna komende do zmiennej pomocniczej
+  set clean_cmd $cmd
+  
+  # Jesli komenda zaczyna sie od gwiazdki (wymuszenie z panelu lub radia), odcinamy ja na potrzeby testu
+  if {[string index $cmd 0] == "*"} {
+    set clean_cmd [string range $cmd 1 end]
+  }
+
   # --- BEZPIECZNE ZAMYKANIE SYSTEMU (997) ---
-  if {$cmd == "997"} {
+  if {$clean_cmd == "997"} {
       puts ">>> Zamykanie systemu (kod 997) <<<"
       catch {playFile "/usr/local/share/svxlink/sounds/PL/Core/poweroff.wav"}
       playSilence 500
@@ -510,18 +518,16 @@ proc dtmf_cmd_received {cmd} {
   }
 
   # --- AUTO-PROXY HUNTER (998) ---
-  if {$cmd == "998"} {
+  if {$clean_cmd == "998"} {
       puts ">>> Uruchamianie Proxy Hunter (kod 998) <<<"
-      catch {playMsg "Core" "szukam_proxy"}
+      # catch {playMsg "Core" "szukam_proxy"}
       catch {exec sudo /usr/bin/python3 /usr/local/bin/proxy_hunter.py > /dev/null 2>&1 &}
       return 1
   }
 
-  # --- START ROAMING PRIMENODE ---
-  #puts "Logic.tcl DEBUG: Odebrano komende: $cmd"
-
-  if {[string range $cmd 0 2] == "555"} {
-    set net_id [string range $cmd 3 end]
+  # --- START ROAMING PRIMENODE (555) ---
+  if {[string range $clean_cmd 0 2] == "555"} {
+    set net_id [string range $clean_cmd 3 end]
     puts "Logic.tcl ROAMING: Wykryto kod 555 -> ID: $net_id"
 
     playTone 880 100 100
@@ -533,37 +539,11 @@ proc dtmf_cmd_received {cmd} {
 
     playMsg "Core" "connecting_to"
     playMsg "Core" "online"
-    exec sudo /usr/local/bin/switch_network.py --dtmf $net_id &
+    catch {exec sudo /usr/local/bin/switch_network.py --dtmf $net_id &}
     return 1
   }
 
-# Example: Ignore all commands starting with 3 in the EchoLink module.
-  #          Allow commands that have four or more digits.
-  #if {${::active_module} == "EchoLink"} {
-  #  if {[string length $cmd] < 4 && [string index $cmd 0] == "3"} {
-  #    printInfo "Ignoring random connect command for module EchoLink: $cmd"
-  #    return 1
-  #  }
-  #}
-
-  # Handle the "force core command" mode where a command is forced to be
-  # executed by the core command processor instead of by an active module.
-  # The "force core command" mode is entered by prefixing a command by a star.
-  #if {${::active_module} != "" && [string index $cmd 0] != "*"} {
-  #  return 0
-  #}
-  #if {[string index $cmd 0] == "*"} {
-  #  set cmd [string range $cmd 1 end]
-  #}
-
-  # Example: Custom command executed when DTMF 99 is received
-  #if {$cmd == "99"} {
-  #  printInfo "Executing external command"
-  #  playMsg "online"
-  #  exec ls &
-  #  return 1
-  #}
-
+  # Przepuszczamy oryginalna komende dalej do silnika SvxLink (np. kody grup TG)
   return 0
 }
 
