@@ -21,6 +21,150 @@
         exec("sudo chmod 664 $net_file");
     }
 
+    if (isset($_GET['restore']) && $_GET['restore'] == 'ok') {
+        echo "<div class='alert alert-success'>✅ Konfiguracja przywrócona pomyślnie! Usługi zostały zrestartowane.</div>";
+    }
+
+    if (isset($_POST['export_backup'])) {
+        shell_exec("sudo /usr/sbin/alsactl store -f /dev/shm/asound.state");
+
+        $backup_name = 'PrimeNode_Backup_' . date('Y-m-d_His') . '.zip';
+        $zip_path = '/dev/shm/' . $backup_name;
+
+        $files_to_zip = [
+            '/etc/svxlink/svxlink.conf' => 'svxlink.conf',
+            '/var/www/html/radio_config.json' => 'radio_config.json',
+            '/etc/svxlink/networks.json' => 'networks.json',
+            '/var/www/html/dtmf_custom.json' => 'dtmf_custom.json',
+            '/etc/svxlink/node_info.json' => 'node_info.json',
+            '/dev/shm/asound.state' => 'asound.state',
+            '/etc/wm8960-soundcard/wm8960_asound.state' => 'wm8960_asound.state'
+        ];
+
+        if (class_exists('ZipArchive')) {
+            $zip = new ZipArchive();
+            if ($zip->open($zip_path, ZipArchive::CREATE) === TRUE) {
+                foreach ($files_to_zip as $path => $name) {
+                    if (file_exists($path)) { $zip->addFile($path, $name); }
+                }
+                $zip->close();
+            }
+        } else {
+            $files_str = implode(' ', array_filter(array_keys($files_to_zip), 'file_exists'));
+            shell_exec("zip -j " . escapeshellarg($zip_path) . " " . $files_str);
+        }
+
+        if (file_exists($zip_path)) {
+            $b64 = base64_encode(file_get_contents($zip_path));
+            $filename = basename($zip_path);
+
+            echo "<script>
+                var link = document.createElement('a');
+                link.href = 'data:application/zip;base64," . $b64 . "';
+                link.download = '" . $filename . "';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            </script>";
+
+            unlink($zip_path); 
+        } else {
+            echo "<div class='alert alert-error'>❌ Błąd: Nie udało się utworzyć pliku ZIP.</div>";
+        }
+    }
+
+    if (isset($_POST['import_backup']) && isset($_FILES['backup_zip'])) {
+        if ($_FILES['backup_zip']['error'] !== UPLOAD_ERR_OK) {
+            echo "<div class='alert alert-error'>❌ Błąd przesyłania pliku na serwer. Kod błędu: " . $_FILES['backup_zip']['error'] . "</div>";
+        } else {
+            $uploaded = $_FILES['backup_zip']['tmp_name'];
+            $tmp_dir = '/dev/shm/restore_pn/';
+            $zip_target = '/dev/shm/restore_upload.zip';
+            
+            shell_exec("sudo rm -rf " . escapeshellarg($tmp_dir));
+            shell_exec("sudo rm -f " . escapeshellarg($zip_target));
+            mkdir($tmp_dir, 0777, true); 
+
+            if (move_uploaded_file($uploaded, $zip_target)) {
+                $success = false;
+
+                if (class_exists('ZipArchive')) {
+                    $zip = new ZipArchive;
+                    if ($zip->open($zip_target) === TRUE) {
+                        $zip->extractTo($tmp_dir);
+                        $zip->close();
+                        $success = true;
+                    }
+                } 
+
+                if (!$success) {
+                    shell_exec("unzip -j -o " . escapeshellarg($zip_target) . " -d " . escapeshellarg($tmp_dir) . " 2>&1");
+                    $success = true;
+                }
+
+                $map = [
+                    'svxlink.conf' => '/etc/svxlink/svxlink.conf',
+                    'radio_config.json' => '/var/www/html/radio_config.json',
+                    'networks.json' => '/etc/svxlink/networks.json',
+                    'dtmf_custom.json' => '/var/www/html/dtmf_custom.json',
+                    'node_info.json' => '/etc/svxlink/node_info.json',
+                    'asound.state' => '/dev/shm/asound_restore.state',
+                    'wm8960_asound.state' => '/etc/wm8960-soundcard/wm8960_asound.state'
+                ];
+
+                $restored_count = 0;
+                $debug_log = "";
+
+                foreach ($map as $file => $dest) {
+                    $src = $tmp_dir . $file;
+                    if (file_exists($src)) {
+                        $out = shell_exec("sudo cp -fv " . escapeshellarg($src) . " " . escapeshellarg($dest) . " 2>&1");
+                        $debug_log .= $out . "\n";
+
+                        if (strpos($dest, '/etc/svxlink/') !== false || strpos($dest, 'wm8960') !== false) {
+                            shell_exec("sudo chown root:root " . escapeshellarg($dest));
+                            shell_exec("sudo chmod 644 " . escapeshellarg($dest));
+                        } else {
+                            shell_exec("sudo chown www-data:www-data " . escapeshellarg($dest));
+                            shell_exec("sudo chmod 664 " . escapeshellarg($dest));
+                        }
+                        $restored_count++;
+                    }
+                }
+                
+                if (file_exists('/dev/shm/asound_restore.state')) {
+                    shell_exec("sudo /usr/sbin/alsactl restore -f /dev/shm/asound_restore.state 2>&1");
+                    shell_exec("sudo /usr/sbin/alsactl store");
+                    unlink('/dev/shm/asound_restore.state');
+                }
+
+                if (file_exists('/etc/wm8960-soundcard/wm8960_asound.state')) {
+                    $card_id = shell_exec("aplay -l | grep -i wm8960 | awk -F': ' '{print $1}' | awk '{print $2}'");
+                    $card_id = trim($card_id);
+                    if ($card_id !== "") {
+                        shell_exec("sudo /usr/sbin/alsactl --file=/etc/wm8960-soundcard/wm8960_asound.state restore $card_id 2>&1");
+                    }
+                }
+
+                shell_exec("sudo rm -rf " . escapeshellarg($tmp_dir));
+                shell_exec("sudo rm -f " . escapeshellarg($zip_target));
+                
+                if ($restored_count > 0) {
+                    if (function_exists('opcache_reset')) { opcache_reset(); }
+                    clearstatcache(true);
+                    shell_exec("sudo systemctl restart svxlink > /dev/null 2>&1 &");
+                    usleep(500000); 
+                    echo "<script>window.location.href='index.php?active_tab=SvxConfig&restore=ok';</script>";
+                    exit; 
+                } else {
+                    echo "<div class='alert alert-error'>❌ Błąd: Brak wymaganych plików w archiwum ZIP.<br><pre>$debug_log</pre></div>";
+                }
+            } else {
+                echo "<div class='alert alert-error'>❌ Błąd: Nie udało się przygotować pliku instalacyjnego.</div>";
+            }
+        }
+    }
+
     $networks = json_decode(file_get_contents($net_file), true);
     $radio_config_file = '/var/www/html/radio_config.json';
     if (file_exists($radio_config_file)) {
@@ -611,6 +755,32 @@
     </div>
     <button type="submit" name="save_svx_full" class="btn btn-blue" style="margin-top:20px;"><?php echo $TC[$lang]['btn_save']; ?></button>
 </form>
+
+<div class="panel-box box-full" style="border: 1px solid #9C27B0; margin-top: 20px;">
+    <h4 class="panel-title" style="color: #9C27B0; border-color: #9C27B0;">💾 Kopia Zapasowa i Przywracanie</h4>
+    <div style="display: flex; gap: 20px; padding: 10px; align-items: stretch; flex-wrap: wrap;">
+        
+        <div style="flex: 1; min-width: 250px; border-right: 1px solid #444; padding-right: 20px; display: flex; flex-direction: column;">
+            <p style="font-size: 12px; color: #aaa; margin: 0 0 15px 0;">Pobierz kopię wszystkich ustawień (APRS, Sieci, Radio, DTMF) do pliku ZIP.</p>
+            <form method="post" style="margin-top: auto; display: flex; flex-direction: column; justify-content: flex-end;">
+                <button type="submit" name="export_backup" class="btn" style="background: #9C27B0; color: #fff; width: 100%; margin: 0; padding: 10px;">
+                    📥 POBIERZ BACKUP
+                </button>
+            </form>
+        </div>
+
+        <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column;">
+            <p style="font-size: 12px; color: #aaa; margin: 0 0 15px 0;">Wybierz plik ZIP, aby przywrócić zapisaną wcześniej konfigurację.</p>
+            <form method="post" enctype="multipart/form-data" style="margin-top: auto; display: flex; flex-direction: column; justify-content: flex-end;">
+                <input type="file" name="backup_zip" accept=".zip" style="font-size: 11px; margin-bottom: 10px; color: #ccc; width: 100%;" required>
+                <button type="submit" name="import_backup" class="btn btn-green" style="width: 100%; margin: 0; padding: 10px;" onclick="return confirm('Uwaga: To nadpisze obecne ustawienia! Kontynuować?')">
+                    📤 PRZYWRÓĆ Z PLIKU
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
 
 <?php
 $tg_list_data = [];

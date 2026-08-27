@@ -8,6 +8,14 @@ SOUNDS_DIR="/usr/local/share/svxlink/sounds"
 echo "--- START UPDATE ---"
 date
 
+echo ">> Sprawdzanie wymaganych pakietow (ZIP)..."
+if ! command -v zip >/dev/null 2>&1 || ! dpkg -l | grep -q "php.*-zip"; then
+    echo ">> Instalacja brakujacych pakietow do obslugi kopii zapasowych..."
+    apt update
+    apt install zip unzip php-zip -y
+    systemctl restart apache2
+fi
+
 OLD_HASH=""
 NEW_HASH=""
 
@@ -210,6 +218,20 @@ fi
 echo "$DTMF" > /var/lib/svxlink/dtmf_svx
 EOF
 chmod +x /usr/local/bin/send_dtmf.sh
+
+if ! grep -q "/bin/cp, /usr/bin/cp" /etc/sudoers; then
+    echo ">> Dodawanie uprawnień sudo dla www-data do pliku sudoers..."
+    echo "www-data ALL=(ALL) NOPASSWD: /bin/rm, /usr/bin/rm" >> /etc/sudoers
+    echo "www-data ALL=(ALL) NOPASSWD: /bin/cp, /usr/bin/cp" >> /etc/sudoers
+    echo "www-data ALL=(ALL) NOPASSWD: /bin/chown, /usr/bin/chown" >> /etc/sudoers
+    echo "www-data ALL=(ALL) NOPASSWD: /bin/chmod, /usr/bin/chmod" >> /etc/sudoers
+    echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/python3, /usr/bin/amixer, /usr/sbin/alsactl, /usr/bin/systemctl, /usr/sbin/reboot, /usr/sbin/shutdown" >> /etc/sudoers
+    
+    echo ">> Restartowanie usługi apache2..."
+    systemctl restart apache2
+else
+    echo ">> Uprawnienia sudo dla www-data są już aktualne (pomijam)."
+fi
 
 echo ">> Sprawdzanie poprawnosci logowania do RAM..."
 sed -i 's|LOG_SOURCE="/var/log/svxlink"|LOG_SOURCE="/dev/shm/svxlink.log"|g' /usr/local/bin/svx_event_logger.sh
