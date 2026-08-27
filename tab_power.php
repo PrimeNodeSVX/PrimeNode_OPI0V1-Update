@@ -36,7 +36,7 @@ $update_flag_file = '/dev/shm/primenode_update_status.txt';
 $update_available = false;
 
 if (!file_exists($update_flag_file)) {
-    $remote_hash = trim(shell_exec("timeout 4 git ls-remote https://github.com/PrimeNodeSVX/PrimeNode_OPI0V1-Update.git HEAD | awk '{print $1}' 2>/dev/null"));
+    $remote_hash = trim(shell_exec("timeout 4 git ls-remote https://github.com/PrimeNodeSVX/PrimeNode_OPI0V1-Update.git main | awk '{print $1}' 2>/dev/null"));
     $local_hash = trim(@file_get_contents('/var/www/html/local_hash.txt'));
     
     if (!empty($local_hash) && !empty($remote_hash)) {
