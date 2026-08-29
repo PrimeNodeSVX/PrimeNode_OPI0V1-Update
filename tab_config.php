@@ -1,5 +1,15 @@
 <?php
     $net_file = '/etc/svxlink/networks.json';
+    if (!function_exists('save_networks_json')) {
+        function save_networks_json($data, $path) {
+            $tmp = '/dev/shm/tmp_networks.json';
+            file_put_contents($tmp, json_encode($data, JSON_PRETTY_PRINT));
+            shell_exec("sudo cp -f " . escapeshellarg($tmp) . " " . escapeshellarg($path));
+            shell_exec("sudo chown www-data:www-data " . escapeshellarg($path));
+            shell_exec("sudo chmod 664 " . escapeshellarg($path));
+            @unlink($tmp);
+        }
+    }
     $sound_dir = '/usr/local/share/svxlink/sounds/ref_sounds';
     $available_sounds = [];
     if (is_dir($sound_dir)) {
@@ -236,7 +246,7 @@
             $networks['list'][] = $new_data;
         }
         
-        file_put_contents($net_file, json_encode($networks, JSON_PRETTY_PRINT));
+        save_networks_json($networks, $net_file);
 
         if (isset($networks['active']) && $networks['active'] == $new_data['id']) {
             $switch_data = [
@@ -287,7 +297,7 @@
             shell_exec('sudo /usr/bin/systemctl restart svxlink > /dev/null 2>&1 &');
         }
 
-        file_put_contents($net_file, json_encode($networks, JSON_PRETTY_PRINT));
+        save_networks_json($networks, $net_file);
         echo "<script>window.location.href='index.php';</script>";
     }
 
@@ -317,7 +327,7 @@
             file_put_contents('/tmp/svx_new_settings.json', json_encode($switch_data));
             shell_exec('sudo /usr/bin/python3 /usr/local/bin/update_svx_full.py 2>&1');
             $networks['active'] = $target_id;
-            file_put_contents($net_file, json_encode($networks, JSON_PRETTY_PRINT));
+            save_networks_json($networks, $net_file);
             shell_exec('sudo /usr/bin/systemctl restart svxlink > /dev/null 2>&1 &');
             echo "<div class='alert alert-success'>Przełączono na: " . htmlspecialchars($selected_net['name']) . ". Restart...</div>";
             echo "<script>setTimeout(function(){ window.location.href='index.php'; }, 3000);</script>";
