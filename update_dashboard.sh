@@ -286,7 +286,7 @@ if ! grep -q "/bin/cp, /usr/bin/cp" /etc/sudoers; then
     echo "www-data ALL=(ALL) NOPASSWD: /bin/chown, /usr/bin/chown" >> /etc/sudoers
     echo "www-data ALL=(ALL) NOPASSWD: /bin/chmod, /usr/bin/chmod" >> /etc/sudoers
     echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/python3, /usr/bin/amixer, /usr/sbin/alsactl, /usr/bin/systemctl, /usr/sbin/reboot, /usr/sbin/shutdown" >> /etc/sudoers
-    
+    echo "www-data ALL=(ALL) NOPASSWD: /usr/local/bin/update_core.sh" >> /etc/sudoers
     echo ">> Restartowanie usługi apache2..."
     systemctl restart apache2
 else
