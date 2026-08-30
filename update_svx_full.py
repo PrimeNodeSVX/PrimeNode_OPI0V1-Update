@@ -216,6 +216,23 @@ def main():
     is_echolink = "1" if (data.get('Modules') and "EchoLink" in data['Modules']) else "0"
     current_default_tg = data.get('DefaultTG') or backup_info.get('DefaultTG', '0')
 
+    board_model = "Unknown"
+    if os.path.exists('/sys/firmware/devicetree/base/model'):
+        try:
+            with open('/sys/firmware/devicetree/base/model', 'r') as mf:
+                m_str = mf.read().replace('\x00', '').strip()
+                if "Orange Pi" in m_str: 
+                    board_model = "OPi"
+                elif "Raspberry Pi" in m_str: 
+                    board_model = "RPi"
+                else: 
+                    board_model = "Linux"
+        except:
+            pass
+
+    primenode_version = "V1.7"
+    linked_to_str = f"PrimeNode {primenode_version} ({board_model})"
+
     node_info_data = {
         "Location": qth_city if pub_qth == '1' else "", 
         "Locator": qth_loc if pub_qth == '1' else "", 
@@ -225,7 +242,7 @@ def main():
         "RXFREQ": rx_freq if pub_qrg == '1' else "", 
         "CTCSS": ctcss_display if pub_qrg == '1' else "",
         "DefaultTG": current_default_tg, "Mode": "FM", "Type": "1", 
-        "Echolink": is_echolink, "Website": "https://github.com/ArduUTP", "LinkedTo": "PrimeNode"
+        "Echolink": is_echolink, "Website": "https://github.com/ArduUTP", "LinkedTo": linked_to_str
     }
 
     try:
