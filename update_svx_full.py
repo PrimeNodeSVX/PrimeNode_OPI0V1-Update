@@ -244,6 +244,29 @@ def main():
 
     is_disconnected = ('Host' in data and data.get('Host') == '')
 
+    host_val = data.get('Host')
+    port_val = data.get('Port')
+    pass_val = data.get('Password')
+
+    if host_val is None:
+        if os.path.exists("/etc/svxlink/networks.json"):
+            try:
+                with open("/etc/svxlink/networks.json", 'r') as nf:
+                    net_data = json.load(nf)
+                    active_id = net_data.get('active', 0)
+                    for net in net_data.get('list', []):
+                        if int(net.get('id')) == int(active_id):
+                            host_val = net.get('host', '')
+                            port_val = net.get('port', '5300')
+                            pass_val = net.get('pass', '')
+                            break
+            except:
+                pass
+
+    if host_val is None: host_val = ""
+    if port_val is None: port_val = "5300"
+    if pass_val is None: pass_val = ""
+
     if is_disconnected:
         main_callsign = ""
     else:
@@ -286,9 +309,9 @@ def main():
 
     mapping = {
         "ReflectorLogic": {
-            "CALLSIGN": reflector_callsign, "AUTH_KEY": data.get('Password'),
-            "HOSTS": data.get('Host'),       
-            "HOST_PORT": data.get('Port'),      
+            "CALLSIGN": reflector_callsign, "AUTH_KEY": pass_val,
+            "HOSTS": host_val,       
+            "HOST_PORT": port_val,
             "DEFAULT_TG": data.get('DefaultTG'), "MONITOR_TGS": data.get('MonitorTGs'),
             "TG_SELECT_TIMEOUT": data.get('TgTimeout'), "TMP_MONITOR_TIMEOUT": data.get('TmpTimeout'),
             "TGSTBEEP_ENABLE": data.get('Beep3Tone'), "TGREANON_ENABLE": data.get('AnnounceTG'),
