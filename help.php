@@ -73,32 +73,42 @@ $H = [
         's6_map_d' => 'Mapa aktywnych stacji w zakładce <strong>Nodes</strong>.',
 
         's7_title' => '8. Mega Nowości (Wersja V1.3)',
-        's7_tx' => '<strong>🔴 Wizualizacja Nadawania (TX):</strong> Kiedy ktoś z sieci nadaje, jego kafelek w zakładce Nodes i znacznik na mapie dynamicznie pulsują na czerwono.',
-        's7_icons' => '<strong>📱 Inteligentne Ikony:</strong> Rozpoznawanie sprzętu operatora na liście węzłów: Radio (📻), Aplikacja mobilna (📱), Komputer PC (💻).',
-        's7_quick' => '<strong>⚡ Szybkie Dołączanie (Quick-Dial):</strong> Widzisz, że ktoś ciekawy nadaje? Kliknij w jego pulsujący na czerwono kafelek w zakładce Nodes, aby jednym przyciskiem przełączyć radio na jego grupę TG!',
-        's7_radio' => '<strong>📻 Dane Radiowe:</strong> Najechanie myszką na węzeł (lub kliknięcie kropki na mapie) zdradza jego częstotliwość QRG i ton CTCSS.',
-        's7_cfg' => '<strong>🎛️ Smart Config:</strong> Koniec z ręcznym wpisywaniem numerów TG! Kliknij pole <em>Startowe TG</em> lub <em>Monitorowane TG</em> w konfiguracji, by otworzyć dotykowy panel wyboru, który sam zaciąga dane z Twoich własnych list DTMF.',
+        's7_tx' => '<strong>🔴 Wizualizacja Nadawania (TX):</strong> Kiedy ktoś z sieci nadaje, jego kafelek w zakładce Nodes dynamicznie pulsuje na czerwono.',
+        's7_icons' => '<strong>📱 Inteligentne Ikony:</strong> Rozpoznawanie sprzętu operatora na liście węzłów.',
+        's7_quick' => '<strong>⚡ Szybkie Dołączanie (Quick-Dial):</strong> Widzisz, że ktoś ciekawy nadaje? Kliknij w jego pulsujący na czerwono kafelek, aby jednym przyciskiem przełączyć radio na jego grupę TG!',
+        's7_radio' => '<strong>📻 Dane Radiowe:</strong> Najechanie myszką na węzeł zdradza jego częstotliwość QRG i ton CTCSS.',
+        's7_cfg' => '<strong>🎛️ Smart Config:</strong> Koniec z ręcznym wpisywaniem numerów TG! Panel wyboru w konfiguracji sam zaciąga dane z list DTMF.',
 
         's8_title' => '9. APRS (Beacon)',
         's8_text' => 'System automatycznie wysyła sygnał o Twojej pozycji, mocy (W) i zysku anteny (dBd) do sieci APRS. Konfigurację znajdziesz w zakładce <strong>Konfiguracja</strong>.',
-        's8_warn' => '<strong>Ważne:</strong> Ustaw wysokość anteny na minimum 4 metry, aby system poprawnie obliczył i wysłał parametry na mapę aprs.fi (wynika to z technicznej, logarytmicznej specyfiki protokołu APRS).',
+        's8_warn' => '<strong>Ważne:</strong> Ustaw wysokość anteny na minimum 4 metry, aby system poprawnie obliczył i wysłał parametry na mapę aprs.fi (wymóg protokołu).',
         
         's9_title' => '10. 🎛️ Filtry Audio (SvxLink vs SA818)',
         's9_text' => 'Zaawansowane opcje audio znajdziesz w zakładce <strong>Radio</strong>. PrimeNode pozwala zarządzać dwoma osobnymi rodzajami filtrów:',
         's9_svx' => '<strong>Programowe (SvxLink):</strong> Pre-emphasis i De-emphasis wyrównują pasmo dźwięku po stronie oprogramowania (zanim trafi do sieci).',
-        's9_sa' => '<strong>Sprzętowe (SA818):</strong> Wbudowane w moduł filtry HPF (High Pass) i LPF (Low Pass) fizycznie odcinają skrajne zakłócenia, co jest świetne na buczenie sieciowe (50Hz). Tu możesz również ustawić dewiację Bandwidth (WIDE dla 25kHz, NARROW dla 12.5kHz).',
-        's9_tip' => '<em>Dobra praktyka: Jeśli włączasz filtry sprzętowe SA818, wyłącz te programowe w SvxLinku (i odwrotnie). Unikniesz w ten sposób podwójnego przetwarzania dźwięku.</em>',
+        's9_sa' => '<strong>Sprzętowe (SA818):</strong> Wbudowane w moduł filtry HPF (High Pass) i LPF (Low Pass) fizycznie odcinają skrajne zakłócenia, co jest świetne na buczenie sieciowe (50Hz).',
+
+        's10_title' => '11. POTĘŻNE NOWOŚCI (V1.6 i V1.7)',
+        's10_warn1' => '⚠️ AKTUALIZACJA RDZENIA SVXLINK',
+        's10_warn1_d' => 'W zakładce "Zasilanie" pojawiła się zaawansowana aktualizacja silnika SvxLink (do v26.05.1). Proces kompilacji kodu na płycie Orange Pi trwa około 25-30 minut i generuje duże obciążenie procesora.',
+        's10_warn2' => '🛑 BEZWZGLĘDNA ZASADA BEZPIECZEŃSTWA:',
+        's10_warn2_d' => 'Przed uruchomieniem aktualizacji silnika MUSISZ zadbać o pewne, sprawdzone zasilanie oraz doskonałą wentylację urządzenia (aby nie doszło do przegrzania procesora). Pod żadnym pozorem nie wyłączaj zasilania ani nie odświeżaj strony podczas kompilacji! Grozi to trwałym ucegleniem systemu.',
+        's10_backup' => '💾 <strong>System Backup:</strong> W zakładce Konfiguracja możesz wygenerować i pobrać pełną paczkę ustawień (ZIP). Przed eksperymentami zawsze rób kopię zapasową!',
+        's10_macro' => '⌨️ <strong>System Makr:</strong> Wdrożona została natywna obsługa makr z radiotelefonu (klawisz D). Działają one teraz niezawodnie zarówno w Reflektorze, jak i w trybie EchoLink.',
+        's10_proxy' => '♻️ <strong>Auto-Proxy Hunter:</strong> Wpisz na radiu kod <strong>998#</strong>. System automatycznie wyszuka najszybszy i najmniej obciążony publiczny serwer Proxy dla EchoLinka i połączy się z nim.',
+        's10_split' => '📻 <strong>Pełny Split:</strong> Niezależne ustawienia RX/TX oraz osobne tony CTCSS rozwiązują problem "głuchych" odbiorów na modułach SA818.',
+        's10_el' => 'ℹ️ <strong>Status EchoLink:</strong> Po połączeniu na głównym pasku widnieje znak stacji EchoLink. System przypomina, że nasłuch Reflektora jest w tym czasie zawieszony.',
 
         'qa_title' => 'Szybka Pomoc (Q&A)',
         'qa_q1' => '❓ Nie mogę połączyć się z EchoLinkiem (Status: Disconnected).',
-        'qa_a1' => '✅ Jeśli używasz LTE, operatorzy blokują porty. Wejdź w <strong>Config</strong> i kliknij <strong>♻️ Auto-Proxy</strong>.',
+        'qa_a1' => '✅ LTE blokuje porty. Wpisz na radiu <strong>998#</strong> lub w Configu kliknij <strong>♻️ Auto-Proxy</strong>.',
         'qa_q2' => '❓ Lista "Last Heard" jest pusta po restarcie.',
-        'qa_a2' => '✅ To normalne. Logi są trzymane w pamięci RAM (System Turbo). Historia czyści się przy restarcie.',
+        'qa_a2' => '✅ To normalne. Logi są w pamięci RAM (System Turbo).',
         'qa_q3' => '❓ W logach widzę "Distortion detected".',
-        'qa_a3' => '✅ Twoje radio nadaje zbyt głośno (przester). Zmniejsz <em>ADC Gain</em> w zakładce Audio.'
+        'qa_a3' => '✅ Twoje radio nadaje zbyt głośno. Zmniejsz <em>ADC Gain</em> w zakładce Audio.'
     ],
     'en' => [
-        'title' => 'Command & Help Center PrimeNode by SQ7UTP',
+        'title' => 'Command & Help Center PrimeNode',
         'subtitle' => 'System designed for:',
         'hw_desc' => '<strong style="color: #FF9800;">Orange Pi Zero</strong> + <strong style="color: #2196F3;">SA818 Module</strong>',
         's1_title' => '1. Your Dashboard',
@@ -114,7 +124,7 @@ $H = [
         's1_mon_stby' => '⚪ <strong>Silence (Standby):</strong> No one is talking.',
         's1_mon_rx' => '🟢 <span style="color:#4CAF50; font-weight:bold;">RECEIVING (RX):</span> You are talking (Hotspot hears you).',
         's1_mon_tx' => '🟠 <span style="color:#FF9800; font-weight:bold;">TRANSMITTING (TX):</span> Someone is talking from internet.',
-        's1_mon_info' => '✨ <strong>Smart Info:</strong> System recognizes the caller! You will see <strong>Name and City</strong> below the callsign.',
+        's1_mon_info' => '✨ <strong>Smart Info:</strong> System recognizes the caller!',
 
         's2_title' => '2. Two Worlds: Reflector & EchoLink',
         's2_text' => 'Remember: You can only be in one place at a time!',
@@ -128,24 +138,24 @@ $H = [
         's2_disc' => 'To return to reflector, use <span style="color:#F44336; font-weight:bold;">Disconnect (#)</span> button.',
 
         'roam_title' => '3. Roaming & Network Database',
-        'roam_text' => 'PrimeNode system supports dynamic switching between different networks (Reflectors).',
+        'roam_text' => 'PrimeNode system supports dynamic switching between different networks.',
         'roam_cfg' => '<strong>🛠️ Config Editor:</strong>',
-        'roam_cfg_d' => 'In <strong>Config</strong> tab, you will find "Network Manager". Add your favorite servers here and assign them an <strong>ID</strong>.',
+        'roam_cfg_d' => 'In <strong>Config</strong> tab, add your favorite servers and assign them an <strong>ID</strong>.',
         'roam_dtmf' => '<strong>📞 DTMF Switching (555):</strong>',
         'roam_dtmf_d' => 'To switch network via radio, dial: <span style="color:#FF9800; font-weight:bold;">555 + ID + #</span>.',
-        'roam_ex' => 'Example: <strong>5551#</strong> (Switch to ID 1), <strong>5552#</strong> (Switch to ID 2). System will reboot to new server.',
+        'roam_ex' => 'Example: <strong>5551#</strong> (Switch to ID 1), <strong>5552#</strong> (Switch to ID 2).',
 
         's3_title' => '4. DTMF Tab (Editor & Remote)',
         's3_text' => 'Total freedom! You can now customize your control buttons.',
         's3_move' => '✨ <strong>Drag & Drop:</strong> Hold and drag a button to reorder it!',
-        's3_tabs' => '<strong>📂 Custom Tabs:</strong> Create new groups (e.g. "Favorites").',
-        's3_btns' => '<strong>🎛️ Adding Buttons:</strong> Enter <strong>Name</strong> and <strong>TG Code</strong>, click "+".',
+        's3_tabs' => '<strong>📂 Custom Tabs:</strong> Create new groups.',
+        's3_btns' => '<strong>🎛️ Adding Buttons:</strong> Enter Name and TG Code, click "+".',
         's3_del' => '<strong>❌ Deleting:</strong> You can remove any button or tab.',
         's3_info' => '<strong>ℹ️ Status (*#):</strong> Makes the hotspot speak status info.',
 
         's4_title' => '5. Audio & WiFi',
         's4_warn' => '⚠️ <strong>Careful with Audio sliders!</strong>',
-        's4_mic' => '<strong>🎙️ MIC Boost / ADC Gain:</strong> Your voice volume sent to network.',
+        's4_mic' => '<strong>🎙️ MIC Boost:</strong> Your voice volume sent to network.',
         's4_tx' => '<strong>🔊 TX Volume:</strong> Volume of others heard on your radio.',
         's4_wifi' => '<strong>📶 WiFi:</strong> Manage wireless networks.',
 
@@ -155,7 +165,7 @@ $H = [
         's5_upd' => '<strong>☁️ Update System:</strong> Pulls latest fixes from GitHub.',
         's5_rst' => '<strong>♻️ Restart SvxLink Service:</strong> "Cure for everything". Fixes audio issues.',
         's5_ssh' => '<strong>💻 Web Terminal (SSH):</strong>',
-        's5_ssh_d' => 'System console access from browser. Click "Terminal" -> "Start". Remember to stop it after work!',
+        's5_ssh_d' => 'System console access from browser.',
 
         's6_title' => '7. Tips (Pro Version)',
         's6_api' => '<strong>🔗 Node API:</strong>',
@@ -169,28 +179,38 @@ $H = [
         's6_map' => '<strong>🗺️ Grid Mapper:</strong>',
         's6_map_d' => 'Map of active stations in <strong>Nodes</strong> tab.',
 
-        's7_title' => '8. Mega Features (Version V1.3)',
-        's7_tx' => '<strong>🔴 TX Visualization:</strong> When a user transmits, their tile in the Nodes tab and map marker dynamically pulse red.',
-        's7_icons' => '<strong>📱 Smart Icons:</strong> Node hardware recognition: Radio (📻), Mobile App (📱), PC (💻).',
-        's7_quick' => '<strong>⚡ Quick-Dial:</strong> See someone interesting talking? Click their pulsing tile in the Nodes tab to instantly jump to their TG with one click!',
-        's7_radio' => '<strong>📻 Radio Data:</strong> Hovering over a node (or clicking a dot on the map) reveals its QRG frequency and CTCSS tone.',
-        's7_cfg' => '<strong>🎛️ Smart Config:</strong> No more typing TG numbers manually! Click the <em>Default TG</em> or <em>Monitor TGs</em> fields in the config to open a touch-friendly selector pulled directly from your custom DTMF groups.',
+        's7_title' => '8. Features (Version V1.3)',
+        's7_tx' => '<strong>🔴 TX Visualization:</strong> When a user transmits, their tile pulses red.',
+        's7_icons' => '<strong>📱 Smart Icons:</strong> Node hardware recognition.',
+        's7_quick' => '<strong>⚡ Quick-Dial:</strong> Click a pulsing tile to instantly jump to their TG!',
+        's7_radio' => '<strong>📻 Radio Data:</strong> Hover over a node to see frequency.',
+        's7_cfg' => '<strong>🎛️ Smart Config:</strong> Select TGs from drop-down menus.',
 
         's8_title' => '9. 🌍 APRS (Beacon)',
-        's8_text' => 'The system automatically sends your position, power (W), and antenna gain (dBd) to the APRS network. You can find the settings in the <strong>Config</strong> tab.',
-        's8_warn' => '<strong>Important:</strong> Set the antenna height to at least 4 meters for the system to correctly calculate parameters on aprs.fi (this is due to the logarithmic nature of the APRS protocol).',
+        's8_text' => 'The system automatically sends your position to APRS network.',
+        's8_warn' => '<strong>Important:</strong> Set the antenna height to at least 4 meters.',
         
-        's9_title' => '10. 🎛️ Audio Filters (SvxLink vs SA818)',
-        's9_text' => 'Advanced audio options are located in the <strong>Radio</strong> tab. PrimeNode allows you to manage two separate types of filters:',
-        's9_svx' => '<strong>Software (SvxLink):</strong> Pre-emphasis and De-emphasis equalize the audio band on the software side.',
-        's9_sa' => '<strong>Hardware (SA818):</strong> Built-in HPF (High Pass) and LPF (Low Pass) physically cut off extreme frequencies, which is great for removing 50Hz hum. Here you can also adjust the Bandwidth deviation (WIDE/NARROW).',
-        's9_tip' => '<em>Pro tip: If you enable SA818 hardware filters, turn off the software ones in SvxLink (and vice versa) to avoid double-processing.</em>',
+        's9_title' => '10. 🎛️ Audio Filters',
+        's9_text' => 'Advanced audio options in Radio tab.',
+        's9_svx' => '<strong>Software (SvxLink):</strong> Pre-emphasis and De-emphasis.',
+        's9_sa' => '<strong>Hardware (SA818):</strong> Built-in HPF and LPF filters.',
+
+        's10_title' => '11. MASSIVE UPDATES (V1.6 & V1.7)',
+        's10_warn1' => '⚠️ SVXLINK CORE UPDATE',
+        's10_warn1_d' => 'Advanced core installer is available in the Power tab. The process compiles the radio server directly on your device and takes about 25-30 minutes, generating high CPU load.',
+        's10_warn2' => '🛑 STRICT SAFETY RULE:',
+        's10_warn2_d' => 'Ensure a reliable power supply and perfect ventilation to prevent CPU overheating! NEVER disconnect power or refresh the page during compilation!',
+        's10_backup' => '💾 <strong>System Backup:</strong> Generate and download full configuration backup (ZIP).',
+        's10_macro' => '⌨️ <strong>Macro System:</strong> Native macro support via radio keypad (D key).',
+        's10_proxy' => '♻️ <strong>Auto-Proxy Hunter:</strong> Dial <strong>998#</strong> to automatically find and connect to the best EchoLink proxy.',
+        's10_split' => '📻 <strong>Full Split:</strong> Independent RX/TX frequencies and CTCSS tones.',
+        's10_el' => 'ℹ️ <strong>EchoLink Status:</strong> Active Node callsign is displayed in the top bar.',
 
         'qa_title' => 'Quick Help (Q&A)',
         'qa_q1' => '❓ EchoLink not connecting.',
-        'qa_a1' => '✅ LTE blocks ports. Use <strong>♻️ Auto-Proxy</strong> in <strong>Config</strong>.',
+        'qa_a1' => '✅ Dial <strong>998#</strong> or use <strong>♻️ Auto-Proxy</strong>.',
         'qa_q2' => '❓ "Last Heard" list is empty after reboot.',
-        'qa_a2' => '✅ Normal behavior. Logs are in RAM (Turbo System).',
+        'qa_a2' => '✅ Normal behavior. Logs are in RAM.',
         'qa_q3' => '❓ Logs show "Distortion detected".',
         'qa_a3' => '✅ Input too loud. Decrease <em>ADC Gain</em> in Audio tab.'
     ]
@@ -359,6 +379,30 @@ $H = [
         <p style="color: #aaa;"><?php echo $H[$lang]['s9_tip']; ?></p>
     </div>
 </div>
+
+<!-- NOWA SEKCJA V1.6 i V1.7 -->
+<div class="help-section" style="border-left: 4px solid #F44336; background: rgba(244, 67, 54, 0.05); padding: 15px; margin-top: 20px;">
+    <div class="help-title" style="color: #F44336; font-size: 18px; border-bottom: 1px solid #444; padding-bottom: 10px;">
+        <span class="help-icon">🔥</span> <?php echo $H[$lang]['s10_title']; ?>
+    </div>
+    <div class="help-text" style="margin-top: 15px;">
+        <div style="background: #331111; padding: 12px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #F44336;">
+            <b style="color:#F44336; font-size: 14px;"><?php echo $H[$lang]['s10_warn1']; ?></b><br>
+            <span style="color:#ddd;"><?php echo $H[$lang]['s10_warn1_d']; ?></span><br><br>
+            <b style="color:#FF9800; font-size: 14px;"><?php echo $H[$lang]['s10_warn2']; ?></b><br>
+            <span style="color:#ddd;"><?php echo $H[$lang]['s10_warn2_d']; ?></span>
+        </div>
+        
+        <ul style="list-style-type: none; padding-left: 0;">
+            <li style="margin-bottom: 12px; border-bottom: 1px dashed #444; padding-bottom: 8px;"><?php echo $H[$lang]['s10_backup']; ?></li>
+            <li style="margin-bottom: 12px; border-bottom: 1px dashed #444; padding-bottom: 8px;"><?php echo $H[$lang]['s10_macro']; ?></li>
+            <li style="margin-bottom: 12px; border-bottom: 1px dashed #444; padding-bottom: 8px;"><?php echo $H[$lang]['s10_proxy']; ?></li>
+            <li style="margin-bottom: 12px; border-bottom: 1px dashed #444; padding-bottom: 8px;"><?php echo $H[$lang]['s10_split']; ?></li>
+            <li style="margin-bottom: 12px; padding-bottom: 8px;"><?php echo $H[$lang]['s10_el']; ?></li>
+        </ul>
+    </div>
+</div>
+
 <div class="help-section" style="border:none;">
     <div class="help-title"><span class="help-icon">🔧</span> <?php echo $H[$lang]['qa_title']; ?></div>
     <div class="help-text">

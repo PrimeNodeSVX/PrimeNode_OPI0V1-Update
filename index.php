@@ -575,27 +575,36 @@
 
 <body>
 <div id="changelog-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
-    <div id="changelog-modal" data-version="1.6.0" style="background: #1e1e1e; border: 2px solid #2196F3; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
-        <h2 style="margin-top:0; color:#2196F3; border-bottom: 1px solid #333; padding-bottom: 10px;">🚀 PrimeNode V1.6 - Co nowego?</h2>
+    <div id="changelog-modal" data-version="1.7.0" style="background: #1e1e1e; border: 2px solid #2196F3; border-radius: 10px; padding: 25px; max-width: 650px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
+        <h2 style="margin-top:0; color:#2196F3; border-bottom: 1px solid #333; padding-bottom: 10px;">🚀 PrimeNode V1.7 - Co nowego?</h2>
         
-        <div style="text-align: left; font-size: 14px; color: #ccc; line-height: 1.6; max-height: 50vh; overflow-y: auto; padding-right: 10px;">
+        <div style="text-align: left; font-size: 14px; color: #ccc; line-height: 1.6; max-height: 55vh; overflow-y: auto; padding-right: 10px;">
+
+            <div style="background: #331111; border-left: 4px solid #F44336; padding: 12px; margin-bottom: 15px; border-radius: 4px;">
+                <b style="color:#F44336; font-size: 15px;">⚠️ POTĘŻNA AKTUALIZACJA SILNIKA SVXLINK (do v26.05.1)</b><br>
+                W zakładce "Zasilanie" dostępny jest nowy, zaawansowany instalator rdzenia systemu. Proces ten kompiluje serwer radiowy bezpośrednio na Twoim urządzeniu i <b>trwa około 25-30 minut</b> przy pełnym, stuprocentowym obciążeniu procesora.<br><br>
+                <b style="color:#FF9800;">ZŁOTA ZASADA:</b> Zadbaj o <b>bardzo dobre zasilanie</b> (sprawdzony zasilacz) oraz <b>odpowiednią wentylację hotspota</b>, aby zapobiec jego przegrzaniu! Pod żadnym pozorem <b>NIE WYŁĄCZAJ</b> urządzenia z prądu ani nie odświeżaj strony podczas tego procesu, ponieważ grozi to trwałym uszkodzeniem systemu plików!
+            </div>
+
             <ul style="padding-left: 20px;">
-                <li>📻 <b>Pełny Split (RX / TX):</b> Wdrożono możliwość ustawienia niezależnych częstotliwości dla nadawania i odbioru modułu radiowego.</li>
-                <li>🔒 <b>Niezależne Tony CTCSS:</b> Od teraz możesz ustawić osobne subtony dla RX i TX. Tablica tonów została w 100% ujednolicona ze sprzętowym standardem modułu SA818 (38 tonów), co rozwiązuje dotychczasowe problemy z "głuchym" odbiorem.</li>
-                <li>🔍 <b>Wyszukiwarka EchoLink:</b> W zakładce DTMF wprowadzono nową, inteligentną wyszukiwarkę stacji z bazy EchoLink. Dodatkowo, przyciskiem "+ Grupa" możesz błyskawicznie przypisywać ulubione węzły do dedykowanych zakładek szybkiego wybieania!</li>
-                <li>🐛 <b>Optymalizacja:</b> Załatano drobne błędy w komunikacji z nakładkami sprzętowymi oraz ulepszono odświeżanie statusów na głównym ekranie Dashboardu.</li>
+                <li>💾 <b>Pełen System Backupów:</b> W zakładce "Konfiguracja" dodano możliwość łatwego tworzenia pełnej kopii zapasowej ustawień hotspota (do pliku ZIP) oraz ich błyskawicznego przywracania jednym kliknięciem.</li>
+                <li>⌨️ <b>System Makr (Klawisz D):</b> Wdrożona została natywna obsługa makr wyzwalanych klawiszem "D" z klawiatury radiotelefonu. Działają one bezbłędnie zarówno podczas standardowej pracy w sieci Reflektor, jak i podczas otwartych połączeń EchoLink.</li>
+                <li>♻️ <b>Auto-Proxy Hunter (DTMF 998):</b> Dodano rewolucyjny system szukania połączeń. Gdy z poziomu radia wyślesz kod <b>998#</b>, PrimeNode automatycznie wyszuka i połączy się z najlepszym, najszybszym serwerem Proxy dla EchoLinka.</li>
+                <li>ℹ️ <b>Nowy Status EchoLink:</b> Górny pasek statusu w Dashboardzie jest teraz znacznie bardziej precyzyjny. Po nawiązaniu połączenia pokazuje dokładny znak węzła.</li>
+                <li>🗺️ <b>Poprawka Mapy Węzłów:</b> Usunięto błędy powodujące nieprawidłowe renderowanie i wyświetlanie stacji na mapie globalnej.</li>
+                <li>🐛 <b>Poprawki stabilności:</b> Masa ulepszeń "pod maską" optymalizujących czas reakcji urządzenia.</li>
             </ul>
             
             <div style="background: #2a2a2a; border-left: 3px solid #FF9800; padding: 12px; margin-top: 15px; font-size: 12px; border-radius: 4px; color: #eee;">
                 <b>💬 Wsparcie i Zgłaszanie Błędów</b><br><br>
-                System ciągle ewoluuje i zależy nam na jego stabilności. Jeśli napotkałeś problem w działaniu, zauważyłeś błąd lub masz propozycję nowych funkcji (feature request), koniecznie daj nam znać!<br><br>
+                Jeśli napotkałeś problem lub masz propozycję nowej funkcji, daj nam znać!<br><br>
                 📧 E-mail: <b style="color:#FF9800;">sq7utp@gmail.com</b><br>
                 🎧 Discord: <b style="color:#FF9800;">SierraEcho</b><br>
                 🌐 Forum: <b style="color:#FF9800;">Sierra Echo</b>
             </div>
         </div>
         
-        <button class="btn btn-blue" style="margin-top: 20px; width: 100%; font-size: 16px; padding: 12px;" onclick="closeChangelog()">Super, rozumiem!</button>
+        <button class="btn btn-blue" style="margin-top: 20px; width: 100%; font-size: 16px; padding: 12px; font-weight: bold;" onclick="closeChangelog()">Zrozumiałem, wchodzę do systemu!</button>
     </div>
 </div>
 
@@ -701,8 +710,16 @@
     <div id="SSH" class="tab-content"><?php include 'tab_ssh.php'; ?></div>
 </div>
 <div class="main-footer">
-    SvxLink v1.9.99.36@master Copyright (C) 2003-<?php echo date("Y"); ?> Tobias Blomberg / <span class="callsign-blue">SM0SVX</span><br>
-    PrimeNode System • By SQ7UTP <span style="color: #aaa;">| Version: <strong style="color: #4CAF50;">V1.6</strong></span><br>
+    <?php
+        $svx_cmd_out = shell_exec("/usr/local/bin/svxlink --version 2>&1");
+        if (empty(trim($svx_cmd_out))) {
+            $svx_cmd_out = shell_exec("/usr/bin/svxlink --version 2>&1");
+        }
+        preg_match('/v[0-9\.]+(@[a-zA-Z0-9_-]+)?/', $svx_cmd_out, $matches);
+        $svx_ver = !empty($matches[0]) ? $matches[0] : 'v26.05.1';
+    ?>
+    SvxLink <?php echo $svx_ver; ?> Copyright (C) 2003-<?php echo date("Y"); ?> Tobias Blomberg / <span class="callsign-blue">SM0SVX</span><br>
+    PrimeNode System • By SQ7UTP <span style="color: #aaa;">| Version: <strong style="color: #4CAF50;">V1.7/strong></span><br>
     Copyright © 2025-<?php echo date("Y"); ?>
 </div>
 <script> 
