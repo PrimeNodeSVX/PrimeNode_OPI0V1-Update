@@ -294,6 +294,7 @@ if ! grep -q "update_core.sh" /etc/sudoers; then
     systemctl restart apache2
 fi
 
+
 echo ">> Sprawdzanie poprawnosci logowania do RAM..."
 sed -i 's|LOG_SOURCE="/var/log/svxlink"|LOG_SOURCE="/dev/shm/svxlink.log"|g' /usr/local/bin/svx_event_logger.sh
 
