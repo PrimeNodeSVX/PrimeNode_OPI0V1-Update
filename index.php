@@ -719,7 +719,7 @@
         $svx_ver = !empty($matches[0]) ? $matches[0] : 'v26.05.1';
     ?>
     SvxLink <?php echo $svx_ver; ?> Copyright (C) 2003-<?php echo date("Y"); ?> Tobias Blomberg / <span class="callsign-blue">SM0SVX</span><br>
-    PrimeNode System • By SQ7UTP <span style="color: #aaa;">| Version: <strong style="color: #4CAF50;">V1.7/strong></span><br>
+    PrimeNode System • By SQ7UTP <span style="color: #aaa;">| Version: <strong style="color: #4CAF50;">V1.7</strong></span><br>
     Copyright © 2025-<?php echo date("Y"); ?>
 </div>
 <script> 
