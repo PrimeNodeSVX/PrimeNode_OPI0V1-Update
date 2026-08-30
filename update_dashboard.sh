@@ -107,7 +107,6 @@ if compgen -G "$GIT_DIR/*.py" > /dev/null; then
     chmod +x /usr/local/bin/*.py
 fi
 
-
 echo ">> Konfiguracja dynamicznych zapowiedzi audio..."
 REF_DIR="$SOUNDS_DIR/ref_sounds"
 CORE_DIR="$SOUNDS_DIR/PL/Core"
@@ -126,7 +125,6 @@ elif [ -f "$GIT_DIR/online_PN.wav" ]; then
 fi
 
 echo ">> Aktualizacja plików dźwiękowych PrimeNode..."
-
 if [ -f "$GIT_DIR/start.wav" ]; then
     cp "$GIT_DIR/start.wav" "$CORE_DIR/start.wav"
     chmod 777 "$CORE_DIR/start.wav"
@@ -143,58 +141,120 @@ elif [ -f "$GIT_DIR/PL/Core/ptt.wav" ]; then
     chmod 777 "$CORE_DIR/ptt.wav"
 fi
 
-echo ">> Aktualizacja plików logiki TCL..."
-TCL_DIR="/usr/local/share/svxlink/events.d"
+echo ">> Generowanie bezpiecznych łatek TCL (w trybie LOCAL)..."
+TCL_LOCAL_DIR="/usr/local/share/svxlink/events.d/local"
+mkdir -p "$TCL_LOCAL_DIR"
 
-if [ -f "$GIT_DIR/Logic.tcl" ]; then
-    cp "$GIT_DIR/Logic.tcl" "$TCL_DIR/Logic.tcl"
-    chmod 644 "$TCL_DIR/Logic.tcl"
-fi
+cat << 'EOF' > "$TCL_LOCAL_DIR/Logic.tcl"
+namespace eval Logic {
+  proc startup {} {
+    playFile "/usr/local/share/svxlink/sounds/PL/Core/start.wav"
+    playSilence 200
+    playMsg "online"
+    send_short_ident
+    addMinuteTickSubscriber checkPeriodicIdentify
+  }
 
-if [ -f "$GIT_DIR/ReflectorLogic.tcl" ]; then
-    cp "$GIT_DIR/ReflectorLogic.tcl" "$TCL_DIR/ReflectorLogic.tcl"
-    chmod 644 "$TCL_DIR/ReflectorLogic.tcl"
-fi
+  proc send_rgr_sound {} {
+    variable sql_rx_id
+    set sql_rx_id "?"
+    playFile "/usr/local/share/svxlink/sounds/PL/Core/ptt.wav"
+    playSilence 100
+  }
 
+  if {[info commands original_dtmf_cmd_received] == ""} {
+      catch {rename dtmf_cmd_received original_dtmf_cmd_received}
+  }
+  proc dtmf_cmd_received {cmd} {
+    set clean_cmd $cmd
+    if {[string index $cmd 0] == "*"} {
+      set clean_cmd [string range $cmd 1 end]
+    }
+    if {$clean_cmd == "997"} {
+        puts ">>> Zamykanie systemu (kod 997) <<<"
+        catch {playFile "/usr/local/share/svxlink/sounds/PL/Core/poweroff.wav"}
+        playSilence 500
+        catch {exec sudo bash -c "sleep 5 && shutdown -h now" > /dev/null 2>&1 &}
+        return 1
+    }
+    if {$clean_cmd == "998"} {
+        puts ">>> Uruchamianie Proxy Hunter (kod 998) <<<"
+        catch {playMsg "Core" "szukam_proxy"}
+        catch {exec sudo /usr/bin/python3 /usr/local/bin/proxy_hunter.py > /dev/null 2>&1 &}
+        return 1
+    }
+    if {[string range $clean_cmd 0 2] == "555"} {
+      set net_id [string range $clean_cmd 3 end]
+      puts "Logic.tcl ROAMING: Wykryto kod 555 -> ID: $net_id"
+      playTone 880 100 100
+      playSilence 50
+      playTone 1000 100 100
+      playSilence 50
+      playTone 1200 100 100
+      playSilence 10
+      playMsg "Core" "connecting_to"
+      playMsg "Core" "online"
+      catch {exec sudo /usr/local/bin/switch_network.py --dtmf $net_id > /dev/null 2>&1 &}
+      return 1
+    }
+    if {[info commands original_dtmf_cmd_received] != ""} {
+        return [original_dtmf_cmd_received $cmd]
+    }
+    return 0
+  }
+}
+EOF
+
+cat << 'EOF' > "$TCL_LOCAL_DIR/ReflectorLogic.tcl"
+namespace eval ReflectorLogic {
+  
+  if {[info commands original_tg_selected] == ""} {
+      catch {rename tg_selected original_tg_selected}
+  }
+  proc tg_selected {tg} {
+    playTone 600 100 100
+    playSilence 50
+    playTone 1000 150 100
+    playSilence 100
+    if {$tg > 0} {
+      playMsg "tg"
+      playNumber $tg
+    } else {
+      playMsg "tg_0"
+    }
+    if {[info commands original_tg_selected] != ""} {
+        original_tg_selected $tg
+    }
+  }
+
+  if {[info commands original_reflector_connection_status_update] == ""} {
+      catch {rename reflector_connection_status_update original_reflector_connection_status_update}
+  }
+  proc reflector_connection_status_update {is_established} {
+    variable reflector_connection_established
+    if {$is_established != $reflector_connection_established} {
+      set reflector_connection_established $is_established
+      playMsg "Core" "reflector"
+      if {$is_established} {
+        playMsg "Core" "connected"
+      } else {
+        playMsg "Core" "disconnected"
+      }
+    }
+    if {[info commands original_reflector_connection_status_update] != ""} {
+        original_reflector_connection_status_update $is_established
+    }
+  }
+}
+EOF
+
+chmod 644 "$TCL_LOCAL_DIR/"*.tcl
 chmod -R 777 "$REF_DIR"
 find "$REF_DIR" -type f -exec chmod 777 {} \; 2>/dev/null
 [ -f "$CORE_DIR/online_PN.wav" ] && chmod 777 "$CORE_DIR/online_PN.wav"
 
-echo ">> Wdrażanie systemowych komend DTMF (997, 998)..."
-LOGIC_TCL="/usr/local/share/svxlink/events.d/Logic.tcl"
-if [ -f "$LOGIC_TCL" ]; then
-
-    sed -i '/# --- PRIME NODE CUSTOM DTMF START ---/,/# --- PRIME NODE CUSTOM DTMF END ---/d' "$LOGIC_TCL"
-    
-    cat << 'EOF' >> "$LOGIC_TCL"
-
-namespace eval Logic {
-    if {[info commands original_dtmf_cmd_received] == ""} {
-        rename dtmf_cmd_received original_dtmf_cmd_received
-    }
-    proc dtmf_cmd_received {cmd} {
-        if {$cmd == "997"} {
-            puts ">>> Zamykanie systemu (kod 997) <<<"
-            catch {playFile "/usr/local/share/svxlink/sounds/PL/Core/poweroff.wav"}
-            playSilence 500
-            catch {exec sudo bash -c "sleep 5 && shutdown -h now" > /dev/null 2>&1 &}
-            return 1
-        }
-        if {$cmd == "998"} {
-            puts ">>> Uruchamianie Proxy Hunter (kod 998) <<<"
-            catch {playMsg "Core" "szukam_proxy"}
-            catch {exec sudo /usr/bin/python3 /usr/local/bin/proxy_hunter.py > /dev/null 2>&1 &}
-            return 1
-        }
-        return [original_dtmf_cmd_received $cmd]
-    }
-}
-EOF
-fi
-
 echo ">> Synchronizacja konfiguracji radia (Python)..."
 python3 /usr/local/bin/update_svx_full.py
-
 
 for script in $GIT_DIR/*.sh; do
     filename=$(basename "$script")

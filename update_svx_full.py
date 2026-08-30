@@ -51,9 +51,9 @@ def sanitize_lines(lines):
 
         if stripped.startswith("HOST=") or stripped.startswith("PORT="):
             if current_section == "[ReflectorLogic]":
-                final_lines.append(line)
+                continue
             else:
-                pass
+                final_lines.append(line)
         else:
             final_lines.append(line)
             
@@ -287,8 +287,8 @@ def main():
     mapping = {
         "ReflectorLogic": {
             "CALLSIGN": reflector_callsign, "AUTH_KEY": data.get('Password'),
-            "HOST": data.get('Host'),       
-            "PORT": data.get('Port'),      
+            "HOSTS": data.get('Host'),       
+            "HOST_PORT": data.get('Port'),      
             "DEFAULT_TG": data.get('DefaultTG'), "MONITOR_TGS": data.get('MonitorTGs'),
             "TG_SELECT_TIMEOUT": data.get('TgTimeout'), "TMP_MONITOR_TIMEOUT": data.get('TmpTimeout'),
             "TGSTBEEP_ENABLE": data.get('Beep3Tone'), "TGREANON_ENABLE": data.get('AnnounceTG'),
