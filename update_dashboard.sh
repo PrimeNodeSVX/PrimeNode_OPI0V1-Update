@@ -248,6 +248,25 @@ namespace eval ReflectorLogic {
 }
 EOF
 
+cat << 'EOF' > "$TCL_LOCAL_DIR/locale.tcl"
+proc playTime {hour minute} {
+  if {$hour == 0} {
+    playMsg "Clock" "24"
+  } else {
+    set hour_str [format "%d" $hour]
+    playMsg "Clock" $hour_str
+  }
+
+  if {$minute != 0} {
+    if {[string length $minute] == 1} {
+      set minute "o$minute"
+    }
+    playTwoDigitNumber $minute
+  }
+  playSilence 100
+}
+EOF
+
 chmod 644 "$TCL_LOCAL_DIR/"*.tcl
 chmod -R 777 "$REF_DIR"
 find "$REF_DIR" -type f -exec chmod 777 {} \; 2>/dev/null
