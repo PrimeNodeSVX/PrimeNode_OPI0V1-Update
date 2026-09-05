@@ -334,7 +334,8 @@ def main():
             "TGSTBEEP_ENABLE": data.get('Beep3Tone'), "TGREANON_ENABLE": data.get('AnnounceTG'),
             "REFCON_ENABLE": data.get('RefStatusInfo'), "UDP_HEARTBEAT_INTERVAL": "15",
             "LOCATION": f'"{location_str}"', "NODE_INFO_FILE": NODE_INFO_FILE,
-            "DEFAULT_LANG": data.get('AudioLang')
+            "DEFAULT_LANG": data.get('AudioLang'),
+            "TIME_FORMAT": "24"
         },
         "SimplexLogic": {
             "CALLSIGN": simplex_callsign, "RGR_SOUND_ALWAYS": data.get('RogerBeep'),
@@ -343,7 +344,8 @@ def main():
             "LONG_IDENT_INTERVAL": ident_int,
             "DEFAULT_LANG": data.get('AudioLang'),
             "MACROS": "Macros",
-            "DTMF_CTRL_PTY": "/var/lib/svxlink/dtmf_svx"
+            "DTMF_CTRL_PTY": "/var/lib/svxlink/dtmf_svx",
+            "TIME_FORMAT": "24"
         },
         "EchoLink": {
             "CALLSIGN": data.get('EL_Callsign'), "PASSWORD": data.get('EL_Password'),

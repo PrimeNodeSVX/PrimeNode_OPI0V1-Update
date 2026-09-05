@@ -373,6 +373,10 @@
         echo "<div class='alert alert-success'>".$TR[$lang]['radio_gpio_saved']." $out</div>";
     }
     if (isset($_POST['restart_srv'])) { shell_exec('sudo /usr/bin/systemctl restart svxlink > /dev/null 2>&1 &'); echo "<div class='alert alert-success'>".$TR[$lang]['restart_svc']."</div>"; }
+    if (isset($_POST['auto_proxy'])) { 
+        shell_exec('sudo /usr/bin/python3 /usr/local/bin/proxy_hunter.py > /dev/null 2>&1 &'); 
+        echo "<div class='alert alert-success'>".$TR[$lang]['proxy_started']."</div><meta http-equiv='refresh' content='2'>"; 
+    }
     if (isset($_POST['stop_srv'])) { shell_exec('sudo /usr/bin/systemctl stop svxlink > /dev/null 2>&1 &'); echo "<div class='alert alert-warning'>Zatrzymano usługę SvxLink!</div>"; }
     if (isset($_POST['reboot_device'])) { shell_exec('sudo /usr/sbin/reboot > /dev/null 2>&1 &'); echo "<div class='alert alert-warning'>".$TR[$lang]['rebooting']."</div>"; }
     if (isset($_POST['shutdown_device'])) { shell_exec('sudo /usr/sbin/shutdown -h now > /dev/null 2>&1 &'); echo "<div class='alert alert-error'>".$TR[$lang]['shutting_down']."</div>"; }
